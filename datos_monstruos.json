@@ -1,0 +1,26 @@
+{
+    "Pulpo Inteligente": {
+        "vida": [8, 11],
+        "ataque": [1, 3],
+        "reflejos": [1, 1],
+        "velocidad": [2, 3],
+        "etiquetas": ["Híbrido"],
+        "habilidades": ["Tácticas de escape", "Cachetada"]
+    },
+    "Tiburón": {
+        "vida": [7, 10],
+        "ataque": [2, 5],
+        "reflejos": [2, 3],
+        "velocidad": [5, 6],
+        "etiquetas": ["Acuático"],
+        "habilidades": []
+    },
+    "Serpiente Marina": {
+        "vida": [10, 15],
+        "ataque": [2, 4],
+        "reflejos": [1, 2],
+        "velocidad": [2, 4],
+        "etiquetas": ["Acuático"],
+        "habilidades": ["Tsunami"]
+    }
+}
