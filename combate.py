@@ -1,6 +1,7 @@
 import time
 import random
 from motor import calcular_orden_turnos
+from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
 
 def filtrar_objetivos_validos(posibles_objetivos):
     vivos = [obj for obj in posibles_objetivos if obj.vida_actual > 0]
@@ -35,44 +36,49 @@ def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
             except ValueError: print("Ingresa un número.")
             
         elif opcion == "2":
-            if not atacante.habilidades:
-                print(f"{atacante.nombre} no tiene habilidades activas.")
+            # Filtramos solo las habilidades activas que aún tengan usos
+            habs_activas = []
+            for h in atacante.habilidades:
+                if h in HABILIDADES_DB and HABILIDADES_DB[h]["tipo"] == "activa":
+                    usos_max = HABILIDADES_DB[h].get("usos_maximos", 999)
+                    usos_actuales = atacante.habilidades_usadas.get(h, 0)
+                    if usos_actuales < usos_max:
+                        habs_activas.append(h)
+            
+            if not habs_activas:
+                print(f"\n{atacante.nombre} no tiene habilidades activas disponibles en este momento.")
+                time.sleep(1)
                 continue
                 
             print("\nHabilidades disponibles:")
-            for i, hab in enumerate(atacante.habilidades):
+            for i, hab in enumerate(habs_activas):
                 print(f"{i + 1}. {hab}")
-            print(f"{len(atacante.habilidades) + 1}. Cancelar")
+            print(f"{len(habs_activas) + 1}. Cancelar")
             
             try:
                 sel_hab = int(input("Selecciona habilidad: ")) - 1
-                if sel_hab == len(atacante.habilidades): continue
+                if sel_hab == len(habs_activas): continue
                 
-                habilidad_elegida = atacante.habilidades[sel_hab]
+                habilidad_elegida = habs_activas[sel_hab]
                 
-                # LÓGICA DE HABILIDAD: TSUNAMI
-                if habilidad_elegida == "Tsunami":
-                    print(f"\n¡{atacante.nombre} invoca un TSUNAMI!")
-                    print("¡El terreno de combate ha cambiado a HÍBRIDO!")
-                    estado_combate["terreno"] = "Híbrido"
-                    # Eliminamos la habilidad para que sea de uso único
-                    atacante.habilidades.remove("Tsunami")
-                    time.sleep(1)
-                    break
-                else:
-                    print("Esta habilidad es pasiva o instantánea. No se activa manualmente.")
-            except ValueError: print("Ingresa un número.")
+                # --- EJECUCIÓN MODULAR ---
+                ejecutar_habilidad_activa(habilidad_elegida, atacante, None, estado_combate)
+                break # Rompe el while y gasta el turno
+                
+            except ValueError: 
+                print("Ingresa un número.")
             
         elif opcion == "3":
             print(f"{atacante.nombre} pasa su turno.")
             time.sleep(1)
             break
+        else:
+            print("Opción incorrecta.")
 
 def turno_ia(atacante, bando_jugador_vivos):
     print(f"\n[{atacante.nombre} está decidiendo su acción...]")
     time.sleep(1.5)
     
-    # Simplificado: La IA del tutorial solo ataca
     objetivos_validos = filtrar_objetivos_validos(bando_jugador_vivos)
     if objetivos_validos:
         objetivo = random.choice(objetivos_validos)
@@ -84,7 +90,10 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra"):
     print("="*40)
     time.sleep(1)
 
-    bando_jugador = [jugador] + aliados
+    bando_jugador = aliados.copy()
+    if jugador is not None:
+        bando_jugador.insert(0, jugador)
+        
     estado_combate = {"terreno": terreno}
     ronda = 1
 
@@ -101,14 +110,13 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra"):
 
         print(f"\n{'='*15} RONDA {ronda} {'='*15}")
         time.sleep(1)
-
+        
         combatientes_vivos = vivos_jugador + vivos_enemigos
         orden_turnos = calcular_orden_turnos(combatientes_vivos)
 
-        # Ejecutamos las acciones de la lista de turnos
         for accion in orden_turnos:
             atacante = accion["objeto"]
-
+            
             if atacante.vida_actual <= 0:
                 continue
             
@@ -125,8 +133,9 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra"):
                 time.sleep(1)
                 continue # Saltamos el turno
 
-            # Si no está aturdido, juega normalmente
             if atacante in bando_jugador:
                 turno_jugador_o_aliado(atacante, vivos_enemigos, estado_combate)
             else:
                 turno_ia(atacante, vivos_jugador)
+
+        ronda += 1
