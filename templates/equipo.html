@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Equipo - {{ jugador.nombre }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="contenedor-menu menu-ampliado" style="max-width: 800px;">
+        <h1>TUS ALIADOS</h1>
+        <p style="color: #aaa; margin-bottom: 20px;">Arrastra a los monstruos para organizarlos. Equipo máximo: 4.</p>
+
+        <div class="contenedor-equipo">
+            
+            <!-- CAJA DE EQUIPO ACTIVO -->
+            <div class="zona-drop" ondrop="soltar(event, 'activo')" ondragover="permitirSoltar(event)">
+                <h3 style="color: #4caf50; margin-top: 0;">EQUIPO ACTIVO ({{ jugador.equipo_aliado | length }}/4)</h3>
+                
+                {% for aliado in jugador.equipo_aliado %}
+                    <div class="monstruo-card tooltip" draggable="true" ondragstart="arrastrar(event, 'activo', {{ loop.index0 }})">
+                        <strong>{{ aliado.nombre }}</strong> <span style="float:right;">Lv. ?</span>
+                        
+                        <!-- ESTE ES EL TOOLTIP QUE APARECE AL PASAR EL MOUSE -->
+                        <div class="tooltip-text">
+                            <strong style="color: #4caf50; font-size: 1.2em;">{{ aliado.nombre }}</strong><hr style="border-color:#4caf50;">
+                            HP: <span class="stat-resalte">{{ aliado.vida_max }}</span><br>
+                            Ataque: <span class="stat-resalte">{{ aliado.ataque_base }}</span><br>
+                            Velocidad: <span class="stat-resalte">{{ aliado.velocidad_base }}</span><br>
+                            Reflejos: <span class="stat-resalte">{{ aliado.reflejos }}</span><br>
+                            <hr style="border-color:#555;">
+                            Tags: <span style="color:#FFC107">{{ aliado.etiquetas | join(', ') }}</span><br>
+                            Habilidades: 
+                            {% if aliado.habilidades %}
+                                <span style="color:#E91E63">{{ aliado.habilidades | join(', ') }}</span>
+                            {% else %}
+                                <span>Ninguna</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if not jugador.equipo_aliado %}
+                    <p style="color: #555; font-style: italic;">Sin aliados activos...</p>
+                {% endif %}
+            </div>
+
+            <!-- CAJA DE RESERVA -->
+            <div class="zona-drop zona-reserva" ondrop="soltar(event, 'reserva')" ondragover="permitirSoltar(event)">
+                <h3 style="color: #2196F3; margin-top: 0;">RESERVA / CAJA</h3>
+                
+                {% for aliado in jugador.caja_aliados %}
+                    <div class="monstruo-card tooltip" draggable="true" ondragstart="arrastrar(event, 'reserva', {{ loop.index0 }})">
+                        <strong>{{ aliado.nombre }}</strong>
+                        
+                        <div class="tooltip-text">
+                            <strong style="color: #2196F3; font-size: 1.2em;">{{ aliado.nombre }}</strong><hr style="border-color:#2196F3;">
+                            HP: <span class="stat-resalte">{{ aliado.vida_max }}</span><br>
+                            Ataque: <span class="stat-resalte">{{ aliado.ataque_base }}</span><br>
+                            Velocidad: <span class="stat-resalte">{{ aliado.velocidad_base }}</span><br>
+                            Reflejos: <span class="stat-resalte">{{ aliado.reflejos }}</span><br>
+                            <hr style="border-color:#555;">
+                            Tags: <span style="color:#FFC107">{{ aliado.etiquetas | join(', ') }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if not jugador.caja_aliados %}
+                    <p style="color: #555; font-style: italic;">La reserva está vacía...</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <a href="/menu_juego" class="btn btn-bloque btn-secundario">Volver al Menú</a>
+    </div>
+
+    <!-- SCRIPT DE JAVASCRIPT PARA EL DRAG & DROP -->
+    <script>
+        function permitirSoltar(ev) {
+            ev.preventDefault();
+        }
+
+        function arrastrar(ev, origen, indice) {
+            ev.dataTransfer.setData("origen", origen);
+            ev.dataTransfer.setData("indice", indice);
+        }
+
+        function soltar(ev, destino) {
+            ev.preventDefault();
+            var origen = ev.dataTransfer.getData("origen");
+            var indice = ev.dataTransfer.getData("indice");
+            
+            // Si lo soltamos en una caja diferente a la que estaba, ejecutamos la ruta en Python
+            if (origen !== destino) {
+                window.location.href = "/mover_monstruo/" + origen + "/" + indice + "/" + destino;
+            }
+        }
+    </script>
+</body>
+</html>

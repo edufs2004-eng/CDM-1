@@ -6,53 +6,83 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .arena-combate { background-color: #1a1a1a; padding: 20px; border-radius: 10px; border: 2px solid #4caf50; margin-bottom: 20px; position: relative;}
-        .personaje-caja { background: #2c2c2c; padding: 15px; border-radius: 8px; width: 40%; border: 1px solid #555;}
+        
+        .bando-izquierdo { width: 45%; display: flex; flex-direction: column; gap: 10px; }
+        .bando-derecho { width: 45%; text-align: right; }
+        
+        .personaje-caja { background: #2c2c2c; padding: 15px; border-radius: 8px; border: 1px solid #555; width: 100%; box-sizing: border-box;}
+        
         .barra-vida { width: 100%; background-color: #444; border-radius: 10px; margin-top: 8px; overflow: hidden; height: 15px; border: 1px solid #222;}
         .vida-restante { height: 100%; background-color: #4caf50; transition: width 0.5s ease-in-out; }
         .vida-enemigo { background-color: #e53935; }
+
+        /* Estilos para las cartas pequeñas de los aliados */
+        .grid-aliados { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        .aliado-mini { background: #222; border: 1px solid #2196F3; border-radius: 5px; padding: 8px; width: 48%; box-sizing: border-box; text-align: left; position: relative;}
+        .aliado-muerto { border-color: #555; opacity: 0.5; }
+        .barra-vida-mini { height: 8px; margin-top: 5px; }
         
-        /* Caja de texto clásica de RPG */
         .log-box { background-color: #0d1117; color: #c9d1d9; padding: 15px; height: 200px; overflow-y: auto; border: 2px solid #30363d; border-radius: 5px; font-family: 'Courier New', monospace; text-align: left; margin-bottom: 20px;}
-        .log-historial { color: #666; margin: 2px 0; }
+        .log-historial { color: #666; margin: 2px 0; font-size: 0.95em;}
         .log-nuevo { color: #fff; margin: 4px 0; font-weight: bold; display: none; border-left: 3px solid #4caf50; padding-left: 10px;}
     </style>
 </head>
 <body>
-    <div class="contenedor-menu menu-ampliado">
-        <h2 style="color: #4caf50; margin-top: 0;">TERRENO: {{ estado.terreno | upper }}</h2>
+    <div class="contenedor-menu menu-ampliado" style="max-width: 900px;">
+        <h2 style="color: #4caf50; margin-top: 0; text-align: center;">TERRENO: {{ estado.terreno | upper }}</h2>
         
         <!-- ARENA VISUAL -->
-        <div class="arena-combate" style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div class="arena-combate" style="display: flex; justify-content: space-between; align-items: flex-start;">
             
-            <!-- JUGADOR (Izquierda) -->
-            <div class="personaje-caja">
-                <h3 style="margin: 0; color: #2196F3;">{{ jugador.nombre }}</h3>
-                <span style="font-size: 0.9em; color: #aaa;">HP: {{ jugador.vida_actual }} / {{ jugador.vida_max }}</span>
-                <div class="barra-vida">
-                    <div class="vida-restante" style="width: {{ (jugador.vida_actual / jugador.vida_max) * 100 }}%;"></div>
+            <!-- BANDO JUGADOR (Izquierda) -->
+            <div class="bando-izquierdo">
+                <!-- Jugador Principal -->
+                <div class="personaje-caja">
+                    <h3 style="margin: 0; color: #2196F3;">{{ jugador.nombre }}</h3>
+                    <span style="font-size: 0.9em; color: #aaa;">HP: {{ jugador.vida_actual }} / {{ jugador.vida_max }}</span>
+                    <div class="barra-vida">
+                        <div class="vida-restante" style="width: {{ (jugador.vida_actual / jugador.vida_max) * 100 }}%;"></div>
+                    </div>
                 </div>
+
+                <!-- Equipo de Aliados -->
+                {% if jugador.equipo_aliado %}
+                <div class="grid-aliados">
+                    {% for aliado in jugador.equipo_aliado %}
+                        <div class="aliado-mini {% if aliado.vida_actual <= 0 %}aliado-muerto{% endif %}">
+                            <strong style="font-size: 0.9em; color: {% if aliado.vida_actual > 0 %}#fff{% else %}#888{% endif %};">{{ aliado.nombre }}</strong><br>
+                            <span style="font-size: 0.8em; color: #aaa;">HP: {{ aliado.vida_actual }}/{{ aliado.vida_max }}</span>
+                            <div class="barra-vida barra-vida-mini">
+                                <div class="vida-restante" style="width: {{ (aliado.vida_actual / aliado.vida_max) * 100 }}%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
-            <div style="font-size: 1.5em; font-weight: bold; color: #555; padding-bottom: 15px;">VS</div>
+            <!-- VS CENTER -->
+            <div style="font-size: 1.5em; font-weight: bold; color: #555; align-self: center;">VS</div>
 
-            <!-- ENEMIGO (Derecha) -->
-            <div class="personaje-caja" style="text-align: right;">
-                <h3 style="margin: 0; color: #e53935;">{{ estado.enemigo.nombre }}</h3>
-                <span style="font-size: 0.9em; color: #aaa;">HP: {{ estado.enemigo.vida_actual }} / {{ estado.enemigo.vida_max }}</span>
-                <div class="barra-vida" style="direction: rtl;">
-                    <div class="vida-restante vida-enemigo" style="width: {{ (estado.enemigo.vida_actual / estado.enemigo.vida_max) * 100 }}%;"></div>
+            <!-- BANDO ENEMIGO (Derecha) -->
+            <div class="bando-derecho">
+                <div class="personaje-caja">
+                    <h3 style="margin: 0; color: #e53935;">{{ estado.enemigo.nombre }}</h3>
+                    <span style="font-size: 0.9em; color: #aaa;">HP: {{ estado.enemigo.vida_actual }} / {{ estado.enemigo.vida_max }}</span>
+                    <div class="barra-vida" style="direction: rtl;">
+                        <div class="vida-restante vida-enemigo" style="width: {{ (estado.enemigo.vida_actual / estado.enemigo.vida_max) * 100 }}%;"></div>
+                    </div>
                 </div>
             </div>
+            
         </div>
 
         <!-- CAJA DE TEXTO (LOGS) -->
         <div class="log-box" id="caja-textos">
-            <!-- Textos viejos (Grises) -->
             {% for linea in estado.historial_logs %}
                 <p class="log-historial">{{ linea }}</p>
             {% endfor %}
             
-            <!-- Textos de este turno (Se animan con JS) -->
             <div id="contenedor-nuevos">
                 {% for linea in estado.nuevos_logs %}
                     <p class="log-nuevo">{{ linea }}</p>
@@ -88,33 +118,23 @@
             const lineasNuevas = document.querySelectorAll('.log-nuevo');
             const cajaTextos = document.getElementById('caja-textos');
             const panelBotones = document.getElementById('panel-botones');
-            
             let i = 0;
             
-            // Función para auto-bajar el scroll
-            function bajarScroll() {
-                cajaTextos.scrollTop = cajaTextos.scrollHeight;
-            }
-            
-            bajarScroll(); // Bajar al inicio por si el historial es largo
+            function bajarScroll() { cajaTextos.scrollTop = cajaTextos.scrollHeight; }
+            bajarScroll();
 
             function revelarSiguienteLinea() {
                 if (i < lineasNuevas.length) {
                     lineasNuevas[i].style.display = 'block';
                     bajarScroll();
                     i++;
-                    
-                    // Tiempo de espera entre líneas (800 milisegundos)
-                    setTimeout(revelarSiguienteLinea, 800); 
+                    setTimeout(revelarSiguienteLinea, 700); 
                 } else {
-                    // Cuando termina de hablar, mostramos los botones
                     panelBotones.style.display = 'flex';
                     bajarScroll();
                 }
             }
-            
-            // Empezar a revelar tras medio segundo
-            setTimeout(revelarSiguienteLinea, 500);
+            setTimeout(revelarSiguienteLinea, 400);
         });
     </script>
 </body>

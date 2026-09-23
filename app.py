@@ -188,6 +188,35 @@ def accion_combate():
         enemigo.restaurar_estado()
 
     return redirect(url_for('pantalla_combate'))
+
+@app.route('/equipo')
+def gestionar_equipo_web():
+    """Pantalla visual de Drag & Drop para el equipo"""
+    global jugador_actual
+    if not jugador_actual: return redirect(url_for('index'))
+    return render_template('equipo.html', jugador=jugador_actual)
+
+@app.route('/mover_monstruo/<origen>/<int:idx>/<destino>')
+def mover_monstruo_web(origen, idx, destino):
+    """Ruta invisible que ejecuta la lógica al soltar el ratón"""
+    global jugador_actual
+    if not jugador_actual: return redirect(url_for('index'))
+
+    # Si movemos del equipo activo a la reserva
+    if origen == "activo" and destino == "reserva":
+        if 0 <= idx < len(jugador_actual.equipo_aliado):
+            monstruo = jugador_actual.equipo_aliado.pop(idx)
+            jugador_actual.caja_aliados.append(monstruo)
+            
+    # Si movemos de la reserva al equipo activo
+    elif origen == "reserva" and destino == "activo":
+        if len(jugador_actual.equipo_aliado) < 4: # Límite de 4
+            if 0 <= idx < len(jugador_actual.caja_aliados):
+                monstruo = jugador_actual.caja_aliados.pop(idx)
+                jugador_actual.equipo_aliado.append(monstruo)
+                
+    return redirect(url_for('gestionar_equipo_web'))
+
 if __name__ == '__main__':
     # Arranca el servidor local
     app.run(debug=True)
