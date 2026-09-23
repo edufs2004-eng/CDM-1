@@ -44,7 +44,8 @@ def procesar_captura(jugador, monstruo):
             jugador.equipo_aliado.append(monstruo)
             print(f"{monstruo.nombre} ha sido añadido a tu equipo activo.")
         else:
-            print(f"Tu equipo está lleno. (Lógica de PC/Caja de aliados por implementar).")
+            jugador.caja_aliados.append(monstruo)
+            print(f"Tu equipo está lleno. {monstruo.nombre} fue enviado a tu Reserva.")
     else:
         print(f"\nYa tienes un {monstruo.nombre}. El monstruo ha sido derrotado y deja de existir.")
 
