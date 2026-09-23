@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ nombre_zona }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="contenedor-menu menu-ampliado">
+        <h1>EXPLORANDO: {{ nombre_zona | upper }}</h1>
+        
+        <div class="lista-monstruos" style="text-align: left; margin-bottom: 20px;">
+            {% for nombre, terreno in monstruos.items() %}
+                <div style="background-color: #2c2c2c; padding: 15px; border-radius: 5px; border: 1px solid #4caf50; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: #4caf50; font-size: 1.2em;">{{ nombre }}</strong><br>
+                        <span style="font-size: 0.9em; color: #aaa;">Terreno: {{ terreno }}</span>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        {% if nombre in activos %}
+                            <span style="color: #e53935; font-weight: bold; display: block; margin-bottom: 5px;">
+                                Vida: {{ activos[nombre].vida_actual }}/{{ activos[nombre].vida_max }}
+                            </span>
+                        {% else %}
+                            <span style="color: #2196F3; font-weight: bold; display: block; margin-bottom: 5px;">[NUEVO]</span>
+                        {% endif %}
+                        
+                        <button class="btn" disabled>Combatir (Pronto)</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a href="/mapa" class="btn btn-bloque btn-secundario">Volver al Mapa</a>
+    </div>
+</body>
+</html>

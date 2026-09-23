@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from entidades import Jugador
 from guardado import cargar_partida, guardar_partida
+from mapa import ZONAS, monstruos_activos
 
 app = Flask(__name__)
 
@@ -60,6 +61,24 @@ def inventario():
     if not jugador_actual:
         return redirect(url_for('index'))
     return render_template('inventario.html', jugador=jugador_actual)
+
+@app.route('/mapa')
+def mapa_mundi():
+    """Pantalla de selección de Zonas"""
+    global jugador_actual
+    if not jugador_actual:
+        return redirect(url_for('index'))
+    return render_template('mapa.html', jugador=jugador_actual, zonas=ZONAS.keys())
+
+@app.route('/zona/<nombre_zona>')
+def explorar_zona(nombre_zona):
+    """Muestra los monstruos dentro de una zona específica"""
+    global jugador_actual
+    if not jugador_actual or nombre_zona not in ZONAS:
+        return redirect(url_for('mapa_mundi'))
+        
+    monstruos_zona = ZONAS[nombre_zona]
+    return render_template('zona.html', jugador=jugador_actual, nombre_zona=nombre_zona, monstruos=monstruos_zona, activos=monstruos_activos)
 
 if __name__ == '__main__':
     # Arranca el servidor local
