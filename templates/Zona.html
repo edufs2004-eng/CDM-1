@@ -26,7 +26,10 @@
                             <span style="color: #2196F3; font-weight: bold; display: block; margin-bottom: 5px;">[NUEVO]</span>
                         {% endif %}
                         
-                        <button class="btn" disabled>Combatir (Pronto)</button>
+                        <form action="/iniciar_combate/{{ nombre }}" method="POST" style="display:inline;">
+                           <input type="hidden" name="terreno" value="{{ terreno }}">
+                           <button type="submit" class="btn btn-rojo">¡Combatir!</button>
+                        </form>
                     </div>
                 </div>
             {% endfor %}

@@ -153,8 +153,25 @@ class Jugador(Entidad):
         self.velocidad_actual = self.velocidad_base
 
 class Monstruo(Entidad):
-    def __init__(self, nombre, vida, ataque_base, reflejos, velocidad, etiquetas, habilidades=None):
+    def __init__(self, nombre, vida, ataque_base, reflejos, velocidad, etiquetas, habilidades=None, probabilidades_ia=None):
         super().__init__(nombre, vida, ataque_base, reflejos, velocidad)
         self.etiquetas = etiquetas
-        if habilidades:
-            self.habilidades = habilidades
+        self.habilidades = habilidades if habilidades else []
+        self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
+
+    def decidir_accion_ia(self, aliados, enemigos, estado_combate):
+        """Lógica autónoma: El monstruo decide qué hacer en su turno"""
+        # 1. Filtrar enemigos vivos
+        vivos = [e for e in enemigos if e.vida_actual > 0]
+        if not vivos: return
+        
+        # (El esqueleto para el futuro: Aquí leeremos self.probabilidades_ia para ver si lanza magia)
+        # 2. Por ahora, como es la base, simplemente ataca a un objetivo válido al azar
+        
+        # Filtramos a quién puede pegarle (Cuerpo a cuerpo o distancia)
+        cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
+        objetivos_validos = cuerpo_a_cuerpo if len(cuerpo_a_cuerpo) > 0 else vivos
+        
+        if objetivos_validos:
+            objetivo = random.choice(objetivos_validos)
+            self.atacar(objetivo)

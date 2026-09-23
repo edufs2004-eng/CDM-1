@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Combate - {{ jugador.nombre }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .arena-combate { background-color: #1a1a1a; padding: 20px; border-radius: 10px; border: 2px solid #4caf50; margin-bottom: 20px; position: relative;}
+        .personaje-caja { background: #2c2c2c; padding: 15px; border-radius: 8px; width: 40%; border: 1px solid #555;}
+        .barra-vida { width: 100%; background-color: #444; border-radius: 10px; margin-top: 8px; overflow: hidden; height: 15px; border: 1px solid #222;}
+        .vida-restante { height: 100%; background-color: #4caf50; transition: width 0.5s ease-in-out; }
+        .vida-enemigo { background-color: #e53935; }
+        
+        /* Caja de texto clásica de RPG */
+        .log-box { background-color: #0d1117; color: #c9d1d9; padding: 15px; height: 200px; overflow-y: auto; border: 2px solid #30363d; border-radius: 5px; font-family: 'Courier New', monospace; text-align: left; margin-bottom: 20px;}
+        .log-historial { color: #666; margin: 2px 0; }
+        .log-nuevo { color: #fff; margin: 4px 0; font-weight: bold; display: none; border-left: 3px solid #4caf50; padding-left: 10px;}
+    </style>
+</head>
+<body>
+    <div class="contenedor-menu menu-ampliado">
+        <h2 style="color: #4caf50; margin-top: 0;">TERRENO: {{ estado.terreno | upper }}</h2>
+        
+        <!-- ARENA VISUAL -->
+        <div class="arena-combate" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            
+            <!-- JUGADOR (Izquierda) -->
+            <div class="personaje-caja">
+                <h3 style="margin: 0; color: #2196F3;">{{ jugador.nombre }}</h3>
+                <span style="font-size: 0.9em; color: #aaa;">HP: {{ jugador.vida_actual }} / {{ jugador.vida_max }}</span>
+                <div class="barra-vida">
+                    <div class="vida-restante" style="width: {{ (jugador.vida_actual / jugador.vida_max) * 100 }}%;"></div>
+                </div>
+            </div>
+
+            <div style="font-size: 1.5em; font-weight: bold; color: #555; padding-bottom: 15px;">VS</div>
+
+            <!-- ENEMIGO (Derecha) -->
+            <div class="personaje-caja" style="text-align: right;">
+                <h3 style="margin: 0; color: #e53935;">{{ estado.enemigo.nombre }}</h3>
+                <span style="font-size: 0.9em; color: #aaa;">HP: {{ estado.enemigo.vida_actual }} / {{ estado.enemigo.vida_max }}</span>
+                <div class="barra-vida" style="direction: rtl;">
+                    <div class="vida-restante vida-enemigo" style="width: {{ (estado.enemigo.vida_actual / estado.enemigo.vida_max) * 100 }}%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CAJA DE TEXTO (LOGS) -->
+        <div class="log-box" id="caja-textos">
+            <!-- Textos viejos (Grises) -->
+            {% for linea in estado.historial_logs %}
+                <p class="log-historial">{{ linea }}</p>
+            {% endfor %}
+            
+            <!-- Textos de este turno (Se animan con JS) -->
+            <div id="contenedor-nuevos">
+                {% for linea in estado.nuevos_logs %}
+                    <p class="log-nuevo">{{ linea }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div id="panel-botones" style="display: none;">
+            {% if not estado.terminado %}
+                <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <form action="/accion_combate" method="POST" style="width: 100%;">
+                        <input type="hidden" name="accion" value="atacar">
+                        <button type="submit" class="btn btn-bloque">Atacar</button>
+                    </form>
+                    
+                    <button class="btn btn-bloque" disabled title="Pronto implementaremos el menú de habilidades">Habilidad</button>
+                    
+                    <form action="/accion_combate" method="POST" style="width: 100%;">
+                        <input type="hidden" name="accion" value="pasar">
+                        <button type="submit" class="btn btn-bloque btn-secundario">Pasar Turno</button>
+                    </form>
+                </div>
+            {% else %}
+                <a href="/mapa" class="btn btn-bloque btn-secundario">Continuar</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SCRIPT DE ANIMACIÓN -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const lineasNuevas = document.querySelectorAll('.log-nuevo');
+            const cajaTextos = document.getElementById('caja-textos');
+            const panelBotones = document.getElementById('panel-botones');
+            
+            let i = 0;
+            
+            // Función para auto-bajar el scroll
+            function bajarScroll() {
+                cajaTextos.scrollTop = cajaTextos.scrollHeight;
+            }
+            
+            bajarScroll(); // Bajar al inicio por si el historial es largo
+
+            function revelarSiguienteLinea() {
+                if (i < lineasNuevas.length) {
+                    lineasNuevas[i].style.display = 'block';
+                    bajarScroll();
+                    i++;
+                    
+                    // Tiempo de espera entre líneas (800 milisegundos)
+                    setTimeout(revelarSiguienteLinea, 800); 
+                } else {
+                    // Cuando termina de hablar, mostramos los botones
+                    panelBotones.style.display = 'flex';
+                    bajarScroll();
+                }
+            }
+            
+            // Empezar a revelar tras medio segundo
+            setTimeout(revelarSiguienteLinea, 500);
+        });
+    </script>
+</body>
+</html>
