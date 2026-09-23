@@ -132,7 +132,8 @@ class Jugador(Entidad):
         super().__init__(nombre, vida=10, ataque_base=1, reflejos=2, velocidad=3)
         self.inventario = []
         self.equipo_aliado = [] 
-        self.aliados_obtenidos = [] 
+        self.aliados_obtenidos = []
+        self.caja_aliados = [] # Aquí irán los monstruos cuando el equipo de 4 esté lleno
         
         # Slots de equipo
         self.equipo = {
