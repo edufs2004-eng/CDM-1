@@ -6,6 +6,7 @@ from guardado import cargar_partida, guardar_partida
 from mapa import ZONAS, monstruos_activos, procesar_captura
 from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
+from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
 
 app = Flask(__name__)
 
@@ -130,7 +131,6 @@ def accion_combate():
     captura = io.StringIO()
     sys.stdout = captura
     
-    # 1. AHORA METEMOS A TODOS AL CALDERO (Jugador + Aliados Activos + Enemigo)
     bando_jugador = [jugador_actual] + jugador_actual.equipo_aliado
     combatientes = bando_jugador + [enemigo]
     
@@ -143,11 +143,10 @@ def accion_combate():
     for turno in orden_turnos:
         atacante = turno["objeto"]
         
-        # Validar que atacante siga vivo
         if atacante.vida_actual <= 0: continue
             
-        # Condición de fin de combate: Si el enemigo muere, o si todo el bando del jugador muere
-        if enemigo.vida_actual <= 0 or all(aliado.vida_actual <= 0 for aliado in bando_jugador):
+        # CORRECCIÓN: El combate termina solo si el enemigo muere o si EL JUGADOR muere
+        if enemigo.vida_actual <= 0 or jugador_actual.vida_actual <= 0:
             break
             
         if atacante.aturdido_turnos > 0:
@@ -155,10 +154,14 @@ def accion_combate():
             atacante.aturdido_turnos -= 1
             continue
 
-        # 2. ¿QUIÉN ATACA? EL ADIESTRADOR O LA IA
         if atacante == jugador_actual:
             if accion == "atacar":
                 jugador_actual.atacar(enemigo)
+            elif accion.startswith("habilidad_"):
+                # Extraemos el nombre de la habilidad del valor enviado (Ej: "habilidad_Tsunami")
+                nombre_hab = accion.split("habilidad_")[1]
+                if nombre_hab in HABILIDADES_DB:
+                    ejecutar_habilidad_activa(nombre_hab, jugador_actual, enemigo, estado_combate_web)
             elif accion == "pasar":
                 print(f"{jugador_actual.nombre} pasa su turno.")
                 
@@ -175,17 +178,25 @@ def accion_combate():
     logs_brutos = captura.getvalue().strip().split('\n')
     estado_combate_web["nuevos_logs"] = [log for log in logs_brutos if log.strip()]
     
-    # 3. VEREDICTO FINAL
+    # 3. VEREDICTO FINAL Y CURACIÓN TOTAL
     if enemigo.vida_actual <= 0:
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
         procesar_captura(jugador_actual, enemigo)
-        del monstruos_activos[enemigo.nombre]
+        del monstruos_activos[enemigo.nombre] # Borramos para que se genere uno nuevo la próxima vez
         
-    elif all(aliado.vida_actual <= 0 for aliado in bando_jugador):
+    elif jugador_actual.vida_actual <= 0:
         estado_combate_web["terminado"] = True
-        estado_combate_web["nuevos_logs"].append("☠️ ¡TODO TU EQUIPO HA SIDO DERROTADO! Huyendo al mapa...")
-        enemigo.restaurar_estado()
+        estado_combate_web["nuevos_logs"].append("☠️ ¡HAS SIDO DERROTADO! Huyendo al mapa...")
+        enemigo.restaurar_estado() # El enemigo se cura esperándote
+
+    # Al terminar cualquier combate, curamos al jugador y a TODOS los aliados de la caja y equipo
+    if estado_combate_web["terminado"]:
+        jugador_actual.restaurar_estado()
+        for aliado in jugador_actual.equipo_aliado:
+            aliado.restaurar_estado()
+        for aliado in jugador_actual.caja_aliados:
+            aliado.restaurar_estado()
 
     return redirect(url_for('pantalla_combate'))
 

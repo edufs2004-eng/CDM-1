@@ -2,13 +2,15 @@
     "jugador": {
         "nombre": "Pescador Joven",
         "aliados_obtenidos": [
-            "Pulpo Inteligente"
+            "Pulpo Inteligente",
+            "Tiburón",
+            "Serpiente Marina"
         ],
         "equipo_aliado": [
             {
                 "nombre": "Pulpo Inteligente",
                 "vida_max": 11,
-                "vida_actual": 0,
+                "vida_actual": 11,
                 "ataque_base": 2,
                 "reflejos": 1,
                 "velocidad_base": 2,
@@ -18,6 +20,32 @@
                 "habilidades": [
                     "Tácticas de escape",
                     "Cachetada"
+                ]
+            },
+            {
+                "nombre": "Tiburón",
+                "vida_max": 10,
+                "vida_actual": 10,
+                "ataque_base": 5,
+                "reflejos": 2,
+                "velocidad_base": 5,
+                "etiquetas": [
+                    "Acuático"
+                ],
+                "habilidades": []
+            },
+            {
+                "nombre": "Serpiente Marina",
+                "vida_max": 11,
+                "vida_actual": 11,
+                "ataque_base": 4,
+                "reflejos": 2,
+                "velocidad_base": 3,
+                "etiquetas": [
+                    "Acuático"
+                ],
+                "habilidades": [
+                    "Tsunami"
                 ]
             }
         ],

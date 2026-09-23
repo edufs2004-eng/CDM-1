@@ -18,7 +18,7 @@
                 
                 {% for aliado in jugador.equipo_aliado %}
                     <div class="monstruo-card tooltip" draggable="true" ondragstart="arrastrar(event, 'activo', {{ loop.index0 }})">
-                        <strong>{{ aliado.nombre }}</strong> <span style="float:right;">Lv. ?</span>
+                        <strong>{{ aliado.nombre }}</strong>
                         
                         <!-- ESTE ES EL TOOLTIP QUE APARECE AL PASAR EL MOUSE -->
                         <div class="tooltip-text">

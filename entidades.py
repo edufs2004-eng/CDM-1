@@ -135,6 +135,7 @@ class Jugador(Entidad):
         reflejos_extra = 0
         
         if "Barca" in self.etiquetas: self.etiquetas.remove("Barca")
+        self.habilidades = [] # Reiniciamos habilidades en cada recálculo
         
         for slot, item in self.equipo.items():
             if item:
@@ -145,6 +146,10 @@ class Jugador(Entidad):
                 
                 if item.bonos_stats.get("etiqueta") == "Barca" and "Barca" not in self.etiquetas:
                     self.etiquetas.append("Barca")
+                
+                # Heredar habilidades del objeto
+                if "habilidades" in item.bonos_stats:
+                    self.habilidades.extend(item.bonos_stats["habilidades"])
                     
         self.ataque_base = ataque_total
         self.varianza_ataque = varianza_total
