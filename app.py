@@ -117,11 +117,17 @@ def pantalla_combate():
     if not jugador_actual or not estado_combate_web["enemigo"]:
         return redirect(url_for('mapa_mundi'))
         
-    return render_template('combate_web.html', jugador=jugador_actual, estado=estado_combate_web)
+    habs = jugador_actual.obtener_habilidades_activas()
+    return render_template('combate_web.html', jugador=jugador_actual, estado=estado_combate_web, habs_jugador=habs)
 
 @app.route('/accion_combate', methods=['POST'])
 def accion_combate():
     global jugador_actual, estado_combate_web
+    
+    # Bloqueo de seguridad: Si el combate ya terminó, ignorar clics extra
+    if estado_combate_web.get("terminado"):
+        return redirect(url_for('pantalla_combate'))
+        
     enemigo = estado_combate_web["enemigo"]
     accion = request.form.get("accion")
     
@@ -145,7 +151,6 @@ def accion_combate():
         
         if atacante.vida_actual <= 0: continue
             
-        # CORRECCIÓN: El combate termina solo si el enemigo muere o si EL JUGADOR muere
         if enemigo.vida_actual <= 0 or jugador_actual.vida_actual <= 0:
             break
             
@@ -158,7 +163,6 @@ def accion_combate():
             if accion == "atacar":
                 jugador_actual.atacar(enemigo)
             elif accion.startswith("habilidad_"):
-                # Extraemos el nombre de la habilidad del valor enviado (Ej: "habilidad_Tsunami")
                 nombre_hab = accion.split("habilidad_")[1]
                 if nombre_hab in HABILIDADES_DB:
                     ejecutar_habilidad_activa(nombre_hab, jugador_actual, enemigo, estado_combate_web)
@@ -183,14 +187,16 @@ def accion_combate():
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
         procesar_captura(jugador_actual, enemigo)
-        del monstruos_activos[enemigo.nombre] # Borramos para que se genere uno nuevo la próxima vez
+        
+        # Corrección: Verificamos que exista antes de intentar borrarlo
+        if enemigo.nombre in monstruos_activos:
+            del monstruos_activos[enemigo.nombre] 
         
     elif jugador_actual.vida_actual <= 0:
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("☠️ ¡HAS SIDO DERROTADO! Huyendo al mapa...")
-        enemigo.restaurar_estado() # El enemigo se cura esperándote
+        enemigo.restaurar_estado()
 
-    # Al terminar cualquier combate, curamos al jugador y a TODOS los aliados de la caja y equipo
     if estado_combate_web["terminado"]:
         jugador_actual.restaurar_estado()
         for aliado in jugador_actual.equipo_aliado:

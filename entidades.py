@@ -1,6 +1,6 @@
 import random
 import time
-from habilidades import procesar_trigger
+from habilidades import procesar_trigger, HABILIDADES_DB, ejecutar_habilidad_activa
 from objetos import generar_objeto
 
 class Entidad:
@@ -157,6 +157,26 @@ class Jugador(Entidad):
         self.reflejos = 2 + reflejos_extra
         self.velocidad_actual = self.velocidad_base
 
+    def obtener_habilidades_activas(self):
+        """Recopila Habilidades Activas de los objetos equipados y aliados vivos"""
+        habs_disponibles = set()
+        
+        # 1. De los objetos equipados
+        for slot, item in self.equipo.items():
+            if item and "habilidades" in item.bonos_stats:
+                for h in item.bonos_stats["habilidades"]:
+                    if h in HABILIDADES_DB and HABILIDADES_DB[h].get("tipo") == "activa":
+                        habs_disponibles.add(h)
+                        
+        # 2. De los aliados activos y VIVOS
+        for aliado in self.equipo_aliado:
+            if aliado.vida_actual > 0:
+                for h in aliado.habilidades:
+                    if h in HABILIDADES_DB and HABILIDADES_DB[h].get("tipo") == "activa":
+                        habs_disponibles.add(h)
+                        
+        return list(habs_disponibles)
+
 class Monstruo(Entidad):
     def __init__(self, nombre, vida, ataque_base, reflejos, velocidad, etiquetas, habilidades=None, probabilidades_ia=None):
         super().__init__(nombre, vida, ataque_base, reflejos, velocidad)
@@ -165,18 +185,26 @@ class Monstruo(Entidad):
         self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
 
     def decidir_accion_ia(self, aliados, enemigos, estado_combate):
-        """Lógica autónoma: El monstruo decide qué hacer en su turno"""
-        # 1. Filtrar enemigos vivos
+        """Lógica autónoma: Tira dados para habilidades de IA, si falla, ataca normal"""
         vivos = [e for e in enemigos if e.vida_actual > 0]
         if not vivos: return
         
-        # (El esqueleto para el futuro: Aquí leeremos self.probabilidades_ia para ver si lanza magia)
-        # 2. Por ahora, como es la base, simplemente ataca a un objetivo válido al azar
-        
-        # Filtramos a quién puede pegarle (Cuerpo a cuerpo o distancia)
         cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
         objetivos_validos = cuerpo_a_cuerpo if len(cuerpo_a_cuerpo) > 0 else vivos
         
-        if objetivos_validos:
-            objetivo = random.choice(objetivos_validos)
+        if not objetivos_validos: return
+        objetivo = random.choice(objetivos_validos)
+        
+        # 1. Tirar dados para la IA
+        habilidad_elegida = None
+        for hab, prob in self.probabilidades_ia.items():
+            if random.randint(1, 100) <= prob:
+                habilidad_elegida = hab
+                break
+                
+        # 2. Ejecutar habilidad (si acertó el % y existe) o ataque básico
+        if habilidad_elegida and habilidad_elegida in HABILIDADES_DB:
+            print(f"\n[!] {self.nombre} usó {habilidad_elegida} por decisión propia.")
+            ejecutar_habilidad_activa(habilidad_elegida, self, objetivo, estado_combate)
+        else:
             self.atacar(objetivo)
