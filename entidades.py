@@ -27,8 +27,15 @@ class Entidad:
     def calcular_esquive(self):
         # Usamos velocidad actual por si está reducida
         if self.velocidad_actual <= 0: return 0
-        prob = self.reflejos / self.velocidad_actual
-        return min(prob, 0.6)
+        prob = self.reflejos / self.velocidad_actual * 0.35
+        return min(prob, 0.35)
+
+    def restaurar_estado(self):
+        """Limpia todos los debuffs y reinicia pasivas (Se usa al salir de un combate)"""
+        self.vida_actual = self.vida_max
+        self.velocidad_actual = self.velocidad_base
+        self.aturdido_turnos = 0
+        self.tacticas_usada = False
 
     def recibir_dano(self, dano, atacante):
         """Nueva función para procesar el daño y pasivas defensivas"""
@@ -104,12 +111,10 @@ class Entidad:
             
             # --- HABILIDAD INSTANTÁNEA: Cachetada (Pulpo Inteligente) ---
             if "Cachetada" in self.habilidades and objetivo.vida_actual > 0:
-                # 30% de probabilidad
                 if random.random() <= 0.30:
                     print(f"\n¡{self.nombre} activó CACHETADA!")
-                    print(f"¡{objetivo.nombre} ha sido aturdido por 1 turno (Velocidad a 0)!")
-                    objetivo.aturdido_turnos = 1
-                    objetivo.velocidad_actual = 0
+                    print(f"¡{objetivo.nombre} ha sido aturdido (perderá su próxima acción)!")
+                    objetivo.aturdido_turnos += 1
             
         time.sleep(1)
 

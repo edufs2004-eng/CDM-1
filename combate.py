@@ -101,31 +101,32 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra"):
 
         print(f"\n{'='*15} RONDA {ronda} {'='*15}")
         time.sleep(1)
-        
-        # Reducir contadores de aturdimiento y restaurar velocidad
-        for combatiente in vivos_jugador + vivos_enemigos:
-            if combatiente.aturdido_turnos > 0:
-                combatiente.aturdido_turnos -= 1
-                if combatiente.aturdido_turnos == 0:
-                    combatiente.velocidad_actual = combatiente.velocidad_base
-                    print(f"[!] {combatiente.nombre} ya no está aturdido y recupera su velocidad.")
 
         combatientes_vivos = vivos_jugador + vivos_enemigos
         orden_turnos = calcular_orden_turnos(combatientes_vivos)
 
+        # Ejecutamos las acciones de la lista de turnos
         for accion in orden_turnos:
             atacante = accion["objeto"]
-            if atacante.vida_actual <= 0 or atacante.aturdido_turnos > 0:
+
+            if atacante.vida_actual <= 0:
                 continue
+            
             if len([e for e in enemigos if e.vida_actual > 0]) == 0 or len([p for p in bando_jugador if p.vida_actual > 0]) == 0:
                 break 
 
             print(f"\n>>> Turno de: {atacante.nombre} (Iniciativa: {accion['iniciativa']})")
             time.sleep(1)
 
+            # AQUÍ COBRAMOS EL ATURDIMIENTO
+            if atacante.aturdido_turnos > 0:
+                print(f"¡{atacante.nombre} está aturdido y pierde esta acción!")
+                atacante.aturdido_turnos -= 1
+                time.sleep(1)
+                continue # Saltamos el turno
+
+            # Si no está aturdido, juega normalmente
             if atacante in bando_jugador:
                 turno_jugador_o_aliado(atacante, vivos_enemigos, estado_combate)
             else:
                 turno_ia(atacante, vivos_jugador)
-
-        ronda += 1

@@ -123,15 +123,18 @@ def menu_zona(jugador, nombre_zona):
                 # 4. Resultados post-combate
                 if victoria:
                     procesar_captura(jugador, enemigo)
-                    del monstruos_activos[nombre_enemigo] # Eliminamos la instancia para que genere una nueva la próxima vez
-                    # Restaurar vida de tu equipo
-                    jugador.vida_actual = jugador.vida_max
-                    for aliado in jugador.equipo_aliado: aliado.vida_actual = aliado.vida_max
+                    del monstruos_activos[nombre_enemigo] 
                 else:
                     print(f"\nHas huido o perdido. {enemigo.nombre} te estará esperando.")
-                    # Recupera su vida, pero mantiene stats exactos
-                    enemigo.vida_actual = enemigo.vida_max
-                    jugador.vida_actual = jugador.vida_max # El jugador revive para seguir jugando
+                    # El enemigo limpia sus debuffs, tinta y se cura por completo
+                    enemigo.restaurar_estado()
+                
+                # Sin importar si ganas o pierdes, el jugador y su equipo se limpian y curan
+                jugador.restaurar_estado()
+                for aliado in jugador.equipo_aliado: 
+                    aliado.restaurar_estado()
+                for aliado in jugador.caja_aliados:
+                    aliado.restaurar_estado()
                     
         except ValueError:
             print("Ingresa un número.")

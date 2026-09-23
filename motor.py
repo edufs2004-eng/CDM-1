@@ -7,7 +7,7 @@ def calcular_orden_turnos(combatientes):
     time.sleep(0.5)
     
     # Solo tomamos a los vivos y NO aturdidos para el cálculo
-    activos = [c for c in combatientes if c.vida_actual > 0 and getattr(c, 'aturdido_turnos', 0) <= 0]
+    activos = [c for c in combatientes if c.vida_actual > 0]
     
     if not activos:
         return [] # Si todos están aturdidos/muertos, no hay acciones
