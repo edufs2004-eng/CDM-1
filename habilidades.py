@@ -94,12 +94,11 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None):
         usuario.habilidades_usadas[nombre_hab] = usuario.habilidades_usadas.get(nombre_hab, 0) + 1
         time.sleep(1)
 
-def ejecutar_habilidad_activa(nombre_hab, usuario, objetivo, estado_combate):
-    """Función dedicada para cuando el jugador elige una habilidad del menú"""
-    datos_hab = HABILIDADES_DB[nombre_hab]
-    if "texto" in datos_hab:
-        print(datos_hab["texto"].format(usuario=usuario.nombre))
-        
-    aplicar_efectos(datos_hab["efectos"], usuario, objetivo, estado_combate)
-    usuario.habilidades_usadas[nombre_hab] = usuario.habilidades_usadas.get(nombre_hab, 0) + 1
+def ejecutar_habilidad_activa(nombre, lanzador, objetivo, estado_combate):
+    if nombre == "Tsunami":
+        if estado_combate["terreno"].lower() in ["agua", "híbrido", "hibrido"]:
+            print(f"¡El terreno ya es {estado_combate['terreno']}, el Tsunami choca sin efecto!")
+        else:
+            estado_combate["terreno"] = "híbrido"
+            print(f"¡{lanzador.nombre} invoca un Tsunami! El campo se inunda y pasa a ser Híbrido.")
     time.sleep(1)

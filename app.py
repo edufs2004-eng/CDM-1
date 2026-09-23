@@ -106,6 +106,7 @@ def iniciar_combate_web(nombre_enemigo):
     estado_combate_web["historial_logs"] = []
     estado_combate_web["nuevos_logs"] = [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"]
     estado_combate_web["terminado"] = False
+    estado_combate_web["habilidades_usadas"] = []
     
     jugador_actual.restaurar_estado()
     
@@ -164,10 +165,11 @@ def accion_combate():
                 jugador_actual.atacar(enemigo)
             elif accion.startswith("habilidad_"):
                 nombre_hab = accion.split("habilidad_")[1]
-                if nombre_hab in HABILIDADES_DB:
+                if nombre_hab in estado_combate_web["habilidades_usadas"]:
+                    print(f"¡Ya usaste {nombre_hab} en este combate y está agotada!")
+                elif nombre_hab in HABILIDADES_DB:
+                    estado_combate_web["habilidades_usadas"].append(nombre_hab) # La marcamos como usada
                     ejecutar_habilidad_activa(nombre_hab, jugador_actual, enemigo, estado_combate_web)
-            elif accion == "pasar":
-                print(f"{jugador_actual.nombre} pasa su turno.")
                 
         elif atacante in jugador_actual.equipo_aliado:
             print(f"\n[Aliado] {atacante.nombre} actúa por instinto...")
