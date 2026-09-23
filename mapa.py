@@ -1,24 +1,20 @@
 import time
+import random
 from datos_monstruos import generar_monstruo
 from combate import iniciar_combate
 
-# Diccionario con las zonas y los monstruos que habitan en ellas (y su terreno de combate)
 ZONAS = {
     "Playa": {
         "Pulpo Inteligente": "Híbrido",
         "Tiburón": "Agua",
         "Serpiente Marina": "Agua"
     },
-    "Bosque": {
-        # Aquí agregaremos monstruos terrestres a futuro
-    }
+    "Bosque": {}
 }
 
-# Diccionario para guardar los monstruos generados que aún no has derrotado
 monstruos_activos = {}
 
 def verificar_restricciones_terreno(aliados, terreno_combate):
-    """Filtra los aliados que pueden entrar al combate según el terreno."""
     aliados_validos = []
     for aliado in aliados:
         if terreno_combate == "Agua":
@@ -27,19 +23,16 @@ def verificar_restricciones_terreno(aliados, terreno_combate):
         elif terreno_combate == "Tierra":
             if "Terrestre" in aliado.etiquetas or "Híbrido" in aliado.etiquetas:
                 aliados_validos.append(aliado)
-        else: # Si el terreno es Híbrido, entran todos
+        else: 
             aliados_validos.append(aliado)
             
     return aliados_validos
 
 def procesar_captura(jugador, monstruo):
-    """Verifica si el monstruo se captura o solo muere."""
     if monstruo.nombre not in jugador.aliados_obtenidos:
         print(f"\n¡Has capturado a {monstruo.nombre}!")
         print(f"Stats guardados: Vida {monstruo.vida_max}, Ataque {monstruo.ataque_base}, Vel {monstruo.velocidad_base}")
-        # Lo añadimos a la lista de nombres obtenidos
         jugador.aliados_obtenidos.append(monstruo.nombre)
-        # Añadimos la instancia exacta al inventario/equipo (por ahora directo al equipo aliado si hay espacio)
         if len(jugador.equipo_aliado) < 4:
             jugador.equipo_aliado.append(monstruo)
             print(f"{monstruo.nombre} ha sido añadido a tu equipo activo.")
@@ -94,19 +87,15 @@ def menu_zona(jugador, nombre_zona):
                 nombre_enemigo = nombres_monstruos[opcion]
                 terreno_combate = monstruos_zona[nombre_enemigo]
                 
-                # 1. Sistema de Persistencia: Si no existe, lo generamos
                 if nombre_enemigo not in monstruos_activos:
                     monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
                 
                 enemigo = monstruos_activos[nombre_enemigo]
                 
-                # 2. Filtrar aliados por terreno
                 equipo_valido = verificar_restricciones_terreno(jugador.equipo_aliado, terreno_combate)
                 
-                # Evaluamos si el jugador mismo puede entrar
                 if not verificar_restricciones_terreno([jugador], terreno_combate):
                     print(f"\n[!] Tu personaje no tiene forma de pelear en terreno {terreno_combate}.")
-                    # Si no tiene aliados válidos tampoco, no puede pelear
                     if not equipo_valido:
                         print("¡No tienes equipo válido para este combate! Vuelve cuando estés preparado.")
                         continue
@@ -116,25 +105,30 @@ def menu_zona(jugador, nombre_zona):
                 else:
                     jugador_combatira = jugador
                 
-                # 3. Iniciar Combate
                 enemigos = [enemigo]
                 victoria = iniciar_combate(jugador_combatira, equipo_valido, enemigos, terreno=terreno_combate)
                 
-                # 4. Resultados post-combate
                 if victoria:
                     procesar_captura(jugador, enemigo)
                     del monstruos_activos[nombre_enemigo] 
+                    
+                    # --- SISTEMA DE DROPS OCULTOS ---
+                    if enemigo.nombre == "Pulpo Inteligente" and "drop_tentaculo" not in jugador.eventos_desbloqueados:
+                        # 40% de probabilidad
+                        if random.random() <= 0.40:
+                            print("\n¡ALGO BRILLA EN EL AGUA!")
+                            print("¡Has encontrado un [Tentáculo Escurridizo]!")
+                            jugador.inventario.append("Tentáculo Escurridizo")
+                            jugador.eventos_desbloqueados.append("drop_tentaculo")
+                            time.sleep(2)
+                            
                 else:
                     print(f"\nHas huido o perdido. {enemigo.nombre} te estará esperando.")
-                    # El enemigo limpia sus debuffs, tinta y se cura por completo
                     enemigo.restaurar_estado()
                 
-                # Sin importar si ganas o pierdes, el jugador y su equipo se limpian y curan
                 jugador.restaurar_estado()
-                for aliado in jugador.equipo_aliado: 
-                    aliado.restaurar_estado()
-                for aliado in jugador.caja_aliados:
-                    aliado.restaurar_estado()
+                for aliado in jugador.equipo_aliado: aliado.restaurar_estado()
+                for aliado in jugador.caja_aliados: aliado.restaurar_estado()
                     
         except ValueError:
             print("Ingresa un número.")

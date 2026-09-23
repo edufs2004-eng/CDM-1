@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario - {{ jugador.nombre }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="contenedor-menu menu-ampliado">
+        <h1>EQUIPO E INVENTARIO</h1>
+        
+        <div class="stats-rapidas" style="display: flex; justify-content: space-between; text-align: left;">
+            <div>
+                <h3 style="color: #4caf50; margin-top: 0;">EQUIPAMIENTO</h3>
+                <ul style="list-style: none; padding: 0;">
+                    {% for slot, item in jugador.equipo.items() %}
+                        <li style="margin-bottom: 8px;">
+                            <strong style="color: #2196F3;">{{ slot }}:</strong> 
+                            {{ item.nombre if item else "Vacío" }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div style="border-left: 1px solid #4caf50; padding-left: 20px;">
+                <h3 style="color: #4caf50; margin-top: 0;">MOCHILA (OBJETOS)</h3>
+                <ul style="list-style: none; padding: 0;">
+                    {% if jugador.inventario %}
+                        {% for obj in jugador.inventario %}
+                            <li>- {{ obj }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li style="color: #888;">(Mochila vacía)</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <p style="color: #aaa; font-size: 0.9em; margin-bottom: 20px;">
+            (El sistema para equipar/desequipar con un clic se implementará pronto. Por ahora es de solo lectura).
+        </p>
+
+        <a href="/menu_juego" class="btn btn-bloque btn-secundario">Volver al Menú</a>
+    </div>
+</body>
+</html>

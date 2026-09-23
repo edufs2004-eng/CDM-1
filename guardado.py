@@ -1,11 +1,11 @@
 import json
 import os
 from entidades import Jugador, Monstruo
+from objetos import generar_objeto
 
 ARCHIVO_GUARDADO = "partida_guardada.json"
 
 def serializar_monstruo(monstruo):
-    """Convierte un objeto Monstruo en un diccionario simple para el JSON"""
     return {
         "nombre": monstruo.nombre,
         "vida_max": monstruo.vida_max,
@@ -18,7 +18,6 @@ def serializar_monstruo(monstruo):
     }
 
 def deserializar_monstruo(datos):
-    """Convierte un diccionario JSON de vuelta a un objeto Monstruo"""
     monstruo = Monstruo(
         nombre=datos["nombre"],
         vida=datos["vida_max"],
@@ -33,12 +32,21 @@ def deserializar_monstruo(datos):
 
 def guardar_partida(jugador):
     print("\n[Guardando partida...]")
+    
+    # Convertir los objetos a solo sus nombres para el JSON
+    equipo_nombres = {}
+    for slot, item in jugador.equipo.items():
+        equipo_nombres[slot] = item.nombre if item else None
+
     datos_guardado = {
         "jugador": {
             "nombre": jugador.nombre,
             "aliados_obtenidos": jugador.aliados_obtenidos,
             "equipo_aliado": [serializar_monstruo(m) for m in jugador.equipo_aliado],
-            "caja_aliados": [serializar_monstruo(m) for m in jugador.caja_aliados]
+            "caja_aliados": [serializar_monstruo(m) for m in jugador.caja_aliados],
+            "inventario": jugador.inventario,
+            "eventos_desbloqueados": jugador.eventos_desbloqueados,
+            "equipo": equipo_nombres
         }
     }
     
@@ -60,11 +68,21 @@ def cargar_partida():
         
     datos_jugador = datos["jugador"]
     
-    # Recreamos al jugador
     jugador = Jugador(datos_jugador["nombre"])
     jugador.aliados_obtenidos = datos_jugador.get("aliados_obtenidos", [])
+    jugador.inventario = datos_jugador.get("inventario", [])
+    jugador.eventos_desbloqueados = datos_jugador.get("eventos_desbloqueados", [])
     
-    # Recreamos a sus monstruos con las stats exactas
+    # Cargar el equipo equipado
+    if "equipo" in datos_jugador:
+        for slot, nombre_item in datos_jugador["equipo"].items():
+            if nombre_item:
+                jugador.equipo[slot] = generar_objeto(nombre_item)
+            else:
+                jugador.equipo[slot] = None
+                
+    jugador.actualizar_stats() # Recalcular stats con los items cargados
+    
     jugador.equipo_aliado = [deserializar_monstruo(m) for m in datos_jugador.get("equipo_aliado", [])]
     jugador.caja_aliados = [deserializar_monstruo(m) for m in datos_jugador.get("caja_aliados", [])]
     

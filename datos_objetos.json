@@ -1,0 +1,26 @@
+{
+    "Caña de pescar": {
+        "tipo": "Mano 1",
+        "bonos": {"ataque": 2, "varianza": 1}
+    },
+    "Gorro de pescador": {
+        "tipo": "Cabeza",
+        "bonos": {}
+    },
+    "Polera con mangas": {
+        "tipo": "Torso",
+        "bonos": {}
+    },
+    "Pantalón de tela": {
+        "tipo": "Piernas",
+        "bonos": {}
+    },
+    "Barca": {
+        "tipo": "Extra",
+        "bonos": {"etiqueta": "Barca"}
+    },
+    "Tentáculo Escurridizo": {
+        "tipo": "Brazos",
+        "bonos": {"velocidad": 2, "reflejos": 1}
+    }
+}

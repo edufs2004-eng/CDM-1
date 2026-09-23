@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>RPG: El Origen del Pescador</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="contenedor-menu">
+        <h1>RPG: EL ORIGEN DEL PESCADOR</h1>
+
+        <div class="opciones">
+            <form action="/nueva_partida" method="POST" class="formulario">
+                <input type="text" name="nombre" placeholder="Ingresa tu nombre..." autocomplete="off">
+                <button type="submit" class="btn">Nueva Partida</button>
+            </form>
+
+            <form action="/cargar_partida" method="POST" class="formulario">
+                <button type="submit" class="btn btn-secundario">Continuar Partida</button>
+            </form>
+        </div>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
