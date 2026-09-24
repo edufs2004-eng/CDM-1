@@ -7,6 +7,7 @@ from mapa import ZONAS, monstruos_activos, procesar_captura
 from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
 from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
+from logros import evaluar_logros
 
 app = Flask(__name__)
 
@@ -191,15 +192,21 @@ def accion_combate():
     logs_brutos = captura.getvalue().strip().split('\n')
     estado_combate_web["nuevos_logs"] = [log for log in logs_brutos if log.strip()]
     
-    # 3. VEREDICTO FINAL Y CURACIÓN TOTAL
+ # 3. VEREDICTO FINAL Y CURACIÓN TOTAL
     if enemigo.vida_actual <= 0:
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
+        
+        # --- Evaluar Logros de Combate (Llama a logros.py) ---
+        logs_logros = evaluar_logros(jugador_actual, enemigo, estado_combate_web)
+        if logs_logros:
+            estado_combate_web["nuevos_logs"].extend(logs_logros)
+            
         procesar_captura(jugador_actual, enemigo)
         
         # Corrección: Verificamos que exista antes de intentar borrarlo
         if enemigo.nombre in monstruos_activos:
-            del monstruos_activos[enemigo.nombre] 
+            del monstruos_activos[enemigo.nombre]
         
     elif jugador_actual.vida_actual <= 0:
         estado_combate_web["terminado"] = True
@@ -242,6 +249,7 @@ def mover_monstruo_web(origen, idx, destino):
                 jugador_actual.equipo_aliado.append(monstruo)
                 
     return redirect(url_for('gestionar_equipo_web'))
+
 
 if __name__ == '__main__':
     # Arranca el servidor local

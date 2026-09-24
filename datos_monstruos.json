@@ -1,11 +1,11 @@
 {
     "Pulpo Inteligente": {
-        "vida": [8, 11],
+        "vida": [6, 8],
         "ataque": [1, 3],
         "reflejos": [1, 1],
         "velocidad": [2, 3],
         "etiquetas": ["Híbrido"],
-        "habilidades": ["Tácticas de escape", "Cachetada"],
+        "habilidades": ["Cachetada"],
         "probabilidades_ia": {}
     },
     "Tiburón": {

@@ -19,8 +19,11 @@
         "tipo": "Extra",
         "bonos": {"etiqueta": "Barca"}
     },
-    "Tentáculo Escurridizo": {
-        "tipo": "Brazos",
-        "bonos": {"velocidad": 2, "reflejos": 1}
+    "Palo de madera con hojita": {
+        "tipo": "Mano 1",
+        "descripcion": "Un trofeo tras vencer a un oponente inteligente.",
+        "bonos": {
+            "ataque": 1
+        }
     }
 }

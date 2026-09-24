@@ -25,8 +25,9 @@ class Entidad:
         self.habilidades_usadas = {}
         self.cooldowns = {}
 
-        def gestionar_cooldowns(self):
-            """Reduce en 1 los enfriamientos al inicio del turno"""
+    def gestionar_cooldowns(self):
+        """Reduce en 1 los enfriamientos al inicio del turno"""
+        # Usamos list() para evitar el error de modificar un diccionario mientras se itera
         for hab in list(self.cooldowns.keys()):
             if self.cooldowns[hab] > 0:
                 self.cooldowns[hab] -= 1
@@ -41,6 +42,7 @@ class Entidad:
         self.velocidad_actual = self.velocidad_base
         self.aturdido_turnos = 0
         self.habilidades_usadas = {}
+        self.cooldowns = {}
 
     def recibir_dano(self, dano, atacante):
         dano_final = dano - self.armadura
