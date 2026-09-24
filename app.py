@@ -106,7 +106,13 @@ def iniciar_combate_web(nombre_enemigo):
     estado_combate_web["historial_logs"] = []
     estado_combate_web["nuevos_logs"] = [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"]
     estado_combate_web["terminado"] = False
-    estado_combate_web["habilidades_usadas"] = []
+    
+    # Limpiar memoria al iniciar combate
+    jugador_actual.cooldowns = {}
+    jugador_actual.habilidades_usadas = {}
+    for aliado in jugador_actual.equipo_aliado:
+        aliado.cooldowns = {}
+        aliado.habilidades_usadas = {}
     
     jugador_actual.restaurar_estado()
     
@@ -119,7 +125,7 @@ def pantalla_combate():
         return redirect(url_for('mapa_mundi'))
         
     habs = jugador_actual.obtener_habilidades_activas()
-    return render_template('combate_web.html', jugador=jugador_actual, estado=estado_combate_web, habs_jugador=habs)
+    return render_template('combate_web.html', jugador=jugador_actual, estado=estado_combate_web, habs_jugador=habs, habs_db=HABILIDADES_DB)
 
 @app.route('/accion_combate', methods=['POST'])
 def accion_combate():
@@ -151,9 +157,10 @@ def accion_combate():
         atacante = turno["objeto"]
         
         if atacante.vida_actual <= 0: continue
+        if enemigo.vida_actual <= 0 or jugador_actual.vida_actual <= 0: break
             
-        if enemigo.vida_actual <= 0 or jugador_actual.vida_actual <= 0:
-            break
+        # Al iniciar su turno, restamos cooldowns
+        atacante.gestionar_cooldowns()
             
         if atacante.aturdido_turnos > 0:
             print(f"¡{atacante.nombre} está aturdido y pierde esta acción!")
@@ -165,19 +172,19 @@ def accion_combate():
                 jugador_actual.atacar(enemigo)
             elif accion.startswith("habilidad_"):
                 nombre_hab = accion.split("habilidad_")[1]
-                if nombre_hab in estado_combate_web["habilidades_usadas"]:
-                    print(f"¡Ya usaste {nombre_hab} en este combate y está agotada!")
-                elif nombre_hab in HABILIDADES_DB:
-                    estado_combate_web["habilidades_usadas"].append(nombre_hab) # La marcamos como usada
-                    ejecutar_habilidad_activa(nombre_hab, jugador_actual, enemigo, estado_combate_web)
-                
-        elif atacante in jugador_actual.equipo_aliado:
-            print(f"\n[Aliado] {atacante.nombre} actúa por instinto...")
-            atacante.decidir_accion_ia(aliados=bando_jugador, enemigos=[enemigo], estado_combate=estado_combate_web)
-            
-        else:
-            print(f"\n[Enemigo] {atacante.nombre} evalúa la situación...")
-            atacante.decidir_accion_ia(aliados=[enemigo], enemigos=bando_jugador, estado_combate=estado_combate_web)
+                if nombre_hab in HABILIDADES_DB:
+                    datos_hab = HABILIDADES_DB[nombre_hab]
+                    limite = datos_hab.get("usos_maximos", 99)
+                    cd_max = datos_hab.get("cooldown", 0)
+                    
+                    if jugador_actual.habilidades_usadas.get(nombre_hab, 0) >= limite:
+                        print(f"¡Ya usaste {nombre_hab} y está agotada!")
+                    elif jugador_actual.cooldowns.get(nombre_hab, 0) > 0:
+                        print(f"¡{nombre_hab} está recargándose!")
+                    else:
+                        jugador_actual.habilidades_usadas[nombre_hab] = jugador_actual.habilidades_usadas.get(nombre_hab, 0) + 1
+                        jugador_actual.cooldowns[nombre_hab] = cd_max
+                        ejecutar_habilidad_activa(nombre_hab, jugador_actual, enemigo, estado_combate_web)
 
     sys.stdout = sys.__stdout__
     

@@ -23,6 +23,13 @@ class Entidad:
         
         self.aturdido_turnos = 0
         self.habilidades_usadas = {}
+        self.cooldowns = {}
+
+        def gestionar_cooldowns(self):
+            """Reduce en 1 los enfriamientos al inicio del turno"""
+        for hab in list(self.cooldowns.keys()):
+            if self.cooldowns[hab] > 0:
+                self.cooldowns[hab] -= 1
 
     def calcular_esquive(self):
         if self.velocidad_actual <= 0: return 0
@@ -185,26 +192,44 @@ class Monstruo(Entidad):
         self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
 
     def decidir_accion_ia(self, aliados, enemigos, estado_combate):
-        """Lógica autónoma: Tira dados para habilidades de IA, si falla, ataca normal"""
+        """Lógica autónoma: Ventana deslizante para habilidades y ataque básico"""
         vivos = [e for e in enemigos if e.vida_actual > 0]
         if not vivos: return
         
         cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
         objetivos_validos = cuerpo_a_cuerpo if len(cuerpo_a_cuerpo) > 0 else vivos
-        
         if not objetivos_validos: return
+        
         objetivo = random.choice(objetivos_validos)
         
-        # 1. Tirar dados para la IA
         habilidad_elegida = None
+        dado = random.randint(1, 100)
+        limite_actual = 0
+        
         for hab, prob in self.probabilidades_ia.items():
-            if random.randint(1, 100) <= prob:
+            if hab not in HABILIDADES_DB: continue
+            datos_hab = HABILIDADES_DB[hab]
+            
+            # Saltamos la habilidad si está en cooldown o superó usos_maximos
+            if self.cooldowns.get(hab, 0) > 0: continue
+            if self.habilidades_usadas.get(hab, 0) >= datos_hab.get("usos_maximos", 99): continue
+                
+            # Ventana deslizante
+            rango_min = limite_actual + 1
+            limite_actual += prob
+            rango_max = limite_actual
+            
+            if rango_min <= dado <= rango_max:
                 habilidad_elegida = hab
                 break
                 
-        # 2. Ejecutar habilidad (si acertó el % y existe) o ataque básico
-        if habilidad_elegida and habilidad_elegida in HABILIDADES_DB:
+        if habilidad_elegida:
             print(f"\n[!] {self.nombre} usó {habilidad_elegida} por decisión propia.")
+            
+            # Registramos el uso y el cooldown (si lo tiene en HABILIDADES_DB, si no, es 0)
+            self.habilidades_usadas[habilidad_elegida] = self.habilidades_usadas.get(habilidad_elegida, 0) + 1
+            self.cooldowns[habilidad_elegida] = HABILIDADES_DB[habilidad_elegida].get("cooldown", 0)
+            
             ejecutar_habilidad_activa(habilidad_elegida, self, objetivo, estado_combate)
         else:
             self.atacar(objetivo)

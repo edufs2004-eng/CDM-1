@@ -105,7 +105,18 @@
                         <select name="accion" class="btn" style="width: 100%; background-color: #2c2c2c; color: white; border: 1px solid #4caf50;">
                             <option value="" disabled selected>Habilidad...</option>
                             {% for hab in habs_jugador %}
-                                <option value="habilidad_{{ hab }}">{{ hab }}</option>
+                                {% set datos_hab = habs_db.get(hab, {}) %}
+                                {% set usos = jugador.habilidades_usadas.get(hab, 0) %}
+                                {% set cd = jugador.cooldowns.get(hab, 0) %}
+                                {% set limite = datos_hab.get("usos_maximos", 99) %}
+
+                                {% if usos >= limite %}
+                                    <option value="" disabled style="color: #888;">{{ hab }} (Agotado)</option>
+                                {% elif cd > 0 %}
+                                    <option value="" disabled style="color: #FF9800;">{{ hab }} (CD: {{ cd }})</option>
+                                {% else %}
+                                    <option value="habilidad_{{ hab }}">{{ hab }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         <button type="submit" class="btn btn-secundario">Usar</button>
