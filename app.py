@@ -120,6 +120,7 @@ def iniciar_combate_web(nombre_enemigo):
         monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
         
     estado_combate_web["enemigo"] = monstruos_activos[nombre_enemigo]
+    estado_combate_web["terreno"] = request.form.get('terreno')
     estado_combate_web["enemigos"] = [estado_combate_web["enemigo"]]
     estado_combate_web["equipo_enemigo"] = estado_combate_web["enemigos"]
     estado_combate_web["nuevos_combatientes"] = []
@@ -149,7 +150,6 @@ def iniciar_combate_web(nombre_enemigo):
         ]
 
     estado_combate_web["actualizar_combatientes"] = actualizar_combatientes_web
-    estado_combate_web["terreno"] = request.form.get('terreno')
     estado_combate_web["historial_logs"] = []
     estado_combate_web["nuevos_logs"] = [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"]
     estado_combate_web["terminado"] = False
@@ -170,7 +170,18 @@ def pantalla_combate():
         return redirect(url_for('mapa_mundi'))
         
     habs = jugador_actual.obtener_habilidades_activas()
-    return render_template('combate_web.html', jugador=jugador_actual, estado=estado_combate_web, habs_jugador=habs)
+    combatientes_jugador = estado_combate_web.get("combatientes_jugador", [])
+    return render_template(
+        'combate_web.html',
+        jugador=jugador_actual,
+        estado=estado_combate_web,
+        habs_jugador=habs,
+        jugador_en_combate=jugador_actual in combatientes_jugador,
+        aliados_combate=[
+            aliado for aliado in combatientes_jugador
+            if aliado is not jugador_actual
+        ],
+    )
 
 @app.route('/accion_combate', methods=['POST'])
 def accion_combate():

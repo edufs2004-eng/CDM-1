@@ -37,18 +37,20 @@
             <!-- BANDO JUGADOR (Izquierda) -->
             <div class="bando-izquierdo">
                 <!-- Jugador Principal -->
-                <div class="personaje-caja">
-                    <h3 style="margin: 0; color: #2196F3;">{{ jugador.nombre }}</h3>
-                    <span style="font-size: 0.9em; color: #aaa;">HP: {{ jugador.vida_actual }} / {{ jugador.vida_max }}</span>
-                    <div class="barra-vida">
-                        <div class="vida-restante" style="width: {{ (jugador.vida_actual / jugador.vida_max) * 100 }}%;"></div>
+                {% if jugador_en_combate %}
+                    <div class="personaje-caja">
+                        <h3 style="margin: 0; color: #2196F3;">{{ jugador.nombre }}</h3>
+                        <span style="font-size: 0.9em; color: #aaa;">HP: {{ jugador.vida_actual }} / {{ jugador.vida_max }}</span>
+                        <div class="barra-vida">
+                            <div class="vida-restante" style="width: {{ (jugador.vida_actual / jugador.vida_max) * 100 }}%;"></div>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
 
                 <!-- Equipo de Aliados -->
-                {% if jugador.equipo_aliado %}
+                {% if aliados_combate %}
                 <div class="grid-aliados">
-                    {% for aliado in jugador.equipo_aliado %}
+                    {% for aliado in aliados_combate %}
                         <div class="aliado-mini {% if aliado.vida_actual <= 0 %}aliado-muerto{% endif %}">
                             <strong style="font-size: 0.9em; color: {% if aliado.vida_actual > 0 %}#fff{% else %}#888{% endif %};">{{ aliado.nombre }}</strong><br>
                             <span style="font-size: 0.8em; color: #aaa;">HP: {{ aliado.vida_actual }}/{{ aliado.vida_max }}</span>
