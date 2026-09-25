@@ -1,13 +1,31 @@
-from objetos import generar_objeto
+import json
+import os
 
-def evaluar_logros(jugador, enemigo, estado_combate):
-    nuevos_logs = []
+class Objeto:
+    def __init__(self, nombre, tipo_slot, bonos_stats=None):
+        self.nombre = nombre
+        self.tipo_slot = tipo_slot
+        self.bonos_stats = bonos_stats or {}
 
-    if enemigo.nombre == "Pulpo Inteligente" and "derrota_pulpo" not in jugador.eventos_desbloqueados:
-        jugador.eventos_desbloqueados.append("derrota_pulpo")
-        nuevo_item = generar_objeto("Palo de madera con hojita")
-        if nuevo_item:
-            jugador.inventario.append(nuevo_item.nombre)
-            nuevos_logs.append("🏆 LOGRO: ¡Has obtenido [Palo de madera con hojita] por tu primera victoria contra el Pulpo!")
+def cargar_objetos():
+    ruta = os.path.join(os.path.dirname(__file__), "data", "datos_objetos.json")
+    try:
+        with open(ruta, "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return {}
 
-    return nuevos_logs
+def generar_objeto(nombre_objeto):
+    datos = cargar_objetos()
+    if not datos:
+        return None
+
+    if nombre_objeto not in datos:
+        return None
+
+    item = datos[nombre_objeto]
+    return Objeto(
+        nombre=item.get("nombre", nombre_objeto),
+        tipo_slot=item.get("tipo_slot", "Extra"),
+        bonos_stats=item.get("bonos_stats", {})
+    )
