@@ -1,15 +1,18 @@
 import time
 import random
-from motor import calcular_orden_turnos
-from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
+from Files.motor import calcular_orden_turnos
+from Files.habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
 
 def filtrar_objetivos_validos(posibles_objetivos):
     vivos = [obj for obj in posibles_objetivos if obj.vida_actual > 0]
-    if not vivos: return []
+    if not vivos:
+        return []
     
     cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
-    if len(cuerpo_a_cuerpo) > 0: return cuerpo_a_cuerpo
-    else: return vivos
+    if len(cuerpo_a_cuerpo) > 0:
+        return cuerpo_a_cuerpo
+    else:
+        return vivos
 
 def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
     while True:
@@ -32,8 +35,10 @@ def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
                     objetivo = objetivos_validos[seleccion]
                     atacante.atacar(objetivo)
                     break
-                else: print("Selección inválida.")
-            except ValueError: print("Ingresa un número.")
+                else:
+                    print("Selección inválida.")
+            except ValueError:
+                print("Ingresa un número.")
             
         elif opcion == "2":
             # Filtramos solo las habilidades activas que aún tengan usos
@@ -57,15 +62,16 @@ def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
             
             try:
                 sel_hab = int(input("Selecciona habilidad: ")) - 1
-                if sel_hab == len(habs_activas): continue
+                if sel_hab == len(habs_activas):
+                    continue
                 
                 habilidad_elegida = habs_activas[sel_hab]
                 
                 # --- EJECUCIÓN MODULAR ---
                 ejecutar_habilidad_activa(habilidad_elegida, atacante, None, estado_combate)
-                break # Rompe el while y gasta el turno
+                break  # Rompe el while y gasta el turno
                 
-            except ValueError: 
+            except ValueError:
                 print("Ingresa un número.")
             
         elif opcion == "3":
@@ -75,7 +81,7 @@ def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
         else:
             print("Opción incorrecta.")
 
-def turno_ia(atacante, bando_jugador_vivos):
+def turno_ia(atacante, bando_jugador_vivos, estado_combate=None):
     print(f"\n[{atacante.nombre} está decidiendo su acción...]")
     time.sleep(1.5)
     
@@ -131,11 +137,11 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra"):
                 print(f"¡{atacante.nombre} está aturdido y pierde esta acción!")
                 atacante.aturdido_turnos -= 1
                 time.sleep(1)
-                continue # Saltamos el turno
+                continue  # Saltamos el turno
 
             if atacante in bando_jugador:
                 turno_jugador_o_aliado(atacante, vivos_enemigos, estado_combate)
             else:
-                turno_ia(atacante, vivos_jugador)
+                turno_ia(atacante, vivos_jugador, estado_combate)
 
         ronda += 1

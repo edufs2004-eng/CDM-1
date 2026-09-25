@@ -1,8 +1,8 @@
 import time
-from entidades import Jugador
-from mapa import menu_exploracion
-from guardado import guardar_partida, cargar_partida
-from objetos import generar_objeto
+from Files.entidades import Jugador
+from Files.mapa import menu_exploracion
+from Files.guardado import guardar_partida, cargar_partida
+from Files.objetos import generar_objeto
 
 def gestionar_equipo(jugador):
     while True:

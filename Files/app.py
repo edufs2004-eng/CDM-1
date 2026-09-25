@@ -1,13 +1,13 @@
 import io
 import sys
 from flask import Flask, render_template, request, redirect, url_for
-from entidades import Jugador
-from guardado import cargar_partida, guardar_partida
-from mapa import ZONAS, monstruos_activos, procesar_captura
-from datos_monstruos import generar_monstruo
-from motor import calcular_orden_turnos
-from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
-from logros import evaluar_logros
+from Files.entidades import Jugador
+from Files.guardado import cargar_partida, guardar_partida
+from Files.mapa import ZONAS, monstruos_activos, procesar_captura
+from Files.datos_monstruos import generar_monstruo
+from Files.motor import calcular_orden_turnos
+from Files.habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
+from Files.logros import evaluar_logros
 
 app = Flask(__name__)
 

@@ -1,0 +1,148 @@
+CDM - GUÍA DE JUEGO Y BASE DE DISEÑO
+====================================
+
+CONCEPTO
+--------
+CDM es un RPG táctico de captura de monstruos. No existen niveles ni experiencia.
+La progresión es horizontal: el jugador obtiene nuevas opciones al capturar monstruos,
+conseguir objetos y desbloquear recompensas por hitos.
+
+El combate es asimétrico:
+- El jugador decide las acciones del Pescador.
+- Los aliados y enemigos actúan automáticamente.
+- El jugador pierde inmediatamente si llega a 0 HP.
+- Al finalizar un combate, el jugador y sus aliados se restauran completamente.
+
+EXPLORACIÓN
+-----------
+La exploración es abierta.
+
+El único bloqueo geográfico real es Mar Profundo, que exige la Linterna de Nautilus.
+Tierra Firme y Mundo Marino son accesibles sin requisitos artificiales.
+
+La dificultad depende de:
+- Las estadísticas del monstruo.
+- Sus habilidades.
+- Las decisiones tácticas del jugador.
+- El terreno.
+- La peligrosidad real del encuentro.
+
+PELIGROSIDAD
+------------
+La peligrosidad es información oculta.
+
+No debe mostrarse antes de iniciar el combate.
+Solo se revela en el splash screen informativo del monstruo después de capturarlo.
+
+La peligrosidad sirve como información retrospectiva y no como requisito de acceso.
+
+TERRENOS Y ETIQUETAS
+--------------------
+Terrenos canónicos:
+- Tierra
+- Agua
+- Agua profunda
+- Híbrido
+
+Etiquetas canónicas:
+- Terrestre
+- Acuático
+- Híbrido
+- Volador
+- Ataque a distancia
+- Titánico
+- Gigante
+- Mecánico
+- Barca
+
+Las comparaciones deben normalizar mayúsculas, tildes y variantes antes de evaluarse.
+
+JUGADOR
+-------
+El Pescador comienza con:
+- 10 HP
+- 1 Ataque
+- 2 Reflejos
+- 3 Velocidad
+
+Tiene siete slots:
+- Mano 1
+- Mano 2
+- Cabeza
+- Torso
+- Piernas
+- Brazos
+- Extra
+
+Los objetos pueden modificar estadísticas, etiquetas, habilidades y defensas.
+
+ALIADOS
+-------
+El equipo activo admite un máximo de cuatro monstruos.
+Los monstruos adicionales se almacenan en la caja o reserva.
+
+Los aliados capturados conservan sus estadísticas generadas al nacer.
+Las fases avanzadas de algunos monstruos no son accesibles después de capturarlos.
+
+COMBATE
+-------
+El orden de turnos se calcula así:
+
+acciones = velocidad_actual // velocidad_mínima_del_combate
+
+Todos los combatientes vivos reciben al menos una acción.
+El orden se desempata por:
+1. Velocidad
+2. Reflejos
+3. Iniciativa aleatoria
+
+La iniciativa se genera para cada acción de cada ronda y no debe eliminarse.
+
+REGLAS PRINCIPALES
+------------------
+- El daño usa ataque con varianza menos armadura.
+- El esquive depende de reflejos y velocidad.
+- Volador es inmune a ataques cuerpo a cuerpo.
+- Titánico es inmune a ataques normales.
+- Gigante reduce el daño recibido de entidades normales.
+- Mecánico reduce daño y es inmune a estados alterados.
+- El aturdimiento consume una acción.
+- El jugador muerto termina inmediatamente el combate.
+
+HABILIDADES
+-----------
+Tipos:
+- Activa: elegida manualmente.
+- Pasiva: permanece activa.
+- Trigger: se activa ante un evento.
+- IA: seleccionada automáticamente por monstruos.
+
+Las habilidades pueden tener:
+- Probabilidad.
+- Usos máximos.
+- Cooldown.
+- Restricciones de objetivo.
+- Efectos de estado.
+- Cambio de fase.
+
+GUARDADO
+--------
+Los objetos se guardan por nombre, nunca como instancias Python.
+Los monstruos se guardan con sus estadísticas y habilidades.
+
+El guardado debe conservar:
+- Jugador.
+- Equipo activo.
+- Caja.
+- Inventario.
+- Equipamiento.
+- Eventos desbloqueados.
+- Contadores de logros.
+- Datos generados de monstruos.
+
+BOTÍN Y LOGROS
+--------------
+El botín se entrega por hitos fijos.
+No debe depender de drops aleatorios posteriores al combate.
+
+La peligrosidad se muestra únicamente después de capturar al monstruo.

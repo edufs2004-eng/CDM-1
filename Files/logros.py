@@ -1,4 +1,4 @@
-from objetos import generar_objeto
+from Files.objetos import generar_objeto
 
 def evaluar_logros(jugador, enemigo, estado_combate):
     """
@@ -6,7 +6,7 @@ def evaluar_logros(jugador, enemigo, estado_combate):
     Retorna una lista de textos con los logros y objetos obtenidos.
     """
     nuevos_logs = []
-    
+
     # -----------------------------------------
     # HITOS DE PRIMERA VICTORIA
     # -----------------------------------------
@@ -14,17 +14,17 @@ def evaluar_logros(jugador, enemigo, estado_combate):
         jugador.eventos_desbloqueados.append("derrota_pulpo")
         nuevo_item = generar_objeto("Palo de madera con hojita")
         if nuevo_item:
-            jugador.inventario.append(nuevo_item)
+            jugador.inventario.append(nuevo_item.nombre)
             nuevos_logs.append("🏆 LOGRO: ¡Has obtenido [Palo de madera con hojita] por tu primera victoria contra el Pulpo!")
 
     # -----------------------------------------
-    # HITOS CONDICIONALES (Ej. Ogro sin perder mucha vida)
+    # HITOS CONDICIONALES
     # -----------------------------------------
-    # (Lo programaremos cuando lleguemos al Ogro)
+    # (Se implementarán según avance del diseño)
 
     # -----------------------------------------
-    # HITOS DE CACERÍA (Contadores 10 Tiburones/Megalodones)
+    # HITOS DE CACERÍA
     # -----------------------------------------
-    # (Lo programaremos en el siguiente paso)
+    # (Se implementarán según avance del diseño)
 
     return nuevos_logs

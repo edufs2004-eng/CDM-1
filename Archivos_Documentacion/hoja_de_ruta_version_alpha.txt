@@ -1,0 +1,87 @@
+CDM - HOJA DE RUTA HACIA LA VERSIÓN ALPHA
+=========================================
+
+FASE 1 - BASE TÉCNICA (completada)
+---------------------
+Objetivo: estabilizar la infraestructura antes de añadir más monstruos.
+
+1. Crear un motor común de combate.
+2. Mantener y corregir la iniciativa.
+3. Normalizar etiquetas y terrenos. 
+4. Corregir el guardado y la carga del inventario.
+5. Hacer que consola y web utilicen la misma lógica.
+6. Evitar errores por diferencias entre mayúsculas, tildes y nombres alternativos.
+
+Criterio de finalización:
+- Un combate puede ejecutarse sin KeyError de iniciativa.
+- El orden usa velocidad, reflejos e iniciativa aleatoria.
+- Las etiquetas se comparan de forma consistente.
+- El inventario se guarda y carga correctamente.
+- El combate no duplica reglas entre consola y web.
+
+FASE 2 - TURNOS E IA
+--------------------
+- Ejecutar correctamente turnos de jugador, aliados y enemigos.
+- Activar decidir_accion_ia().
+- Aplicar cooldowns.
+- Aplicar usos máximos.
+- Detener el combate cuando muere el jugador.
+- Restaurar entidades al finalizar.
+
+FASE 3 - HABILIDADES Y ESTADOS
+------------------------------
+- Completar habilidades data-driven.
+- Implementar quemadura.
+- Implementar purificación.
+- Implementar inalcanzable.
+- Implementar Círculo de Fuego.
+- Implementar inmunidad de Mecánico.
+- Corregir objetivos y triggers.
+
+FASE 4 - BESTIARIO
+------------------
+Añadir:
+- Goblin
+- Troll
+- Ogro de Fuego
+- Cíclope
+- Monstruo del Lago Ness
+- Megalodón
+- Kraken
+- Capitán del Caleuche
+- Nautilus
+- Leviatán
+
+FASE 5 - FASES Y JEFES
+----------------------
+- Fases de Troll, Ogro, Serpiente Marina y Kraken.
+- Tres fases del Nautilus.
+- Cinco fases del Leviatán.
+- Mecánicas especiales de Caleuche y Leviatán.
+
+FASE 6 - MAPA Y EXPLORACIÓN
+---------------------------
+- Tierra Firme y Mundo Marino siempre accesibles.
+- Mar Profundo bloqueado únicamente por la Linterna de Nautilus.
+- Ocultar peligrosidad antes del combate.
+- Mostrar peligrosidad solo después de capturar.
+- Implementar splash screen de captura.
+
+FASE 7 - LOGROS Y BOTÍN
+-----------------------
+- Contadores de Tiburones y Megalodones.
+- Recompensas fijas.
+- Escudo del Barco del Caleuche.
+- Recompensas por revivir aliados.
+- Recompensa por equipo acuático o híbrido.
+
+FASE 8 - PRUEBAS ALPHA
+----------------------
+- Tests de daño y armadura.
+- Tests de esquive.
+- Tests de iniciativa.
+- Tests de terrenos y etiquetas.
+- Tests de guardado y carga.
+- Tests de habilidades.
+- Tests de fases.
+- Tests de captura y logros.
