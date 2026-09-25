@@ -1,5 +1,5 @@
-from Files.motor import calcular_orden_turnos
-from Files.normalizacion import normalizar_terreno
+from motor import calcular_orden_turnos
+from normalizacion import normalizar_terreno
 
 def ejecutar_combate(jugador, aliados, enemigos, terreno, turno_jugador, turno_ia, mostrar_turno=None):
     terreno = normalizar_terreno(terreno)
@@ -12,10 +12,10 @@ def ejecutar_combate(jugador, aliados, enemigos, terreno, turno_jugador, turno_i
     ronda = 1
 
     while True:
-        vivos_jugador = [entidad for entidad in bando_jugador if entidad.vida_actual > 0]
-        vivos_enemigos = [entidad for entidad in enemigos if entidad.vida_actual > 0]
+        vivos_jugador = [e for e in bando_jugador if getattr(e, "vida_actual", 0) > 0]
+        vivos_enemigos = [e for e in enemigos if getattr(e, "vida_actual", 0) > 0]
 
-        if jugador is not None and jugador.vida_actual <= 0:
+        if jugador is not None and getattr(jugador, "vida_actual", 0) <= 0:
             return False
 
         if not vivos_enemigos:
@@ -32,11 +32,11 @@ def ejecutar_combate(jugador, aliados, enemigos, terreno, turno_jugador, turno_i
         for accion in orden:
             atacante = accion["objeto"]
 
-            if atacante.vida_actual <= 0:
+            if getattr(atacante, "vida_actual", 0) <= 0:
                 continue
 
             if atacante in bando_jugador:
-                if jugador is not None and jugador.vida_actual <= 0:
+                if getattr(jugador, "vida_actual", 0) <= 0:
                     return False
                 if not vivos_enemigos:
                     return True
@@ -45,5 +45,11 @@ def ejecutar_combate(jugador, aliados, enemigos, terreno, turno_jugador, turno_i
                 if not vivos_jugador:
                     return False
                 turno_ia(atacante, vivos_jugador, estado)
+
+        for entidad in vivos_jugador + vivos_enemigos:
+            if getattr(entidad, "aturdido_turnos", 0) > 0:
+                entidad.aturdido_turnos -= 1
+
+            entidad.gestionar_cooldowns()
 
         ronda += 1

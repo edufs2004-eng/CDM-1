@@ -1,9 +1,9 @@
 import random
 import time
 
-from Files.habilidades import procesar_trigger, HABILIDADES_DB, ejecutar_habilidad_activa
-from Files.objetos import generar_objeto
-from Files.normalizacion import normalizar_etiquetas
+from habilidades import procesar_trigger, HABILIDADES_DB, ejecutar_habilidad_activa
+from objetos import generar_objeto
+from normalizacion import normalizar_etiquetas
 
 class Entidad:
     def __init__(self, nombre, vida, ataque_base, reflejos, velocidad):
@@ -173,16 +173,13 @@ class Monstruo(Entidad):
         self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
 
     def decidir_accion_ia(self, aliados, enemigos, estado_combate):
-        objetivos = [e for e in aliados if e.vida_actual > 0]
+        objetivos = [e for e in aliados if getattr(e, "vida_actual", 0) > 0]
         if not objetivos:
             return
 
         objetivo = random.choice(objetivos)
-        dado = random.randint(1, 100)
-        rango_actual = 0
 
-        habilidad_elegida = None
-
+        posible_hab = []
         for hab, prob in self.probabilidades_ia.items():
             if hab not in HABILIDADES_DB:
                 continue
@@ -190,18 +187,24 @@ class Monstruo(Entidad):
                 continue
             if self.habilidades_usadas.get(hab, 0) >= HABILIDADES_DB[hab].get("usos_maximos", 99):
                 continue
+            posible_hab.append((hab, prob))
 
-            inicio = rango_actual + 1
-            rango_actual += prob
-            fin = rango_actual
+        if posible_hab:
+            total = sum(prob for _, prob in posible_hab)
+            valor = random.randint(1, total)
+            acumulado = 0
+            habilidad_elegida = None
 
-            if inicio <= dado <= fin:
-                habilidad_elegida = hab
-                break
+            for hab, prob in posible_hab:
+                acumulado += prob
+                if valor <= acumulado:
+                    habilidad_elegida = hab
+                    break
 
-        if habilidad_elegida:
-            self.habilidades_usadas[habilidad_elegida] = self.habilidades_usadas.get(habilidad_elegida, 0) + 1
-            self.cooldowns[habilidad_elegida] = HABILIDADES_DB[habilidad_elegida].get("cooldown", 0)
-            ejecutar_habilidad_activa(habilidad_elegida, self, objetivo, estado_combate)
-        else:
-            self.atacar(objetivo)
+            if habilidad_elegida is not None:
+                self.habilidades_usadas[habilidad_elegida] = self.habilidades_usadas.get(habilidad_elegida, 0) + 1
+                self.cooldowns[habilidad_elegida] = HABILIDADES_DB[habilidad_elegida].get("cooldown", 0)
+                ejecutar_habilidad_activa(habilidad_elegida, self, objetivo, estado_combate)
+                return
+
+        self.atacar(objetivo)

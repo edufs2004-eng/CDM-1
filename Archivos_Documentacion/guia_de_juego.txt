@@ -1,148 +1,878 @@
-CDM - GUÍA DE JUEGO Y BASE DE DISEÑO
-====================================
+Aquí tienes el Documento Maestro de Diseño corregido, pulido y unificado. He aplicado los blindajes técnicos, las correcciones de variables, la unificación del término "Armadura", y he arreglado la paradoja del Nautilus y el error conceptual de la etiqueta Volador.
 
-CONCEPTO
---------
-CDM es un RPG táctico de captura de monstruos. No existen niveles ni experiencia.
-La progresión es horizontal: el jugador obtiene nuevas opciones al capturar monstruos,
-conseguir objetos y desbloquear recompensas por hitos.
+Copia este texto exacto y úsalo como tu Biblia o "Prompt Maestro" para alinear a Copilot.
+
+CDM - GUÍA DE DISEÑO Y VISIÓN DE JUEGO
+PROPÓSITO DEL DOCUMENTO
+Este documento es la base de diseño, coordinación y trabajo del proyecto CDM.
+No es una guía para el jugador final ni una hoja de instrucciones de uso.
+Es la fuente normativa de juego, reglas, contenido, matices evolutivos, contenido pendiente y lineamientos técnicos que deben mantenerse presentes en cada cambio del proyecto.
+
+La intención es que este documento funcione como criterio de verdad para:
+
+decidir qué está implementado,
+
+qué falta por implementar,
+
+qué es contenido estable,
+
+qué es contenido experimental o “en desarrollo”,
+
+y qué no puede contradecirse en futuras versiones.
+
+Si una regla aparece aquí, debe respetarse en diseño, código y contenido.
+Si algo está marcado como “en desarrollo”, significa que sí existe como idea pero aún no está cerrado o implementado.
+
+IDEA CENTRAL DEL JUEGO
+
+CDM es un RPG táctico de captura de monstruos con enfoque Data-Driven.
+
+La progresión no se basa en “subir de nivel” ni en puntos de experiencia.
+La progresión es estrictamente horizontal:
+
+el jugador crece al capturar monstruos,
+
+al equipar objetos,
+
+al obtener botín fijo por hitos,
+
+y al combinar aliados vivos con habilidades útiles.
 
 El combate es asimétrico:
-- El jugador decide las acciones del Pescador.
-- Los aliados y enemigos actúan automáticamente.
-- El jugador pierde inmediatamente si llega a 0 HP.
-- Al finalizar un combate, el jugador y sus aliados se restauran completamente.
 
-EXPLORACIÓN
------------
-La exploración es abierta.
+el jugador elige sus acciones manualmente,
 
-El único bloqueo geográfico real es Mar Profundo, que exige la Linterna de Nautilus.
-Tierra Firme y Mundo Marino son accesibles sin requisitos artificiales.
+los aliados y enemigos actúan de forma 100% autónoma,
 
-La dificultad depende de:
-- Las estadísticas del monstruo.
-- Sus habilidades.
-- Las decisiones tácticas del jugador.
-- El terreno.
-- La peligrosidad real del encuentro.
+la dificultad no está medida por niveles, sino por Peligrosidad.
 
-PELIGROSIDAD
-------------
-La peligrosidad es información oculta.
+La Peligrosidad es una escala de 0 a 9:
 
-No debe mostrarse antes de iniciar el combate.
-Solo se revela en el splash screen informativo del monstruo después de capturarlo.
+0-1: triviales
 
-La peligrosidad sirve como información retrospectiva y no como requisito de acceso.
+2-3: peligrosidad baja-media
 
-TERRENOS Y ETIQUETAS
---------------------
-Terrenos canónicos:
-- Tierra
-- Agua
-- Agua profunda
-- Híbrido
+4-5: peligrosidad media-alta
 
-Etiquetas canónicas:
-- Terrestre
-- Acuático
-- Híbrido
-- Volador
-- Ataque a distancia
-- Titánico
-- Gigante
-- Mecánico
-- Barca
+6-7: peligrosidad alta
 
-Las comparaciones deben normalizar mayúsculas, tildes y variantes antes de evaluarse.
+8-9: aniquilación, múltiples fases, mecánicas extremas
 
-JUGADOR
--------
-El Pescador comienza con:
-- 10 HP
-- 1 Ataque
-- 2 Reflejos
-- 3 Velocidad
+IMPORTANTE:
 
-Tiene siete slots:
-- Mano 1
-- Mano 2
-- Cabeza
-- Torso
-- Piernas
-- Brazos
-- Extra
+La peligrosidad NO se revela antes del combate.
 
-Los objetos pueden modificar estadísticas, etiquetas, habilidades y defensas.
+Solo se revela de forma informativa en el splash screen del monstruo después de capturarlo.
 
-ALIADOS
--------
-El equipo activo admite un máximo de cuatro monstruos.
-Los monstruos adicionales se almacenan en la caja o reserva.
+La peligrosidad no es un requisito de acceso ni un bloqueo artificial del mundo.
 
-Los aliados capturados conservan sus estadísticas generadas al nacer.
-Las fases avanzadas de algunos monstruos no son accesibles después de capturarlos.
+EXPLORACIÓN Y MUNDO
 
-COMBATE
--------
-El orden de turnos se calcula así:
+CDM tiene exploración abierta.
 
-acciones = velocidad_actual // velocidad_mínima_del_combate
+Regla principal:
 
-Todos los combatientes vivos reciben al menos una acción.
-El orden se desempata por:
-1. Velocidad
-2. Reflejos
-3. Iniciativa aleatoria
+El mundo es accesible libremente. La dificultad no depende de “zonas bloqueadas” por nivel, sino de la decisión, la preparación y el riesgo del jugador.
 
-La iniciativa se genera para cada acción de cada ronda y no debe eliminarse.
+El único requisito explícito para combatir mecánicamente en terrenos de "Agua profunda" es poseer un objeto específico.
 
-REGLAS PRINCIPALES
-------------------
-- El daño usa ataque con varianza menos armadura.
-- El esquive depende de reflejos y velocidad.
-- Volador es inmune a ataques cuerpo a cuerpo.
-- Titánico es inmune a ataques normales.
-- Gigante reduce el daño recibido de entidades normales.
-- Mecánico reduce daño y es inmune a estados alterados.
-- El aturdimiento consume una acción.
-- El jugador muerto termina inmediatamente el combate.
+Zonas canónicas:
+
+Tierra Firme
+
+Mundo Marino
+
+Mar Profundo
+
+Reglas de acceso:
+
+Tierra Firme: acceso libre.
+
+Mundo Marino: acceso libre, pero el jugador necesita equipar Barca u obtener aliados Acuáticos/Híbridos para participar de forma viable en el terreno "Agua".
+
+Mar Profundo: el jugador necesita la Linterna de Nautilus para combatir en el terreno "Agua profunda". (Nautilus funge como guardián transicional para obtenerla).
+
+JUGADOR: EL PESCADOR
+
+El jugador representa al Pescador.
+
+Condición de derrota:
+
+Si el jugador llega a 0 HP, pierde el combate inmediatamente.
+
+No importa el estado del resto del equipo.
+
+Al terminar combate, el jugador y su equipo se restauran completamente.
+
+Estadísticas base:
+
+HP: 10
+
+Ataque: 1
+
+Reflejos: 2
+
+Velocidad: 3
+
+Slots de equipamiento:
+
+Mano 1
+
+Mano 2
+
+Cabeza
+
+Torso
+
+Piernas
+
+Brazos
+
+Extra
+
+Limitaciones del jugador:
+
+No tiene habilidades activas innatas.
+
+No tiene etiquetas de terreno propias.
+
+Todo su crecimiento depende de:
+
+objetos equipados,
+
+aliados vivos,
+
+y habilidades que “tome prestadas” del equipo.
+
+El jugador puede equipar objetos con:
+
+ataques,
+
+armadura,
+
+reflejos,
+
+velocidad,
+
+etiquetas,
+
+habilidades,
+
+escudos,
+
+bonificaciones de terreno o resistencia.
+
+EQUIPO Y ALIADOS
+
+El equipo activo admite máximo 4 monstruos aliados al mismo tiempo.
+
+Tipos de almacenamiento:
+
+Equipo activo: 1 a 4 monstruos.
+
+Caja / reserva: monstruos capturados pero no activos.
+
+Aliados obtenidos: al menos los capturados y registrados del historial del jugador.
+
+Regla de captura:
+
+Los monstruos capturados conservan sus stats generados al nacer.
+
+Los monstruos pueden mantener fases especiales, pero las fases avanzadas no siempre son accesibles para captura o uso en equipo.
+
+Concepto de permisos:
+
+El equipo no puede exceder 4 aliados activos.
+
+La UI puede implementarse con Drag & Drop, pero la lógica del juego sigue siendo estricta: máximo 4 activos.
+
+SISTEMA DE COMBATE
+
+5.1 Orden de turnos
+La acción por ronda se calcula por división entera:
+
+acciones = Velocidad de la Entidad // Velocidad más baja del combate
+
+Regla de Blindaje (Hard-Rule):
+
+Todos los combatientes vivos reciben al menos una acción. Si el cálculo matemático da un resultado menor a 1, el motor fuerza acciones = 1.
+
+Si un combatiente tiene más velocidad, puede recibir más acciones.
+
+Los empates se resuelven por:
+
+Reflejos
+
+Iniciativa aleatoria
+
+La iniciativa debe mantenerse como valor individual por acción dentro de cada ronda.
+No se elimina la iniciativa ni se reemplaza por un cálculo distinto.
+
+5.2 Daño y defensa
+Fórmula base del daño:
+
+Daño final = (Ataque Base ± Varianza) - Armadura
+
+Regla:
+
+Si daño final es negativo, se considera 0.
+
+La Armadura reduce directamente el daño recibido. No existe el término "Defensa" en el código, todo se llama "Armadura".
+
+La varianza puede ser modificada por objetos o habilidades.
+
+No todas las habilidades respetan la misma varianza; algunas pueden anularla o asumir daño fijo.
+
+5.3 Esquive
+El esquive depende de la combinación de:
+
+Reflejos
+
+Velocidad
+
+y/o condiciones especiales del enemigo o la habilidad.
+
+Regla general:
+
+El esquive es esencialmente un valor probabilístico, no una habilidad fija.
+
+5.4 Derrota del jugador
+Si el jugador llega a 0 HP, el combate termina de inmediato.
+No importa si los aliados siguen vivos.
+Eso aplica tanto a combate normal como a encuentros con fases, bosses o mecánicas de control.
+
+5.5 Fin del combate
+Al terminar la batalla:
+
+victoria o derrota,
+
+el jugador y su equipo se curan por completo.
+
+se reinician estados temporales y cooldowns.
 
 HABILIDADES
------------
-Tipos:
-- Activa: elegida manualmente.
-- Pasiva: permanece activa.
-- Trigger: se activa ante un evento.
-- IA: seleccionada automáticamente por monstruos.
 
-Las habilidades pueden tener:
-- Probabilidad.
-- Usos máximos.
-- Cooldown.
-- Restricciones de objetivo.
-- Efectos de estado.
-- Cambio de fase.
+6.1 Tipos de habilidades
+Habilidad Activa:
 
-GUARDADO
---------
-Los objetos se guardan por nombre, nunca como instancias Python.
-Los monstruos se guardan con sus estadísticas y habilidades.
+elegida manualmente,
 
-El guardado debe conservar:
-- Jugador.
-- Equipo activo.
-- Caja.
-- Inventario.
-- Equipamiento.
-- Eventos desbloqueados.
-- Contadores de logros.
-- Datos generados de monstruos.
+proviene del objeto equipado o del aliado vivo,
 
-BOTÍN Y LOGROS
---------------
-El botín se entrega por hitos fijos.
-No debe depender de drops aleatorios posteriores al combate.
+requiere uso por batalla y cooldown.
 
-La peligrosidad se muestra únicamente después de capturar al monstruo.
+Habilidad de IA:
+
+ejecutada por máquina,
+
+se genera al nacer el monstruo,
+
+usa ventana deslizante de probabilidades,
+
+respeta cooldown y usos máximos.
+
+Habilidad de Trigger:
+
+efecto pasivo o instantáneo,
+
+no requiere selección manual,
+
+se activa en un evento concreto.
+
+Habilidad de estado / debuff:
+
+puede aplicar aturdimiento, quemadura, reducción de velocidad, aislamiento, etc.
+
+6.2 Ventana deslizante de IA
+Al inicio del turno de una entidad controlada por IA:
+
+se tira 1d100,
+
+cada habilidad tiene un porcentaje de activación asignado,
+
+si la habilidad está en cooldown o sin usos, su espacio se elimina y el rango se desliza,
+
+si el dado cae fuera de cualquier rango válido, o todo está agotado, la entidad ejecuta un ataque básico.
+
+Regla de prioridad:
+
+Habilidad disponible con mayor probabilidad activa primero.
+
+Si una habilidad no está disponible, se descarta sin romper la lógica.
+
+Las chances siempre se calculan sobre la probabilidad total del conjunto disponible.
+
+6.3 Habilidades del jugador
+El jugador no tiene habilidades innatas de combate.
+Todo lo que usa debe venir de:
+
+equipamiento,
+
+aliados vivos,
+
+o habilidades prestadas por el equipo en la arena.
+
+Las habilidades del jugador son activas y necesitan:
+
+selección manual,
+
+objetivo válido,
+
+usos por combate,
+
+y cooldown.
+
+ESTADOS ALTERADOS Y DEFENSAS
+
+7.1 Armadura
+La armadura reduce el daño recibido de forma directa.
+Puede venir de:
+
+objetos,
+
+habilidades,
+
+fases de monstruos,
+
+escudos.
+
+7.2 Aturdimiento
+Aturdimiento: se maneja mediante la variable self.aturdido_turnos. Al inicio de su turno, si el valor es > 0, se le resta 1, la entidad pierde esa acción específica, y el ciclo continúa. No borra cooldowns ni usos.
+
+7.3 Quemadura
+Quemadura es un estado degenerativo acumulable, duración indefinida hasta ser purificada o curada. Se acumula en cargas.
+
+Escala:
+
+1 a 2 cargas: -1 HP por turno
+
+3 a 4 cargas: -2 HP por turno
+
+5 cargas: Quemadura grave, -3 HP por turno
+
+Regla clave:
+
+La quemadura es acumulable.
+
+Puede ser purificada por habilidades como Chorro de agua.
+
+Puede afectar a enemigos y aliados.
+
+7.4 Inalcanzable / Círculo de Fuego
+Inalcanzable:
+
+el objetivo está temporalmente inmune a ser seleccionado como objetivo.
+
+Círculo de Fuego:
+
+aísla a dos entidades en un 1v1 ininterrumpible durante un número marcado de turnos.
+
+el resto de entidades no puede atacarlo ni dañarlo mientras dure el aislamiento.
+
+el enemigo encerrado puede seguir atacando al objetivo aislado.
+
+ETIQUETAS (TAGS)
+
+Etiquetas canónicas:
+
+Terrestre
+
+Acuático
+
+Híbrido
+
+Volador
+
+Ataque a distancia
+
+Titánico
+
+Gigante
+
+Mecánico
+
+Barca
+
+Regla normativa:
+
+Las etiquetas deben normalizarse (primera letra mayúscula, con tildes) antes de comparar o guardar. Toda tabla y JSON debe usar estas etiquetas exactas.
+
+8.1 Restricciones de terreno y tipo
+Terrestre: participa en terrenos de Tierra.
+
+Acuático: participa en terrenos de Agua.
+
+Híbrido: puede participar en Tierra o Agua.
+
+Volador: inmune totalmente a ataques cuerpo a cuerpo. Solo puede ser dañado por otros voladores o entidades con la etiqueta 'Ataque a distancia'.
+
+8.2 Reglas de etiquetas de escala
+Titánico:
+
+inmune a ataques normales.
+
+mitiga 25% del daño recibido de entidades Gigantes.
+
+Gigante:
+
+mitiga 30% del daño recibido de enemigos normales.
+
+recibe penalización al atacar a un Titánico.
+
+Mecánico:
+
+mitiga 10% de todo el daño recibido.
+
+inmune total a estados alterados:
+
+aturdimiento
+
+quemadura
+
+debuffs de velocidad
+
+TERRENOS Y ZONAS
+
+Terrenos canónicos:
+
+Tierra
+
+Agua
+
+Agua profunda
+
+Híbrido
+
+9.1 Tierra Firme
+Combates bajo etiqueta Tierra.
+Regla: Usar Tsunami en un terreno de Tierra lo convierte a Híbrido.
+
+9.2 Mundo Marino
+Combates bajo etiqueta Agua.
+El jugador necesita:
+
+Barca equipada, o
+
+aliados Acuáticos/Híbridos.
+Si no cumple esto, no puede participar de forma segura o válida.
+
+9.3 Mar Profundo
+Zona late game.
+Exige:
+
+Linterna de Nautilus para combatir en terrenos de Agua profunda. Nautilus funciona como el guardián transicional de esta zona para obtener dicho objeto.
+
+GENERACIÓN DE MONSTRUOS
+
+Los monstruos se generan con stats mediante intervalos.
+
+Valor por monstruo:
+
+HP: rango [min, max]
+
+Ataque: rango [min, max]
+
+Reflejos: rango [min, max]
+
+Velocidad: rango [min, max]
+
+Armadura: rango [min, max]
+
+Etiquetas: lista
+
+Habilidades: lista
+
+Probabilidades IA: porcentaje de activación por habilidad
+
+Las probabilidades de IA se asignan al nacer el monstruo. No suben por experiencia.
+
+BESTIARIO
+
+A continuación se registran los monstruos del diseño actual con su data de referencia.
+
+11.1 Tierra Firme
+Goblin
+
+Peligrosidad: 0.3
+
+Terreno: Tierra
+
+Vida: [2, 4]
+
+Ataque: [1, 2]
+
+Reflejos: [1, 1]
+
+Velocidad: [1, 2]
+
+Armadura: [0, 0]
+
+Etiquetas: [Terrestre]
+
+Habilidades:
+
+Risa provocadora: Habilidad activa. Al usarse, el Goblin se vuelve el centro de atención (aggro forzado) y atrae todos los ataques hacia él hasta morir.
+
+Troll
+
+Peligrosidad: 2.6
+
+Terreno: Tierra
+
+Vida: [14, 20]
+
+Ataque: [3, 4]
+
+Reflejos: [1, 1]
+
+Velocidad: [2, 4]
+
+Armadura: [2, 4]
+
+Etiquetas: [Terrestre]
+
+Habilidades:
+
+Mejor amigo: si el jugador va a recibir daño mortal, el Troll recibe ese daño en lugar del jugador. Se activa hasta 2 veces. Si el troll muere o a la tercera vez, el Troll saca al jugador del combate (Inalcanzable por 2 turnos).
+
+Fase 2 (No accesible para captura):
+
+Ataque x1.2
+
+Vida x1.3
+
+Ogro de Fuego
+
+Peligrosidad: 3.8
+
+Terreno: Tierra
+
+Vida: [20, 22]
+
+Ataque: [5, 6]
+
+Reflejos: [2, 3]
+
+Velocidad: [4, 5]
+
+Armadura: [0, 0]
+
+Etiquetas: [Terrestre]
+
+Habilidades:
+
+Puños en llamas: 25% de probabilidad de causar quemadura con su ataque básico.
+
+Círculo de fuego: aísla a un enemigo en un domo 1v1 por 2 turnos. Puños en llamas aumenta a 35%. Cooldown: 8.
+
+Fase 2:
+
+Velocidad x1.2, Vida x1.0
+
+Puños en llamas sube a 30%
+
+Círculo de fuego: probabilidad base x1.2. Puños en llamas dentro del círculo sube a 45%.
+
+Cíclope
+
+Peligrosidad: 4.0
+
+Terreno: Tierra
+
+Vida: [40, 50]
+
+Ataque: [4, 8]
+
+Reflejos: [1, 1]
+
+Velocidad: [2, 3]
+
+Armadura: [2, 3]
+
+Etiquetas: [Terrestre, Gigante]
+
+Habilidades:
+
+Comida: 10% de probabilidad de reemplazar su golpe básico para morder al enemigo, haciendo daño igual a su ataque y recuperando ese daño como vida.
+
+11.2 Mundo Marino
+Pulpo Inteligente
+
+Peligrosidad: 0.9
+
+Terreno: Híbrido
+
+Vida: [6, 8]
+
+Ataque: [1, 3]
+
+Reflejos: [1, 1]
+
+Velocidad: [2, 3]
+
+Armadura: [0, 0]
+
+Etiquetas: [Híbrido]
+
+Habilidades:
+
+Cachetada: 30% de probabilidad de aturdir 1 turno, solo si el daño infligido es >= 10% de la vida máxima (self.vida_max) del objetivo.
+
+Tiburón
+
+Peligrosidad: 1.0
+
+Terreno: Agua
+
+Vida: [7, 10]
+
+Ataque: [2, 5]
+
+Reflejos: [2, 3]
+
+Velocidad: [5, 6]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático]
+
+Habilidades: Ninguna (DPS puro).
+
+Monstruo del Lago Ness
+
+Peligrosidad: 2.1
+
+Terreno: Agua
+
+Vida: [10, 14]
+
+Ataque: [2, 4]
+
+Reflejos: [4, 5]
+
+Velocidad: [4, 6]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático]
+
+Habilidades:
+
+Chorro de agua: purifica quemaduras de un aliado o de sí mismo en lugar de atacar.
+
+Megalodón
+
+Peligrosidad: 2.3
+
+Terreno: Agua
+
+Vida: [15, 22]
+
+Ataque: [5, 6]
+
+Reflejos: [1, 3]
+
+Velocidad: [4, 5]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático]
+
+Habilidades:
+
+Gran mordisco (CD: 5): ataque x1.5 sin variación. Ignora la penalización de daño contra la etiqueta Gigante.
+
+Serpiente Marina
+
+Peligrosidad: 2.9
+
+Terreno: Agua
+
+Vida: [12, 18]
+
+Ataque: [5, 8]
+
+Reflejos: [4, 6]
+
+Velocidad: [8, 12]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático, Gigante]
+
+Habilidades:
+
+Tsunami: Habilidad activa (1 uso). Cambia el terreno a Híbrido.
+
+Fase 2 (No accesible para captura):
+
+Vida x1.1, Velocidad x1.1, Ataque x1.2, Reflejos x1.1.
+
+Kraken
+
+Peligrosidad: 2.9
+
+Terreno: Agua
+
+Vida: [20, 25]
+
+Ataque: [8, 9]
+
+Reflejos: [1, 2]
+
+Velocidad: [2, 3]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático, Gigante]
+
+Habilidades:
+
+Furia del mar: Al llegar a 0 HP, pasa a Fase 2. Aturde a un enemigo (3 turnos si es normal; 1 turno si es Gigante o Titánico).
+
+Fase 2:
+
+Vida x0.8, Ataque x1.4
+
+11.3 Mar Profundo
+Capitán del Caleuche
+
+Peligrosidad: 4.9
+
+Terreno: Híbrido
+
+Vida: [40, 55]
+
+Ataque: [10, 10]
+
+Reflejos: [5, 8]
+
+Velocidad: [3, 4]
+
+Armadura: [0, 0]
+
+Etiquetas: [Terrestre]
+
+Habilidades:
+
+Tripulación fantasma: convierte aliados muertos en fantasmas (Vida 10, Ataque 5, Reflejos 3, Velocidad 3).
+
+No muerto: 30% de probabilidad de revivir al recibir daño mortal. Revive con la vida exacta que tenía al inicio del turno anterior. (Directiva Técnica: Entidad debe incluir self.vida_turno_anterior actualizada cada ronda global).
+
+Nautilus
+
+Peligrosidad: 5.9
+
+Terreno: Agua
+
+Vida: [80, 80]
+
+Ataque: [8, 8]
+
+Reflejos: [1, 1]
+
+Velocidad: [6, 6]
+
+Armadura: [10, 10]
+
+Etiquetas: [Híbrido, Gigante, Mecánico]
+
+Habilidades: 3 fases continuas.
+
+Fase 2: Vida [100, 100], Ataque [10, 10], Velocidad [8, 8], Armadura [6, 6]
+
+Fase 3: Vida [70, 70], Ataque [15, 15], Velocidad [5, 5], Armadura [1, 1]
+
+Leviatán
+
+Peligrosidad: 8.0
+
+Terreno: Agua
+
+Vida: [200, 300]
+
+Ataque: [25, 30]
+
+Reflejos: [1, 1]
+
+Velocidad: [1, 1]
+
+Armadura: [0, 0]
+
+Etiquetas: [Acuático, Titánico]
+
+Habilidades:
+
+Fase 3: devora instantáneamente a todos los aliados sin etiqueta Titánico.
+
+Fase 4: destruye cualquier escudo del jugador.
+
+OBJETOS Y BOTÍN FIJO
+
+La progresión por botín es fija y consciente, mediante hitos. No se usa RNG post-combate. Todo objeto debe guardarse por su nombre, no como instancia.
+
+Objetos actuales:
+
+Palo de madera con hojita: +1 Ataque. Derrota al Pulpo Inteligente.
+
+Hacha de fuego: +4 Ataque, Varianza ±1, 40% quemadura. Derrota al Ogro perdiendo <50% HP.
+
+Linterna de Nautilus: Permite combatir en Agua Profunda. Destrucción de Nautilus.
+
+Barco del Caleuche: Escudo de 100 HP en agua/agua profunda. Derrota al Caleuche.
+
+Corona de dientes de tiburón: +2 Armadura. Matar 10 Tiburones.
+
+Armadura de dientes de megalodón: +5 Armadura, Varianza ±1. Matar 10 Megalodones.
+
+Espada del capitán: +5 Ataque, Varianza ±1, +2 Reflejos. Revivir 4 aliados en el mismo turno.
+
+Caña de pescar de experto: +3 Ataque. Tener 3 monstruos Acuáticos/Híbridos activos.
+
+REGLAS DE GUARDADO
+
+El guardado debe conservar estrictamente:
+
+Jugador (nombre, equipo activo, caja, inventario, equipo equipado, eventos/contadores).
+
+Los monstruos se guardan con sus stats generados.
+
+El inventario guarda solo nombres (Strings). La carga reconstruye el objeto.
+
+REGLAS TÉCNICAS DE NORMALIZACIÓN
+
+Todas las etiquetas y terrenos deben escribirse siempre con la primera letra mayúscula y respetando tildes (Tierra, Agua, Agua profunda, Híbrido, Terrestre, Acuático, Volador, Ataque a distancia, Titánico, Gigante, Mecánico, Barca).
+
+REGLAS DE LOGROS Y AVANCE
+
+Los logros no pueden depender de RNG; se otorgan inmediatamente al cumplir el hito dentro del evaluador de victoria.
+
+CONCEPTOS EN DESARROLLO
+
+Cualquier estado o fase compleja listada en Leviatán, Capitán del Caleuche o expansiones futuras son conceptos de trabajo (WIP). No deben asumirse como implementados hasta que se aborden mecánicamente en la hoja de ruta.
+
+RESUMEN DE LA BASE ESTABLE
+
+Progresión horizontal.
+
+Peligrosidad oculta antes del combate.
+
+Ningún bloqueo geográfico a excepción de Agua Profunda.
+
+El jugador pierde si llega a 0 HP.
+
+Máximo 4 aliados activos.
+
+Todos los combatientes tienen mínimo 1 acción por ronda.
+
+La IA usa la ventana deslizante estricta.
+
+El término técnico único de reducción de daño es Armadura.
+
+Las etiquetas se normalizan con Mayúscula y tilde.
+
+La lógica no debe duplicarse entre Web y Consola.
+
+CONCLUSIÓN
+
+La dificultad de CDM no se "sube" con niveles, se supera con lectura táctica del combate, manejo del terreno, recambio de aliados, peligro oculto y recompensa fija garantizada.

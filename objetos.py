@@ -1,4 +1,4 @@
-from Files.objetos import generar_objeto
+from objetos import generar_objeto
 
 def evaluar_logros(jugador, enemigo, estado_combate):
     nuevos_logs = []

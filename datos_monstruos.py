@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from Files.entidades import Monstruo
+from entidades import Monstruo
 
 def cargar_base_monstruos():
     ruta = os.path.join(os.path.dirname(__file__), 'datos_monstruos.json')

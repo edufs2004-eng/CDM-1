@@ -94,11 +94,20 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None):
         usuario.habilidades_usadas[nombre_hab] = usuario.habilidades_usadas.get(nombre_hab, 0) + 1
         time.sleep(1)
 
-def ejecutar_habilidad_activa(nombre, lanzador, objetivo, estado_combate):
-    if nombre == "Tsunami":
-        if estado_combate["terreno"].lower() in ["agua", "híbrido", "hibrido"]:
-            print(f"¡El terreno ya es {estado_combate['terreno']}, el Tsunami choca sin efecto!")
-        else:
-            estado_combate["terreno"] = "híbrido"
-            print(f"¡{lanzador.nombre} invoca un Tsunami! El campo se inunda y pasa a ser Híbrido.")
-    time.sleep(1)
+def ejecutar_habilidad_activa(nombre, atacante, objetivo, estado_combate):
+    if nombre not in HABILIDADES_DB:
+        return
+
+    datos = HABILIDADES_DB[nombre]
+
+    if atacante.cooldowns.get(nombre, 0) > 0:
+        return
+
+    usos_max = datos.get("usos_maximos", 99)
+    if atacante.habilidades_usadas.get(nombre, 0) >= usos_max:
+        return
+
+    atacante.habilidades_usadas[nombre] = atacante.habilidades_usadas.get(nombre, 0) + 1
+    atacante.cooldowns[nombre] = datos.get("cooldown", 0)
+
+    # aquí va la lógica de la habilidad

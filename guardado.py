@@ -1,8 +1,8 @@
 import json
 import os
 
-from Files.entidades import Jugador, Monstruo
-from Files.objetos import generar_objeto
+from entidades import Jugador, Monstruo
+from objetos import generar_objeto
 
 ARCHIVO_GUARDADO = "partida_guardada.json"
 

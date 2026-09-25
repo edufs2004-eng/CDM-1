@@ -1,7 +1,7 @@
 import time
 import random
-from Files.datos_monstruos import generar_monstruo
-from Files.combate import iniciar_combate
+from datos_monstruos import generar_monstruo
+from combate import iniciar_combate
 
 ZONAS = {
     "Playa": {
