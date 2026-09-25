@@ -112,6 +112,20 @@ class AlphaCoreTests(unittest.TestCase):
         jugador.recibir_dano(2, atacante, {"terreno": "Tierra"})
         self.assertEqual(jugador.vida_actual, 8)
 
+    def test_mecanico_reduce_dano_y_bloquea_estados(self):
+        mecanico = Entidad("Mecánico", 20, 1, 1, 3)
+        mecanico.etiquetas = ["Mecánico"]
+        atacante = Entidad("Atacante", 10, 1, 1, 1)
+
+        mecanico.recibir_dano(10, atacante)
+        self.assertEqual(mecanico.vida_actual, 11)
+
+        from habilidades import aplicar_efectos
+        aplicar_efectos([{"accion": "aturdir", "turnos": 2}], atacante, mecanico, {})
+        aplicar_efectos([{"accion": "reducir_velocidad", "porcentaje": 0.5}], atacante, mecanico, {})
+        self.assertEqual(mecanico.aturdido_turnos, 0)
+        self.assertEqual(mecanico.velocidad_actual, 3)
+
 
 if __name__ == "__main__":
     unittest.main()

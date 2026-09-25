@@ -89,6 +89,8 @@ class Entidad:
     def recibir_dano(self, dano, atacante, estado_combate=None):
         dano_final = dano - self.armadura
         if dano_final < 0: dano_final = 0
+        if "Mecánico" in self.etiquetas:
+            dano_final = round(dano_final * 0.90)
 
         terreno = estado_combate.get("terreno") if estado_combate else None
         if terreno in ("Agua", "Agua profunda") and self.escudo_actual > 0:
@@ -184,10 +186,17 @@ class Entidad:
             print(f"¡El ataque de {self.nombre} no tuvo efecto por restricción de clases!")
         else:
             dano_calculado = round(dano_bruto * multiplicador)
+            vida_anterior = objetivo.vida_actual
             objetivo.recibir_dano(dano_calculado, self, estado_combate)
             
             if objetivo.vida_actual > 0:
-                procesar_trigger("al_atacar", self, objetivo)
+                procesar_trigger(
+                    "al_atacar",
+                    self,
+                    objetivo,
+                    estado_combate,
+                    evento={"dano_realizado": vida_anterior - objetivo.vida_actual},
+                )
             
         time.sleep(1)
 

@@ -312,17 +312,25 @@ Estado actual:
 - El hito de cuatro aliados revividos entrega la Espada del capitán; el contador
   existe, pero la conversión de Tripulación fantasma aún debe registrarse como
   revive cuando se complete su implementación.
+- Fase 7 cerrada para los sistemas implementados; Tripulación fantasma queda
+  como WIP explícito y no bloquea la validación Alpha restante.
 
 FASE 8 - VALIDACION ALPHA
 -------------------------
  Estado actual:
+- Fase 8 activa: se ejecuta la suite completa de validación Alpha.
 - test_alpha.py cubre daño, Armadura, esquive, terrenos y guardado.
 - test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
 - test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
   y test_mapa.py cubren los contratos específicos de cada fase.
-- La suite actual pasa 31 pruebas.
-- Los logros completos y las recompensas fijas todavía no están implementados;
-  por eso su validación queda pendiente de la Fase 7.
+- El descubrimiento automático de pruebas pasa 55 casos.
+- La compilación completa de los módulos de producción pasa.
+- El diagnóstico pendiente de Flask corresponde al intérprete del editor, no a
+  un error de sintaxis ni de ejecución del módulo.
+- Las recompensas fijas implementadas ya están validadas; queda pendiente la
+  interacción WIP de Tripulación fantasma con el hito de revivir.
+- Mecánico mitiga 10% del daño y es inmune a aturdimiento y reducción de
+  velocidad; estas reglas tienen cobertura Alpha.
 - Círculo de Fuego, Inalcanzable, varias fases y mecánicas de jefes siguen
   pendientes y no se consideran certificadas por esta suite.
 - Daño y Armadura.

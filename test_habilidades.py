@@ -207,6 +207,37 @@ class HabilidadesTests(unittest.TestCase):
 
         self.assertEqual(objetivo.quemadura_cargas, 1)
 
+    def test_cachetada_exige_diez_por_ciento_de_dano(self):
+        atacante = Monstruo(
+            "Pulpo Inteligente",
+            8,
+            1,
+            1,
+            2,
+            ["Híbrido"],
+            habilidades=["Cachetada"],
+        )
+        objetivo = Monstruo("Objetivo", 20, 1, 1, 1, ["Terrestre"])
+
+        with patch("habilidades.random.random", return_value=0.0):
+            from habilidades import procesar_trigger
+            procesar_trigger(
+                "al_atacar",
+                atacante,
+                objetivo,
+                evento={"dano_realizado": 1},
+            )
+        self.assertEqual(objetivo.aturdido_turnos, 0)
+
+        with patch("habilidades.random.random", return_value=0.0):
+            procesar_trigger(
+                "al_atacar",
+                atacante,
+                objetivo,
+                evento={"dano_realizado": 2},
+            )
+        self.assertEqual(objetivo.aturdido_turnos, 1)
+
     def test_chorro_de_agua_purifica_al_usuario(self):
         usuario = Monstruo(
             "Monstruo del Lago Ness",

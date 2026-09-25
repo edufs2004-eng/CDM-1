@@ -9,6 +9,7 @@ HABILIDADES_DB = {
         "tipo": "instantanea",
         "trigger": "al_atacar",
         "probabilidad": 0.30,
+        "umbral_dano_porcentaje": 0.10,
         "texto": "\n¡{usuario} activó CACHETADA!",
         "efectos": [
             {"accion": "aturdir", "turnos": 1, "texto": "¡{objetivo} ha sido aturdido (perderá su próxima acción)!"}
@@ -184,6 +185,8 @@ def aplicar_efectos(efectos, usuario, objetivo_principal, estado_combate):
             
         # 2. Aplicar la lógica del efecto
         if efecto["accion"] == "aturdir":
+            if "Mecánico" in target.etiquetas:
+                continue
             target.aturdido_turnos += efecto["turnos"]
             if "texto" in efecto: print(efecto["texto"].format(objetivo=target.nombre))
                 
@@ -197,6 +200,8 @@ def aplicar_efectos(efectos, usuario, objetivo_principal, estado_combate):
             usuario.transicionar_fase(objetivo_principal, forzar=True)
             
         elif efecto["accion"] == "reducir_velocidad":
+            if "Mecánico" in target.etiquetas:
+                continue
             reduccion = max(1, int(target.velocidad_actual * efecto["porcentaje"]))
             target.velocidad_actual -= reduccion
             if "texto" in efecto: print(efecto["texto"].format(objetivo=target.nombre, cantidad=reduccion))
@@ -249,7 +254,7 @@ def aplicar_efectos(efectos, usuario, objetivo_principal, estado_combate):
                 estado_combate.setdefault("nuevos_combatientes", []).extend(fantasmas)
                 print(f"¡{usuario.nombre} convierte {len(fantasmas)} aliado(s) muerto(s) en fantasmas!")
 
-def procesar_trigger(trigger, usuario, objetivo, estado_combate=None):
+def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=None):
     """Revisa si el personaje tiene una habilidad pasiva/instantánea que reaccione a este momento"""
     for nombre_hab in usuario.habilidades:
         if nombre_hab not in HABILIDADES_DB: continue
@@ -266,6 +271,12 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None):
 
         if usuario.enfriamientos.get(nombre_hab, 0) > 0:
             continue
+
+        umbral_dano = datos_hab.get("umbral_dano_porcentaje")
+        if umbral_dano is not None:
+            dano_realizado = (evento or {}).get("dano_realizado", 0)
+            if dano_realizado < objetivo.vida_max * umbral_dano:
+                continue
 
         # Validar probabilidad (Si tiene)
         if "probabilidad" in datos_hab:
