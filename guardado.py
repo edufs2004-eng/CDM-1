@@ -13,8 +13,16 @@ def serializar_monstruo(monstruo):
         "ataque_base": monstruo.ataque_base,
         "reflejos": monstruo.reflejos,
         "velocidad_base": monstruo.velocidad_base,
+        "armadura": monstruo.armadura,
+        "peligrosidad": monstruo.peligrosidad,
+        "terreno": monstruo.terreno,
         "etiquetas": monstruo.etiquetas,
-        "habilidades": monstruo.habilidades
+        "habilidades": monstruo.habilidades,
+        "probabilidades_ia": monstruo.probabilidades_ia,
+        "enfriamientos": monstruo.enfriamientos,
+        "fase_actual": monstruo.fase_actual,
+        "fase_en_encuentro": monstruo.fase_en_encuentro,
+        "datos_fase": monstruo.datos_fase
     }
 
 def deserializar_monstruo(datos):
@@ -25,9 +33,17 @@ def deserializar_monstruo(datos):
         reflejos=datos["reflejos"],
         velocidad=datos["velocidad_base"],
         etiquetas=datos["etiquetas"],
-        habilidades=datos.get("habilidades", [])
+        habilidades=datos.get("habilidades", []),
+        probabilidades_ia=datos.get("probabilidades_ia", {}),
+        armadura=datos.get("armadura", 0),
+        peligrosidad=datos.get("peligrosidad"),
+        datos_fase=datos.get("datos_fase", {}),
+        terreno=datos.get("terreno")
     )
     monstruo.vida_actual = datos["vida_actual"]
+    monstruo.enfriamientos = datos.get("enfriamientos", {})
+    monstruo.fase_actual = datos.get("fase_actual", 1)
+    monstruo.fase_en_encuentro = datos.get("fase_en_encuentro", False)
     return monstruo
 
 def guardar_partida(jugador):

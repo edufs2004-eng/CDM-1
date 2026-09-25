@@ -1,8 +1,9 @@
 import math
 import random
 import time
+from habilidades import avanzar_estado_combate, reducir_cooldowns
 
-def calcular_orden_turnos(combatientes):
+def calcular_orden_turnos(combatientes, estado_combate=None):
     print("\n--- CALCULANDO ORDEN DE TURNOS ---")
     time.sleep(0.5)
     
@@ -11,6 +12,15 @@ def calcular_orden_turnos(combatientes):
     
     if not activos:
         return [] # Si todos están aturdidos/muertos, no hay acciones
+
+    avanzar_estado_combate(estado_combate)
+    for combatiente in activos:
+        combatiente.vida_turno_anterior = combatiente.vida_actual
+    reducir_cooldowns(activos)
+    for combatiente in activos:
+        procesar_estados = getattr(combatiente, "procesar_estados_ronda", None)
+        if procesar_estados:
+            procesar_estados()
     
     # Usamos velocidad_actual en vez de la base
     min_vel = min(c.velocidad_actual for c in activos)
@@ -39,5 +49,8 @@ def calcular_orden_turnos(combatientes):
                 "objeto": personaje
             })
 
-    acciones_turno.sort(key=lambda x: (x["iniciativa"], random.random()), reverse=True)
+    acciones_turno.sort(
+        key=lambda x: (x["iniciativa"], x["objeto"].reflejos, random.random()),
+        reverse=True
+    )
     return acciones_turno

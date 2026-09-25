@@ -2,17 +2,49 @@ import time
 import random
 from datos_monstruos import generar_monstruo
 from combate import iniciar_combate
+from entidades import Jugador
 
-ZONAS = {
-    "Playa": {
+ZONAS_CANONICAS = {
+    "Tierra Firme": {
+        "Goblin": "Tierra",
+        "Troll": "Tierra",
+        "Ogro de Fuego": "Tierra",
+        "Cíclope": "Tierra"
+    },
+    "Mundo Marino": {
         "Pulpo Inteligente": "Híbrido",
         "Tiburón": "Agua",
-        "Serpiente Marina": "Agua"
+        "Monstruo del Lago Ness": "Agua",
+        "Megalodón": "Agua",
+        "Serpiente Marina": "Agua",
+        "Kraken": "Agua"
     },
+    "Mar Profundo": {
+        "Capitán del Caleuche": "Híbrido",
+        "Nautilus": "Agua profunda"
+    },
+}
+
+# Alias conservados para no romper enlaces o partidas que usen las zonas antiguas.
+ZONAS = {
+    **ZONAS_CANONICAS,
+    "Playa": ZONAS_CANONICAS["Mundo Marino"],
     "Bosque": {}
 }
 
 monstruos_activos = {}
+
+
+def tiene_objeto(jugador, nombre_objeto):
+    if nombre_objeto in jugador.inventario:
+        return True
+    return any(item and item.nombre == nombre_objeto for item in jugador.equipo.values())
+
+
+def zona_accesible(jugador, nombre_zona):
+    if nombre_zona == "Mar Profundo":
+        return tiene_objeto(jugador, "Linterna de Nautilus")
+    return True
 
 def verificar_restricciones_terreno(aliados, terreno_combate):
     aliados_validos = []
@@ -21,15 +53,31 @@ def verificar_restricciones_terreno(aliados, terreno_combate):
             if "Acuático" in aliado.etiquetas or "Híbrido" in aliado.etiquetas or "Barca" in aliado.etiquetas:
                 aliados_validos.append(aliado)
         elif terreno_combate == "Tierra":
-            if "Terrestre" in aliado.etiquetas or "Híbrido" in aliado.etiquetas:
+            if isinstance(aliado, Jugador) or "Terrestre" in aliado.etiquetas or "Híbrido" in aliado.etiquetas:
                 aliados_validos.append(aliado)
         else: 
             aliados_validos.append(aliado)
             
     return aliados_validos
 
+
+def obtener_combatientes_validos(jugador, terreno_combate):
+    aliados_validos = verificar_restricciones_terreno(
+        jugador.equipo_aliado,
+        terreno_combate,
+    )
+    jugador_valido = verificar_restricciones_terreno([jugador], terreno_combate)
+    combatientes = ([jugador] if jugador_valido else []) + aliados_validos
+    inactivos = [
+        aliado for aliado in jugador.equipo_aliado
+        if aliado not in aliados_validos
+    ]
+    return combatientes, inactivos
+
 def procesar_captura(jugador, monstruo):
     if monstruo.nombre not in jugador.aliados_obtenidos:
+        monstruo.restaurar_estado()
+        monstruo.fase_en_encuentro = False
         print(f"\n¡Has capturado a {monstruo.nombre}!")
         print(f"Stats guardados: Vida {monstruo.vida_max}, Ataque {monstruo.ataque_base}, Vel {monstruo.velocidad_base}")
         jugador.aliados_obtenidos.append(monstruo.nombre)
@@ -39,8 +87,10 @@ def procesar_captura(jugador, monstruo):
         else:
             jugador.caja_aliados.append(monstruo)
             print(f"Tu equipo está lleno. {monstruo.nombre} fue enviado a tu Reserva.")
+        return True
     else:
         print(f"\nYa tienes un {monstruo.nombre}. El monstruo ha sido derrotado y deja de existir.")
+        return False
 
 def menu_exploracion(jugador):
     while True:
@@ -48,7 +98,7 @@ def menu_exploracion(jugador):
         print("         MAPA MUNDI          ")
         print("="*30)
         
-        zonas_lista = list(ZONAS.keys())
+        zonas_lista = list(ZONAS_CANONICAS.keys())
         for i, zona in enumerate(zonas_lista):
             print(f"{i + 1}. {zona}")
         print(f"{len(zonas_lista) + 1}. Volver")
@@ -67,6 +117,10 @@ def menu_exploracion(jugador):
             print("Ingresa un número.")
 
 def menu_zona(jugador, nombre_zona):
+    if not zona_accesible(jugador, nombre_zona):
+        print("\n[!] Mar Profundo requiere la Linterna de Nautilus.")
+        return
+
     monstruos_zona = ZONAS[nombre_zona]
     nombres_monstruos = list(monstruos_zona.keys())
     
@@ -106,7 +160,17 @@ def menu_zona(jugador, nombre_zona):
                     jugador_combatira = jugador
                 
                 enemigos = [enemigo]
-                victoria = iniciar_combate(jugador_combatira, equipo_valido, enemigos, terreno=terreno_combate)
+                aliados_reserva = [
+                    aliado for aliado in jugador.equipo_aliado
+                    if aliado not in equipo_valido
+                ]
+                victoria = iniciar_combate(
+                    jugador_combatira,
+                    equipo_valido,
+                    enemigos,
+                    terreno=terreno_combate,
+                    aliados_reserva=aliados_reserva,
+                )
                 
                 if victoria:
                     procesar_captura(jugador, enemigo)

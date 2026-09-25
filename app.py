@@ -3,7 +3,16 @@ import sys
 from flask import Flask, render_template, request, redirect, url_for
 from entidades import Jugador
 from guardado import cargar_partida, guardar_partida
-from mapa import ZONAS, monstruos_activos, procesar_captura
+from mapa import (
+    ZONAS,
+    ZONAS_CANONICAS,
+    monstruos_activos,
+    procesar_captura,
+    zona_accesible,
+    tiene_objeto,
+    verificar_restricciones_terreno,
+    obtener_combatientes_validos,
+)
 from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
 from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
@@ -73,7 +82,12 @@ def mapa_mundi():
     global jugador_actual
     if not jugador_actual:
         return redirect(url_for('index'))
-    return render_template('mapa.html', jugador=jugador_actual, zonas=ZONAS.keys())
+    return render_template(
+        'mapa.html',
+        jugador=jugador_actual,
+        zonas=ZONAS_CANONICAS.keys(),
+        error=request.args.get('error'),
+    )
 
 @app.route('/zona/<nombre_zona>')
 def explorar_zona(nombre_zona):
@@ -81,6 +95,9 @@ def explorar_zona(nombre_zona):
     global jugador_actual
     if not jugador_actual or nombre_zona not in ZONAS:
         return redirect(url_for('mapa_mundi'))
+
+    if not zona_accesible(jugador_actual, nombre_zona):
+        return redirect(url_for('mapa_mundi', error="Mar Profundo requiere la Linterna de Nautilus."))
         
     monstruos_zona = ZONAS[nombre_zona]
     return render_template('zona.html', jugador=jugador_actual, nombre_zona=nombre_zona, monstruos=monstruos_zona, activos=monstruos_activos)
@@ -91,7 +108,8 @@ estado_combate_web = {
     "terreno": None,
     "historial_logs": [], # Textos de rondas pasadas
     "nuevos_logs": [],    # Textos de la ronda que acaba de ocurrir
-    "terminado": False
+    "terminado": False,
+    "captura": None
 }
 
 @app.route('/iniciar_combate/<nombre_enemigo>', methods=['POST'])
@@ -102,11 +120,44 @@ def iniciar_combate_web(nombre_enemigo):
         monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
         
     estado_combate_web["enemigo"] = monstruos_activos[nombre_enemigo]
+    estado_combate_web["enemigos"] = [estado_combate_web["enemigo"]]
+    estado_combate_web["equipo_enemigo"] = estado_combate_web["enemigos"]
+    estado_combate_web["nuevos_combatientes"] = []
+    combatientes_validos, aliados_inactivos = obtener_combatientes_validos(
+        jugador_actual,
+        estado_combate_web["terreno"],
+    )
+    estado_combate_web["combatientes_jugador"] = combatientes_validos
+    estado_combate_web["aliados_inactivos"] = aliados_inactivos
+
+    if not combatientes_validos:
+        return redirect(url_for('mapa_mundi', error="No tienes combatientes válidos para este terreno."))
+
+    def actualizar_combatientes_web():
+        if jugador_actual not in estado_combate_web["combatientes_jugador"]:
+            if jugador_actual in verificar_restricciones_terreno([jugador_actual], estado_combate_web["terreno"]):
+                estado_combate_web["combatientes_jugador"].insert(0, jugador_actual)
+
+        for aliado in estado_combate_web["aliados_inactivos"][:]:
+            if aliado in verificar_restricciones_terreno([aliado], estado_combate_web["terreno"]):
+                estado_combate_web["combatientes_jugador"].append(aliado)
+                estado_combate_web["aliados_inactivos"].remove(aliado)
+
+        jugador_actual.guardianes = [
+            aliado for aliado in estado_combate_web["combatientes_jugador"]
+            if aliado is not jugador_actual
+        ]
+
+    estado_combate_web["actualizar_combatientes"] = actualizar_combatientes_web
     estado_combate_web["terreno"] = request.form.get('terreno')
     estado_combate_web["historial_logs"] = []
     estado_combate_web["nuevos_logs"] = [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"]
     estado_combate_web["terminado"] = False
     estado_combate_web["habilidades_usadas"] = []
+    estado_combate_web["captura"] = None
+
+    if estado_combate_web["terreno"] == "Agua profunda" and not tiene_objeto(jugador_actual, "Linterna de Nautilus"):
+        return redirect(url_for('mapa_mundi', error="Mar Profundo requiere la Linterna de Nautilus."))
     
     jugador_actual.restaurar_estado()
     
@@ -138,10 +189,13 @@ def accion_combate():
     captura = io.StringIO()
     sys.stdout = captura
     
-    bando_jugador = [jugador_actual] + jugador_actual.equipo_aliado
-    combatientes = bando_jugador + [enemigo]
+    bando_jugador = estado_combate_web["combatientes_jugador"]
+    jugador_actual.guardianes = [
+        aliado for aliado in bando_jugador if aliado is not jugador_actual
+    ]
+    combatientes = bando_jugador + estado_combate_web["enemigos"]
     
-    orden_turnos = calcular_orden_turnos(combatientes)
+    orden_turnos = calcular_orden_turnos(combatientes, estado_combate_web)
     
     print("\n" + "-"*30)
     print(f"⚡ ¡{orden_turnos[0]['nombre']} tiene la iniciativa y ataca primero!")
@@ -162,7 +216,7 @@ def accion_combate():
 
         if atacante == jugador_actual:
             if accion == "atacar":
-                jugador_actual.atacar(enemigo)
+                jugador_actual.atacar(enemigo, estado_combate_web)
             elif accion.startswith("habilidad_"):
                 nombre_hab = accion.split("habilidad_")[1]
                 if nombre_hab in estado_combate_web["habilidades_usadas"]:
@@ -173,11 +227,21 @@ def accion_combate():
                 
         elif atacante in jugador_actual.equipo_aliado:
             print(f"\n[Aliado] {atacante.nombre} actúa por instinto...")
-            atacante.decidir_accion_ia(aliados=bando_jugador, enemigos=[enemigo], estado_combate=estado_combate_web)
+            atacante.decidir_accion_ia(
+                aliados=bando_jugador,
+                enemigos=estado_combate_web["enemigos"],
+                estado_combate=estado_combate_web,
+            )
             
         else:
             print(f"\n[Enemigo] {atacante.nombre} evalúa la situación...")
-            atacante.decidir_accion_ia(aliados=[enemigo], enemigos=bando_jugador, estado_combate=estado_combate_web)
+            atacante.decidir_accion_ia(
+                aliados=estado_combate_web["enemigos"],
+                enemigos=bando_jugador,
+                estado_combate=estado_combate_web,
+            )
+
+    estado_combate_web["enemigos"].extend(estado_combate_web.pop("nuevos_combatientes", []))
 
     sys.stdout = sys.__stdout__
     
@@ -185,10 +249,15 @@ def accion_combate():
     estado_combate_web["nuevos_logs"] = [log for log in logs_brutos if log.strip()]
     
     # 3. VEREDICTO FINAL Y CURACIÓN TOTAL
-    if enemigo.vida_actual <= 0:
+    if not any(enemigo_actual.vida_actual > 0 for enemigo_actual in estado_combate_web["enemigos"]):
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
-        procesar_captura(jugador_actual, enemigo)
+        captura_nueva = procesar_captura(jugador_actual, enemigo)
+        if captura_nueva:
+            estado_combate_web["captura"] = {
+                "nombre": enemigo.nombre,
+                "peligrosidad": enemigo.peligrosidad,
+            }
         
         # Corrección: Verificamos que exista antes de intentar borrarlo
         if enemigo.nombre in monstruos_activos:

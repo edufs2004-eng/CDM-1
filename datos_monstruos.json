@@ -1,9 +1,78 @@
 {
+    "Goblin": {
+        "vida": [2, 4],
+        "ataque": [1, 2],
+        "reflejos": [1, 1],
+        "velocidad": [1, 2],
+        "armadura": [0, 0],
+        "peligrosidad": 0.3,
+        "terreno": "Tierra",
+        "etiquetas": ["Terrestre"],
+        "habilidades": ["Risa provocadora"],
+        "probabilidades_ia": {}
+    },
+    "Troll": {
+        "vida": [14, 20],
+        "ataque": [3, 4],
+        "reflejos": [1, 1],
+        "velocidad": [2, 4],
+        "armadura": [2, 4],
+        "peligrosidad": 2.6,
+        "terreno": "Tierra",
+        "etiquetas": ["Terrestre"],
+        "habilidades": ["Mejor amigo"],
+        "probabilidades_ia": {},
+        "fases": {
+            "2": {
+                    "trigger": "al_llegar_a_cero",
+                "vida_multiplicador": 1.3,
+                "ataque_multiplicador": 1.2,
+                "capturable": false
+            }
+        }
+    },
+    "Ogro de Fuego": {
+        "vida": [20, 22],
+        "ataque": [5, 6],
+        "reflejos": [2, 3],
+        "velocidad": [4, 5],
+        "armadura": [0, 0],
+        "peligrosidad": 3.8,
+        "terreno": "Tierra",
+        "etiquetas": ["Terrestre"],
+        "habilidades": ["Puños en llamas", "Círculo de fuego"],
+        "probabilidades_ia": {
+            "Círculo de fuego": [0, 0]
+        },
+        "fases": {
+            "2": {
+                    "trigger": "al_llegar_a_cero",
+                "vida_multiplicador": 1.0,
+                "velocidad_multiplicador": 1.2,
+                "capturable": false
+            }
+        }
+    },
+    "Cíclope": {
+        "vida": [40, 50],
+        "ataque": [4, 8],
+        "reflejos": [1, 1],
+        "velocidad": [2, 3],
+        "armadura": [2, 3],
+        "peligrosidad": 4.0,
+        "terreno": "Tierra",
+        "etiquetas": ["Terrestre", "Gigante"],
+        "habilidades": ["Comida"],
+        "probabilidades_ia": {}
+    },
     "Pulpo Inteligente": {
-        "vida": [8, 11],
+        "vida": [6, 8],
         "ataque": [1, 3],
         "reflejos": [1, 1],
         "velocidad": [2, 3],
+        "armadura": [0, 0],
+        "peligrosidad": 0.9,
+        "terreno": "Híbrido",
         "etiquetas": ["Híbrido"],
         "habilidades": ["Tácticas de escape", "Cachetada"],
         "probabilidades_ia": {}
@@ -13,17 +82,121 @@
         "ataque": [2, 5],
         "reflejos": [2, 3],
         "velocidad": [5, 6],
+        "armadura": [0, 0],
+        "peligrosidad": 1.0,
+        "terreno": "Agua",
         "etiquetas": ["Acuático"],
         "habilidades": [],
         "probabilidades_ia": {}
     },
-    "Serpiente Marina": {
-        "vida": [10, 15],
+    "Monstruo del Lago Ness": {
+        "vida": [10, 14],
         "ataque": [2, 4],
-        "reflejos": [1, 2],
-        "velocidad": [2, 4],
+        "reflejos": [4, 5],
+        "velocidad": [4, 6],
+        "armadura": [0, 0],
+        "peligrosidad": 2.1,
+        "terreno": "Agua",
         "etiquetas": ["Acuático"],
-        "habilidades": ["Tsunami"],
+        "habilidades": ["Chorro de agua"],
         "probabilidades_ia": {}
+    },
+    "Megalodón": {
+        "vida": [15, 22],
+        "ataque": [5, 6],
+        "reflejos": [1, 3],
+        "velocidad": [4, 5],
+        "armadura": [0, 0],
+        "peligrosidad": 2.3,
+        "terreno": "Agua",
+        "etiquetas": ["Acuático"],
+        "habilidades": ["Gran mordisco"],
+        "probabilidades_ia": {}
+    },
+    "Serpiente Marina": {
+        "vida": [12, 18],
+        "ataque": [5, 8],
+        "reflejos": [4, 6],
+        "velocidad": [8, 12],
+        "armadura": [0, 0],
+        "peligrosidad": 2.9,
+        "terreno": "Agua",
+        "etiquetas": ["Acuático", "Gigante"],
+        "habilidades": ["Tsunami"],
+        "probabilidades_ia": {},
+        "fases": {
+            "2": {
+                    "trigger": "al_llegar_a_cero",
+                "vida_multiplicador": 1.1,
+                "velocidad_multiplicador": 1.1,
+                "ataque_multiplicador": 1.2,
+                "reflejos_multiplicador": 1.1,
+                "capturable": false
+            }
+        }
+    },
+    "Kraken": {
+        "vida": [20, 25],
+        "ataque": [8, 9],
+        "reflejos": [1, 2],
+        "velocidad": [2, 3],
+        "armadura": [0, 0],
+        "peligrosidad": 2.9,
+        "terreno": "Agua",
+        "etiquetas": ["Acuático", "Gigante"],
+        "habilidades": ["Furia del mar"],
+        "probabilidades_ia": {},
+        "fases": {
+            "2": {
+                "trigger": "al_llegar_a_cero",
+                "vida_multiplicador": 0.8,
+                "ataque_multiplicador": 1.4,
+                "aturdir_atacante": 3,
+                "aturdir_atacante_escala": 1,
+                "capturable": false
+            }
+        }
+    },
+    "Capitán del Caleuche": {
+        "vida": [40, 55],
+        "ataque": [10, 10],
+        "reflejos": [5, 8],
+        "velocidad": [3, 4],
+        "armadura": [0, 0],
+        "peligrosidad": 4.9,
+        "terreno": "Híbrido",
+        "etiquetas": ["Terrestre"],
+        "habilidades": ["Tripulación fantasma", "No muerto"],
+        "probabilidades_ia": {}
+    },
+    "Nautilus": {
+        "vida": [80, 80],
+        "ataque": [8, 8],
+        "reflejos": [1, 1],
+        "velocidad": [6, 6],
+        "armadura": [10, 10],
+        "peligrosidad": 5.9,
+        "terreno": "Agua",
+        "etiquetas": ["Híbrido", "Gigante", "Mecánico"],
+        "habilidades": [],
+        "probabilidades_ia": {},
+        "fases": {
+            "2": {
+                    "trigger": "al_llegar_a_cero",
+                "vida": 100,
+                "ataque": 10,
+                "velocidad": 8,
+                "armadura": 6,
+                "capturable": false
+            },
+            "3": {
+                "trigger": "al_llegar_a_cero",
+                "vida": 70,
+                "ataque": 15,
+                "velocidad": 5,
+                "armadura": 1,
+                "capturable": false
+            }
+        }
     }
 }

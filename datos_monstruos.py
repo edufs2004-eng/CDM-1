@@ -26,6 +26,7 @@ def generar_monstruo(nombre_monstruo):
     ataque_aleatorio = random.randint(datos["ataque"][0], datos["ataque"][1])
     reflejos_aleatorios = random.randint(datos["reflejos"][0], datos["reflejos"][1])
     vel_aleatoria = random.randint(datos["velocidad"][0], datos["velocidad"][1])
+    armadura_aleatoria = random.randint(*datos.get("armadura", [0, 0]))
     
     # Generamos su personalidad única (porcentajes fijos para este individuo)
     ia_generada = {}
@@ -41,7 +42,11 @@ def generar_monstruo(nombre_monstruo):
         velocidad=vel_aleatoria,
         etiquetas=datos["etiquetas"].copy(),
         habilidades=datos.get("habilidades", []).copy(),
-        probabilidades_ia=ia_generada
+        probabilidades_ia=ia_generada,
+        armadura=armadura_aleatoria,
+        peligrosidad=datos.get("peligrosidad"),
+        datos_fase=datos.get("fases", {}).copy(),
+        terreno=datos.get("terreno")
     )
     
     return nuevo_monstruo

@@ -11,6 +11,10 @@
         
         <p style="margin-bottom: 20px;">Selecciona una zona para explorar:</p>
 
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
         <div class="opciones-juego">
             {% for zona in zonas %}
                 <a href="/zona/{{ zona }}" class="btn btn-bloque">{{ zona }}</a>

@@ -19,6 +19,7 @@
                 {% for aliado in jugador.equipo_aliado %}
                     <div class="monstruo-card tooltip" draggable="true" ondragstart="arrastrar(event, 'activo', {{ loop.index0 }})">
                         <strong>{{ aliado.nombre }}</strong>
+                        <span style="display: block; color: #FFC107; font-size: 0.85em; margin-top: 4px;">Peligrosidad: {{ aliado.peligrosidad }}</span>
                         
                         <!-- ESTE ES EL TOOLTIP QUE APARECE AL PASAR EL MOUSE -->
                         <div class="tooltip-text">
@@ -50,6 +51,7 @@
                 {% for aliado in jugador.caja_aliados %}
                     <div class="monstruo-card tooltip" draggable="true" ondragstart="arrastrar(event, 'reserva', {{ loop.index0 }})">
                         <strong>{{ aliado.nombre }}</strong>
+                        <span style="display: block; color: #FFC107; font-size: 0.85em; margin-top: 4px;">Peligrosidad: {{ aliado.peligrosidad }}</span>
                         
                         <div class="tooltip-text">
                             <strong style="color: #2196F3; font-size: 1.2em;">{{ aliado.nombre }}</strong><hr style="border-color:#2196F3;">

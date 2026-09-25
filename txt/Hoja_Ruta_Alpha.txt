@@ -1,0 +1,331 @@
+CDM - HOJA DE RUTA OPERATIVA HACIA ALPHA
+========================================
+
+PROPOSITO
+---------
+Este documento define el orden de trabajo para llevar CDM a una Alpha funcional.
+La prioridad es añadir las reglas y el contenido de CDM sin romper el combate,
+la interfaz web, la consola ni los datos que ya funcionan.
+
+REGLAS DE CONSERVACION
+----------------------
+1. No cambiar la formula actual de acciones por velocidad.
+2. No cambiar el ciclo actual de combate web ni su animacion de logs.
+3. No cambiar plantillas HTML ni CSS salvo que una nueva regla necesite mostrar
+   informacion que antes no existia.
+4. No duplicar reglas entre consola y web.
+5. Preferir cambios aditivos y compatibles con los guardados existentes.
+6. No renombrar rutas, campos publicos ni clases existentes sin una migracion.
+7. No introducir el stat Defensa. El unico stat defensivo es Armadura.
+8. Usar los nombres canonicos de terrenos y etiquetas, con tildes.
+9. Leviatan permanece fuera de la Alpha inicial: es contenido conceptual WIP.
+10. Antes de cada fase debe existir una prueba que proteja lo que ya funcionaba.
+
+CONTRATO ACTUAL DE VELOCIDAD
+----------------------------
+La cantidad de acciones se calcula con el algoritmo existente en motor.py:
+
+- Se parte de velocidad_actual.
+- Cada accion posterior usa ceil(velocidad / 2).
+- El calculo termina cuando la siguiente iniciativa es menor o igual a la
+  velocidad minima del combate.
+- Cada combatiente vivo recibe al menos una accion.
+
+El orden de cada accion es:
+
+1. Iniciativa individual de la accion.
+2. Reflejos, usado como agilidad para desempatar.
+3. Iniciativa aleatoria para resolver empates completos.
+
+No se debe sustituir este algoritmo por velocidad // velocidad_minima sin una
+decision posterior y pruebas de regresion.
+
+FASE 0 - CONGELACION Y LINEA BASE
+---------------------------------
+Objetivo: proteger el comportamiento actual antes de añadir contenido.
+
+Archivos que no se deben tocar en esta fase:
+- templates/combate_web.html
+- static/style.css
+- El flujo principal de combate de app.py y combate.py
+
+Acciones:
+- Confirmar que consola y web inician y terminan combates.
+- Confirmar que el jugador pierde al llegar a 0 HP.
+- Confirmar que una victoria captura al enemigo.
+- Confirmar que jugador y aliados se restauran al finalizar.
+- Registrar manualmente el comportamiento actual de velocidad.
+- Mantener solo Armadura como stat defensivo.
+
+Criterio de salida:
+- La prueba de sintaxis pasa.
+- El combate actual sigue recorriendo sus turnos.
+- No hay cambios visuales.
+
+FASE 1 - ORDEN Y CONTRATO DEL MOTOR
+------------------------------------
+Objetivo: cerrar el desempate sin cambiar las acciones generadas.
+
+Archivo modificado:
+- motor.py
+
+Implementado:
+- Se conserva la formula actual de acciones.
+- Los empates de iniciativa se resuelven por reflejos.
+- Si tambien empatan los reflejos, se usa azar.
+- No se crea un nuevo atributo agilidad; reflejos cumple ese papel.
+
+Pruebas requeridas:
+- La cantidad de acciones antes y despues del cambio es igual.
+- Una iniciativa mayor siempre va primero.
+- Con la misma iniciativa, mayores reflejos van primero.
+- Con iniciativa y reflejos iguales, ambos resultados son validos y el orden
+  puede variar.
+- Entidades muertas no generan acciones.
+- La velocidad minima nunca elimina la accion minima.
+
+Proteccion añadida:
+- test_motor.py contiene las pruebas de cantidad de acciones, desempate por
+  reflejos y exclusion de entidades muertas.
+
+Conexion web actual:
+- app.py ya importa calcular_orden_turnos y lo utiliza en cada accion web.
+- Por eso el desempate de esta fase funciona en consola y web sin modificar
+  rutas, plantillas ni el ciclo visual.
+
+Criterio de salida:
+- El orden funciona en consola y web porque ambas usan motor.py.
+- No se modifica el ciclo de combate.
+
+FASE 2 - MODELO DATA-DRIVEN COMPATIBLE
+---------------------------------------
+Objetivo: ampliar los datos sin cambiar el comportamiento existente.
+
+Archivos previstos:
+- datos_monstruos.json
+- datos_monstruos.py
+- entidades.py
+- guardado.py
+
+Añadir de forma compatible:
+- Armadura por rango.
+- Peligrosidad.
+- Probabilidades de IA.
+- Cooldowns y usos maximos.
+- Metadatos de fases.
+
+Los campos nuevos deben tener valores por defecto para que los monstruos y
+partidas antiguas sigan cargando.
+
+Estado actual:
+- Entidad y Monstruo ya transportan Armadura, peligrosidad, cooldowns y fase.
+- Los tres monstruos actuales ya tienen Armadura y peligrosidad en JSON.
+- guardado.py conserva estos datos y acepta partidas antiguas.
+- test_modelo_datos.py protege la carga nueva, la serializacion y los defaults.
+- habilidades.py centraliza usos maximos y cooldowns.
+- motor.py reduce cooldowns al iniciar cada ronda.
+- test_habilidades.py protege usos maximos y avance de cooldowns.
+- habilidades.py selecciona IA con ventana acumulada y fallback a ataque basico.
+- entidades.py conecta esa seleccion al comportamiento autonomo del monstruo.
+- test_habilidades.py protege prioridad, deslizamiento y fallback de IA.
+- Las probabilidades IA de los monstruos actuales siguen vacias, por lo que su
+  comportamiento observable no cambia.
+- Fases todavia no tienen comportamiento nuevo activo.
+
+FASE 3 - HABILIDADES Y ESTADOS
+------------------------------
+Archivos previstos:
+- habilidades.py
+- entidades.py
+- combate.py
+- app.py solo para conectar datos ya existentes
+
+Implementar de forma incremental:
+- Cooldowns.
+- Ventana deslizante de IA.
+- Quemadura acumulable.
+- Purificacion.
+- Inalcanzable.
+- Círculo de Fuego.
+- Inmunidades de Mecánico.
+- Objetivos validos y triggers.
+
+Cada habilidad debe poder probarse sin depender de la interfaz.
+
+Estado actual:
+- Quemadura acumulable implementada en entidades.py.
+- La escala de daño es 1, 2 y 3 HP segun las cargas.
+- La quemadura se procesa una vez por ronda global.
+- Purificación e inmunidad de Mecánico están disponibles como efectos.
+- test_habilidades.py protege estos comportamientos.
+- Aturdimiento avanzado, Inalcanzable y Círculo de Fuego siguen pendientes.
+
+FASE 4 - BESTIARIO BASE
+-----------------------
+Archivos previstos:
+- datos_monstruos.json
+- mapa.py
+- habilidades.py
+
+Añadir en grupos pequeños:
+- Goblin.
+- Troll.
+- Ogro de Fuego.
+- Cíclope.
+- Monstruo del Lago Ness.
+- Megalodón.
+- Kraken.
+- Capitán del Caleuche.
+- Nautilus.
+
+Leviatan no se añade en esta Alpha inicial.
+
+Cada monstruo nuevo debe probarse primero en consola y luego en web.
+
+Estado actual:
+- El catálogo JSON contiene los doce monstruos cerrados de esta fase.
+- Pulpo Inteligente y Serpiente Marina fueron alineados con la guía.
+- Cada entrada incluye rangos, Armadura, peligrosidad, terreno, etiquetas y
+  habilidades declaradas.
+- test_bestiario.py valida el catálogo, sus rangos y la ausencia de Leviatán.
+- Leviatán continúa fuera del catálogo por estar en fase de diseño.
+- Las nuevas criaturas todavía no se exponen en nuevas zonas del mapa.
+- Sus fases y habilidades especiales siguen pendientes de las fases 5 y 6.
+
+FASE 5 - FASES Y JEFES INCLUIDOS EN ALPHA
+------------------------------------------
+Implementar solo fases cerradas y verificables:
+
+- Fase 2 de Troll.
+- Fases de Ogro de Fuego.
+- Fase 2 de Serpiente Marina.
+- Fase 2 de Kraken.
+- Tres fases de Nautilus.
+- Mecanicas de Capitán del Caleuche que esten cerradas.
+
+Cada fase debe tener una condicion de entrada, cambios de stats, logs y una
+prueba de transicion. Las fases avanzadas no deben convertirse automaticamente
+en monstruos capturables si el documento las marca como no accesibles.
+
+Estado actual:
+- Monstruo soporta datos de fases y restauracion segura a fase 1.
+- Kraken implementa la transicion explicita al llegar a 0 HP.
+- Kraken aplica sus multiplicadores y aturde al atacante durante 3 turnos,
+  o 1 si el atacante es Gigante o Titánico.
+- Puños en llamas aplica quemadura mediante trigger de ataque.
+- Chorro de agua purifica al usuario mediante habilidad activa.
+- Inalcanzable ya existe como estado temporal, se filtra de objetivos y expira
+  al avanzar rondas.
+- Círculo de Fuego aísla dos entidades, bloquea ataques externos y expira tras
+  sus rondas configuradas.
+- No muerto registra la vida al inicio de la ronda y puede revivir al Capitán
+  del Caleuche con 30% de probabilidad.
+- Mejor amigo intercepta hasta dos daños letales destinados al jugador; si el
+  Troll muere protegiéndolo, el jugador queda Inalcanzable durante 2 turnos.
+- Comida puede reemplazar el golpe del Cíclope, causa daño igual a su ataque y
+  cura únicamente el daño real realizado.
+- Gran mordisco aplica x1.5 sin varianza, ignora la penalización contra Gigante
+  y usa cooldown 5.
+- Tripulación fantasma convierte aliados muertos en fantasmas con Vida 10,
+  Ataque 5, Reflejos 3 y Velocidad 3; entran en la ronda siguiente y solo se
+  puede usar una vez.
+- Troll, Ogro, Serpiente y Nautilus activan sus fases de encuentro al llegar a
+  0 HP según sus datos JSON.
+- Las fases de encuentro no se conservan al capturar: el monstruo vuelve a
+  fase 1 y queda marcado como aliado.
+- Kraken es la excepción: Furia del mar puede activar su fase posterior como
+  aliado mediante una habilidad explícita.
+- Las mecánicas especiales cerradas de esta fase ya tienen cobertura de pruebas;
+  sustitución de ataque o control de turnos anteriores.
+- Las fases no se convierten automaticamente en capturas adicionales.
+- Leviatán sigue fuera de esta fase por estar en diseño.
+
+FASE 6 - MAPA Y TERRENOS
+------------------------
+Archivos previstos:
+- mapa.py
+- datos_monstruos.json
+- app.py
+- templates/mapa.html y templates/Zona.html solo si falta una vista necesaria
+
+Terrenos canonicos:
+- Tierra
+- Agua
+- Agua profunda
+- Híbrido
+
+Implementar:
+- Tierra Firme accesible.
+- Mundo Marino accesible.
+- Mar Profundo bloqueado unicamente por Linterna de Nautilus.
+- Barca y aliados Acuáticos/Híbridos para Agua.
+- Peligrosidad oculta antes del combate.
+- Peligrosidad mostrada despues de capturar.
+
+Estado actual:
+- ZONAS_CANONICAS contiene Tierra Firme, Mundo Marino y Mar Profundo.
+- Playa y Bosque se conservan como alias internos de compatibilidad.
+- El jugador puede combatir en Tierra sin una etiqueta artificial.
+- Mar Profundo exige Linterna de Nautilus al entrar y al iniciar combate.
+- La peligrosidad no aparece en la selección previa.
+- La peligrosidad se revela después de una captura nueva en consola y web.
+- test_mapa.py protege acceso, terrenos y captura.
+- Los aliados inválidos para el terreno quedan fuera de los combatientes, por
+  lo que no generan iniciativa, no actúan ni pueden ser objetivos.
+- Si el terreno cambia a uno compatible, los aliados desactivados se incorporan
+  antes de la siguiente ronda.
+- Gestionar Equipo muestra la peligrosidad de cada aliado; ya no se muestra
+  como aviso al finalizar el combate.
+
+FASE 7 - BOTIN Y LOGROS
+-----------------------
+Archivos previstos:
+- mapa.py o un evaluador de victoria separado.
+- datos_objetos.json
+- objetos.py
+- entidades.py
+- guardado.py
+
+Implementar recompensas fijas:
+- Palo de madera con hojita.
+- Hacha de fuego.
+- Linterna de Nautilus.
+- Barco del Caleuche.
+- Corona de dientes de tiburón.
+- Armadura de dientes de megalodón.
+- Espada del capitán.
+- Caña de pescar de experto.
+
+Los logros no dependen de RNG. Los contadores y eventos se guardan.
+
+FASE 8 - VALIDACION ALPHA
+-------------------------
+ Estado actual:
+- test_alpha.py cubre daño, Armadura, esquive, terrenos y guardado.
+- test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
+- test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
+  y test_mapa.py cubren los contratos específicos de cada fase.
+- La suite actual pasa 31 pruebas.
+- Los logros completos y las recompensas fijas todavía no están implementados;
+  por eso su validación queda pendiente de la Fase 7.
+- Círculo de Fuego, Inalcanzable, varias fases y mecánicas de jefes siguen
+  pendientes y no se consideran certificadas por esta suite.
+- Daño y Armadura.
+- Esquive.
+- Orden, reflejos y azar.
+- Accion minima.
+- Terrenos y etiquetas.
+- IA y cooldowns.
+- Quemadura y purificacion.
+- Fases.
+- Captura.
+- Botin y logros.
+- Guardado y carga.
+- Paridad entre consola y web.
+
+CRITERIO FINAL DE ALPHA
+-----------------------
+La Alpha queda aceptada cuando el contenido incluido en las fases anteriores
+puede jugarse de principio a fin, consola y web respetan las mismas reglas,
+las partidas antiguas siguen cargando y la interfaz existente conserva su
+estructura visual y su ciclo de combate.
