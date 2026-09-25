@@ -1,8 +1,8 @@
 import time
-import random
 from datos_monstruos import generar_monstruo
 from combate import iniciar_combate
 from entidades import Jugador
+from recompensas import evaluar_recompensas_victoria
 
 ZONAS_CANONICAS = {
     "Tierra Firme": {
@@ -174,17 +174,9 @@ def menu_zona(jugador, nombre_zona):
                 
                 if victoria:
                     procesar_captura(jugador, enemigo)
+                    for log in evaluar_recompensas_victoria(jugador, enemigo):
+                        print(log)
                     del monstruos_activos[nombre_enemigo] 
-                    
-                    # --- SISTEMA DE DROPS OCULTOS ---
-                    if enemigo.nombre == "Pulpo Inteligente" and "drop_tentaculo" not in jugador.eventos_desbloqueados:
-                        # 40% de probabilidad
-                        if random.random() <= 0.40:
-                            print("\n¡ALGO BRILLA EN EL AGUA!")
-                            print("¡Has encontrado un [Tentáculo Escurridizo]!")
-                            jugador.inventario.append("Tentáculo Escurridizo")
-                            jugador.eventos_desbloqueados.append("drop_tentaculo")
-                            time.sleep(2)
                             
                 else:
                     print(f"\nHas huido o perdido. {enemigo.nombre} te estará esperando.")

@@ -22,6 +22,8 @@ class Entidad:
         self.velocidad_actual = velocidad 
         
         self.armadura = armadura
+        self.escudo_max = 0
+        self.escudo_actual = 0
         self.peligrosidad = peligrosidad
         self.prob_crit = 0.0
         self.ataque_crit = 0
@@ -38,6 +40,7 @@ class Entidad:
         self.quemadura_cargas = 0
         self.inalcanzable_turnos = 0
         self.guardianes = []
+        self.escudo_actual = self.escudo_max
 
     def calcular_esquive(self):
         if self.velocidad_actual <= 0: return 0
@@ -83,9 +86,18 @@ class Entidad:
     def puede_ser_objetivo(self):
         return self.vida_actual > 0 and self.inalcanzable_turnos <= 0
 
-    def recibir_dano(self, dano, atacante):
+    def recibir_dano(self, dano, atacante, estado_combate=None):
         dano_final = dano - self.armadura
         if dano_final < 0: dano_final = 0
+
+        terreno = estado_combate.get("terreno") if estado_combate else None
+        if terreno in ("Agua", "Agua profunda") and self.escudo_actual > 0:
+            absorbido = min(dano_final, self.escudo_actual)
+            self.escudo_actual -= absorbido
+            dano_final -= absorbido
+            print(f"El escudo absorbe {absorbido} de daño. Escudo: {self.escudo_actual}/{self.escudo_max}")
+            if dano_final <= 0:
+                return
 
         if self.vida_actual - dano_final <= 0:
             for guardian in self.guardianes:
@@ -93,7 +105,7 @@ class Entidad:
                 if "Mejor amigo" in guardian.habilidades and guardian.vida_actual > 0 and usos < 2:
                     guardian.habilidades_usadas["Mejor amigo"] = usos + 1
                     print(f"¡{guardian.nombre} recibe el daño mortal destinado a {self.nombre}!")
-                    guardian.recibir_dano(dano_final, atacante)
+                    guardian.recibir_dano(dano_final, atacante, estado_combate)
                     if guardian.vida_actual <= 0:
                         self.inalcanzable_turnos = 2
                         print(f"¡{self.nombre} queda Inalcanzable durante 2 turnos!")
@@ -172,7 +184,7 @@ class Entidad:
             print(f"¡El ataque de {self.nombre} no tuvo efecto por restricción de clases!")
         else:
             dano_calculado = round(dano_bruto * multiplicador)
-            objetivo.recibir_dano(dano_calculado, self)
+            objetivo.recibir_dano(dano_calculado, self, estado_combate)
             
             if objetivo.vida_actual > 0:
                 procesar_trigger("al_atacar", self, objetivo)
@@ -207,7 +219,7 @@ class Entidad:
         if "Gigante" in objetivo.etiquetas and not ignora_penalizacion_gigante and "Gigante" not in self.etiquetas and "Titánico" not in self.etiquetas:
             dano = round(dano * 0.70)
 
-        objetivo.recibir_dano(dano, self)
+        objetivo.recibir_dano(dano, self, estado_combate)
 
     def transicionar_fase(self, atacante=None):
         return False
@@ -220,6 +232,8 @@ class Jugador(Entidad):
         self.aliados_obtenidos = [] 
         self.caja_aliados = [] 
         self.eventos_desbloqueados = [] # Registro de logros/drops únicos
+        self.contadores_eventos = {}
+        self.aliados_revividos_ronda = 0
         
         self.equipo = {
             "Mano 1": generar_objeto("Caña de pescar"),
@@ -232,9 +246,17 @@ class Jugador(Entidad):
         }
         self.actualizar_stats()
 
+    def reiniciar_contadores_ronda(self):
+        self.aliados_revividos_ronda = 0
+
+    def registrar_aliados_revividos(self, cantidad):
+        self.aliados_revividos_ronda += max(0, cantidad)
+
     def actualizar_stats(self):
         ataque_total = 1
         varianza_total = 1
+        armadura_total = 0
+        escudo_total = 0
         velocidad_extra = 0
         reflejos_extra = 0
         
@@ -245,6 +267,8 @@ class Jugador(Entidad):
             if item:
                 ataque_total += item.bonos_stats.get("ataque", 0)
                 varianza_total += item.bonos_stats.get("varianza", 0)
+                armadura_total += item.bonos_stats.get("armadura", 0)
+                escudo_total += item.bonos_stats.get("escudo", 0)
                 velocidad_extra += item.bonos_stats.get("velocidad", 0)
                 reflejos_extra += item.bonos_stats.get("reflejos", 0)
                 
@@ -257,6 +281,9 @@ class Jugador(Entidad):
                     
         self.ataque_base = ataque_total
         self.varianza_ataque = varianza_total
+        self.armadura = armadura_total
+        self.escudo_max = escudo_total
+        self.escudo_actual = escudo_total
         self.velocidad_base = 3 + velocidad_extra 
         self.reflejos = 2 + reflejos_extra
         self.velocidad_actual = self.velocidad_base

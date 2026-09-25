@@ -776,6 +776,12 @@ Habilidades:
 
 Tripulación fantasma: convierte aliados muertos en fantasmas (Vida 10, Ataque 5, Reflejos 3, Velocidad 3).
 
+Regla de uso: debe revisar los aliados muertos y convertir únicamente esos
+aliados en tropas fantasma menores. No revive ni restaura al aliado original.
+La conversión cuenta como revivir para el hito de la Espada del capitán.
+Esta interacción queda marcada como WIP hasta implementar por completo el
+registro del hito y la invocación de tropas menores.
+
 No muerto: 30% de probabilidad de revivir al recibir daño mortal. Revive con la vida exacta que tenía al inicio del turno anterior. (Directiva Técnica: Entidad debe incluir self.vida_turno_anterior actualizada cada ronda global).
 
 Nautilus
@@ -846,6 +852,9 @@ Corona de dientes de tiburón: +2 Armadura. Matar 10 Tiburones.
 Armadura de dientes de megalodón: +5 Armadura, Varianza ±1. Matar 10 Megalodones.
 
 Espada del capitán: +5 Ataque, Varianza ±1, +2 Reflejos. Revivir 4 aliados en el mismo turno.
+
+Las conversiones de aliados muertos mediante Tripulación fantasma cuentan para
+este hito, aunque no restauran al aliado original.
 
 Caña de pescar de experto: +3 Ataque. Tener 3 monstruos Acuáticos/Híbridos activos.
 

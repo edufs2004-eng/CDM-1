@@ -5,6 +5,7 @@ from unittest.mock import patch
 from entidades import Entidad, Jugador, Monstruo
 from guardado import cargar_partida, guardar_partida
 from mapa import verificar_restricciones_terreno
+from objetos import generar_objeto
 
 
 class AlphaCoreTests(unittest.TestCase):
@@ -97,6 +98,19 @@ class AlphaCoreTests(unittest.TestCase):
         atacante.atacar(objetivo)
 
         self.assertEqual(objetivo.vida_actual, 7)
+
+    def test_barco_del_caleuche_escuda_solo_en_agua(self):
+        jugador = Jugador("Pescador")
+        jugador.equipo["Extra"] = generar_objeto("Barco del Caleuche")
+        jugador.actualizar_stats()
+        atacante = Entidad("Atacante", 10, 1, 0, 1)
+
+        jugador.recibir_dano(50, atacante, {"terreno": "Agua"})
+        self.assertEqual(jugador.vida_actual, 10)
+        self.assertEqual(jugador.escudo_actual, 50)
+
+        jugador.recibir_dano(2, atacante, {"terreno": "Tierra"})
+        self.assertEqual(jugador.vida_actual, 8)
 
 
 if __name__ == "__main__":

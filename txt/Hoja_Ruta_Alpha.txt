@@ -226,17 +226,17 @@ Estado actual:
   cura únicamente el daño real realizado.
 - Gran mordisco aplica x1.5 sin varianza, ignora la penalización contra Gigante
   y usa cooldown 5.
-- Tripulación fantasma convierte aliados muertos en fantasmas con Vida 10,
-  Ataque 5, Reflejos 3 y Velocidad 3; entran en la ronda siguiente y solo se
-  puede usar una vez.
+- Tripulación fantasma tiene un prototipo de conversión, pero queda WIP hasta
+  revisar aliados muertos, registrar la conversión como revive y completar la
+  invocación de tropas menores.
 - Troll, Ogro, Serpiente y Nautilus activan sus fases de encuentro al llegar a
   0 HP según sus datos JSON.
 - Las fases de encuentro no se conservan al capturar: el monstruo vuelve a
   fase 1 y queda marcado como aliado.
 - Kraken es la excepción: Furia del mar puede activar su fase posterior como
   aliado mediante una habilidad explícita.
-- Las mecánicas especiales cerradas de esta fase ya tienen cobertura de pruebas;
-  sustitución de ataque o control de turnos anteriores.
+- Las mecánicas especiales cerradas de esta fase tienen cobertura de pruebas;
+  Tripulación fantasma permanece pendiente por su registro de revivir.
 - Las fases no se convierten automaticamente en capturas adicionales.
 - Leviatán sigue fuera de esta fase por estar en diseño.
 
@@ -276,6 +276,8 @@ Estado actual:
   antes de la siguiente ronda.
 - Gestionar Equipo muestra la peligrosidad de cada aliado; ya no se muestra
   como aviso al finalizar el combate.
+- La Fase 6 queda cerrada: la suite valida 47 pruebas y la arena web muestra
+  únicamente los combatientes válidos para el terreno.
 
 FASE 7 - BOTIN Y LOGROS
 -----------------------
@@ -297,6 +299,19 @@ Implementar recompensas fijas:
 - Caña de pescar de experto.
 
 Los logros no dependen de RNG. Los contadores y eventos se guardan.
+
+Estado actual:
+- recompensas.py centraliza recompensas fijas y evita duplicados.
+- Pulpo, Ogro, Nautilus y Capitán ya entregan sus recompensas normativas.
+- Los contadores de Tiburones y Megalodones son persistentes.
+- Las recompensas por 10 Tiburones, 10 Megalodones y tres aliados
+  Acuáticos/Híbridos están implementadas.
+- El inventario conserva los objetos por nombre y Jugador aplica Armadura de
+  objetos equipados.
+- El escudo del Barco del Caleuche absorbe daño en Agua y Agua profunda.
+- El hito de cuatro aliados revividos entrega la Espada del capitán; el contador
+  existe, pero la conversión de Tripulación fantasma aún debe registrarse como
+  revive cuando se complete su implementación.
 
 FASE 8 - VALIDACION ALPHA
 -------------------------

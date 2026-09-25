@@ -16,6 +16,9 @@ def calcular_orden_turnos(combatientes, estado_combate=None):
     avanzar_estado_combate(estado_combate)
     for combatiente in activos:
         combatiente.vida_turno_anterior = combatiente.vida_actual
+        reiniciar_contadores = getattr(combatiente, "reiniciar_contadores_ronda", None)
+        if reiniciar_contadores:
+            reiniciar_contadores()
     reducir_cooldowns(activos)
     for combatiente in activos:
         procesar_estados = getattr(combatiente, "procesar_estados_ronda", None)

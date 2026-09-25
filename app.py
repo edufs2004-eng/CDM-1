@@ -16,6 +16,7 @@ from mapa import (
 from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
 from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
+from recompensas import evaluar_recompensas_victoria
 
 app = Flask(__name__)
 
@@ -264,6 +265,9 @@ def accion_combate():
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
         captura_nueva = procesar_captura(jugador_actual, enemigo)
+        estado_combate_web["nuevos_logs"].extend(
+            evaluar_recompensas_victoria(jugador_actual, enemigo)
+        )
         if captura_nueva:
             estado_combate_web["captura"] = {
                 "nombre": enemigo.nombre,

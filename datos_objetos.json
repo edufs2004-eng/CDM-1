@@ -22,5 +22,37 @@
     "Tentáculo Escurridizo": {
         "tipo": "Brazos",
         "bonos": {"velocidad": 2, "reflejos": 1}
+    },
+    "Palo de madera con hojita": {
+        "tipo": "Mano 1",
+        "bonos": {"ataque": 1}
+    },
+    "Hacha de fuego": {
+        "tipo": "Mano 1",
+        "bonos": {"ataque": 4, "varianza": 1}
+    },
+    "Linterna de Nautilus": {
+        "tipo": "Extra",
+        "bonos": {}
+    },
+    "Barco del Caleuche": {
+        "tipo": "Extra",
+        "bonos": {"escudo": 100}
+    },
+    "Corona de dientes de tiburón": {
+        "tipo": "Cabeza",
+        "bonos": {"armadura": 2}
+    },
+    "Armadura de dientes de megalodón": {
+        "tipo": "Torso",
+        "bonos": {"armadura": 5, "varianza": 1}
+    },
+    "Espada del capitán": {
+        "tipo": "Mano 1",
+        "bonos": {"ataque": 5, "varianza": 1, "reflejos": 2}
+    },
+    "Caña de pescar de experto": {
+        "tipo": "Mano 1",
+        "bonos": {"ataque": 3}
     }
 }

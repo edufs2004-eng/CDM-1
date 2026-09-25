@@ -62,6 +62,7 @@ def guardar_partida(jugador):
             "caja_aliados": [serializar_monstruo(m) for m in jugador.caja_aliados],
             "inventario": jugador.inventario,
             "eventos_desbloqueados": jugador.eventos_desbloqueados,
+            "contadores_eventos": jugador.contadores_eventos,
             "equipo": equipo_nombres
         }
     }
@@ -88,6 +89,7 @@ def cargar_partida():
     jugador.aliados_obtenidos = datos_jugador.get("aliados_obtenidos", [])
     jugador.inventario = datos_jugador.get("inventario", [])
     jugador.eventos_desbloqueados = datos_jugador.get("eventos_desbloqueados", [])
+    jugador.contadores_eventos = datos_jugador.get("contadores_eventos", {})
     
     # Cargar el equipo equipado
     if "equipo" in datos_jugador:
