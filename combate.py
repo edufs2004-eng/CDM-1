@@ -6,6 +6,7 @@ from habilidades import (
     ejecutar_habilidad_activa,
     puede_usar_habilidad,
     ataque_permitido,
+    filtrar_por_aggro,
 )
 
 def filtrar_objetivos_validos(posibles_objetivos, atacante=None, estado_combate=None):
@@ -15,6 +16,8 @@ def filtrar_objetivos_validos(posibles_objetivos, atacante=None, estado_combate=
         and (atacante is None or ataque_permitido(atacante, obj, estado_combate))
     ]
     if not vivos: return []
+    if atacante is not None:
+        vivos = filtrar_por_aggro(atacante, vivos, estado_combate)
     
     cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
     if len(cuerpo_a_cuerpo) > 0: return cuerpo_a_cuerpo
@@ -47,7 +50,12 @@ def turno_jugador_o_aliado(atacante, enemigos_vivos, estado_combate):
         elif opcion == "2":
             # Filtramos solo las habilidades activas que aún tengan usos
             habs_activas = []
-            for h in atacante.habilidades:
+            habilidades_disponibles = (
+                atacante.obtener_habilidades_activas()
+                if hasattr(atacante, "obtener_habilidades_activas")
+                else atacante.habilidades
+            )
+            for h in habilidades_disponibles:
                 if h in HABILIDADES_DB and puede_usar_habilidad(atacante, h):
                     habs_activas.append(h)
             
@@ -103,6 +111,7 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra", aliados_reserv
         
     estado_combate = {
         "terreno": terreno,
+        "equipo_jugador": bando_jugador,
         "equipo_enemigo": enemigos,
         "nuevos_combatientes": [],
         "jugador": jugador,
@@ -124,6 +133,7 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra", aliados_reserv
             jugador_actual.guardianes = [
                 aliado for aliado in bando_jugador if aliado is not jugador_actual
             ]
+            estado_combate["equipo_jugador"] = bando_jugador
 
     estado_combate["actualizar_combatientes"] = actualizar_combatientes
     ronda = 1

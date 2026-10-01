@@ -7,6 +7,8 @@ from habilidades import (
     seleccionar_habilidad_ia,
     ataque_permitido,
     aplicar_efectos,
+    resolver_objetivo_aggro,
+    filtrar_por_aggro,
 )
 from objetos import generar_objeto
 
@@ -145,6 +147,7 @@ class Entidad:
         print(f"Vida de {self.nombre}: {self.vida_actual}/{self.vida_max}")
 
     def atacar(self, objetivo, estado_combate=None):
+        objetivo = resolver_objetivo_aggro(self, objetivo, estado_combate)
         print(f"\n--- {self.nombre} ataca a {objetivo.nombre} ---")
         time.sleep(1)
 
@@ -220,6 +223,7 @@ class Entidad:
 
     def atacar_especial(self, objetivo, multiplicador=1.0, estado_combate=None,
                         ignora_penalizacion_gigante=False):
+        objetivo = resolver_objetivo_aggro(self, objetivo, estado_combate)
         if not ataque_permitido(self, objetivo, estado_combate):
             print(f"¡El Círculo de fuego impide que {self.nombre} ataque a {objetivo.nombre}!")
             return
@@ -349,6 +353,9 @@ class Monstruo(Entidad):
             self.etiquetas.append("Normal")
         self.habilidades = habilidades if habilidades else []
         self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
+        self._probabilidades_ia_base = self.probabilidades_ia.copy()
+        self.probabilidades_trigger = {}
+        self.probabilidades_trigger_circulo = {}
         self.datos_fase = datos_fase if datos_fase else {}
         self.terreno = terreno
         self.fase_en_encuentro = True
@@ -367,6 +374,9 @@ class Monstruo(Entidad):
         self.velocidad_base = self._estadisticas_base["velocidad_base"]
         self.armadura = self._estadisticas_base["armadura"]
         self.fase_actual = 1
+        self.probabilidades_ia = self._probabilidades_ia_base.copy()
+        self.probabilidades_trigger = {}
+        self.probabilidades_trigger_circulo = {}
         super().restaurar_estado()
 
     def crear_fantasmas(self, aliados):
@@ -416,6 +426,17 @@ class Monstruo(Entidad):
         )
         self.velocidad_actual = self.velocidad_base
         self.armadura = datos_fase.get("armadura", self.armadura)
+        self.probabilidades_ia = self._probabilidades_ia_base.copy()
+        for nombre_habilidad, multiplicador in datos_fase.get("probabilidades_ia_multiplicador", {}).items():
+            if nombre_habilidad in self.probabilidades_ia:
+                self.probabilidades_ia[nombre_habilidad] = min(
+                    1.0,
+                    self.probabilidades_ia[nombre_habilidad] * multiplicador,
+                )
+        self.probabilidades_trigger = datos_fase.get("probabilidades_trigger", {}).copy()
+        self.probabilidades_trigger_circulo = datos_fase.get(
+            "probabilidades_trigger_circulo", {}
+        ).copy()
 
         if atacante is not None and datos_fase.get("aturdir_atacante"):
             turnos = datos_fase["aturdir_atacante"]
@@ -451,6 +472,7 @@ class Monstruo(Entidad):
         
         cuerpo_a_cuerpo = [obj for obj in vivos if "Ataque a distancia" not in obj.etiquetas]
         objetivos_validos = cuerpo_a_cuerpo if len(cuerpo_a_cuerpo) > 0 else vivos
+        objetivos_validos = filtrar_por_aggro(self, objetivos_validos, estado_combate)
         objetivos_validos = [
             objetivo for objetivo in objetivos_validos
             if ataque_permitido(self, objetivo, estado_combate)

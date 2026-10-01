@@ -187,6 +187,7 @@ def iniciar_combate_web(nombre_enemigo):
         estado_combate_web["terreno"],
     )
     estado_combate_web["combatientes_jugador"] = combatientes_validos
+    estado_combate_web["equipo_jugador"] = combatientes_validos
     estado_combate_web["aliados_inactivos"] = aliados_inactivos
 
     if not combatientes_validos:
@@ -206,6 +207,7 @@ def iniciar_combate_web(nombre_enemigo):
             aliado for aliado in estado_combate_web["combatientes_jugador"]
             if aliado is not jugador_actual
         ]
+        estado_combate_web["equipo_jugador"] = estado_combate_web["combatientes_jugador"]
 
     estado_combate_web["actualizar_combatientes"] = actualizar_combatientes_web
     estado_combate_web["historial_logs"] = []

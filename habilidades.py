@@ -33,10 +33,17 @@ HABILIDADES_DB = {
             {"accion": "cambiar_terreno", "terreno": "Híbrido", "texto": "¡El terreno de combate ha cambiado a HÍBRIDO!"}
         ]
     },
+    "Risa provocadora": {
+        "tipo": "activa",
+        "efectos": [
+            {"accion": "provocar"}
+        ]
+    },
     "Puños en llamas": {
         "tipo": "instantanea",
         "trigger": "al_atacar",
         "probabilidad": 0.25,
+        "probabilidad_en_circulo": 0.35,
         "texto": "¡{usuario} prende sus puños y aplica quemadura!",
         "efectos": [
             {"accion": "aplicar_quemadura", "cargas": 1}
@@ -152,6 +159,59 @@ def ataque_permitido(atacante, objetivo, estado_combate):
     return atacante in participantes and objetivo in participantes
 
 
+def resolver_objetivo_aggro(atacante, objetivo, estado_combate):
+    """Redirige ataques al objetivo provocado por un miembro del bando rival."""
+    aggro = estado_combate.get("aggro_target") if estado_combate else None
+    if not aggro or aggro.vida_actual <= 0:
+        if estado_combate:
+            estado_combate.pop("aggro_target", None)
+        return objetivo
+
+    equipos = (
+        estado_combate.get("equipo_jugador", []),
+        estado_combate.get("equipo_enemigo", []),
+    )
+    mismo_bando = any(atacante in equipo and aggro in equipo for equipo in equipos)
+    if mismo_bando:
+        return objetivo
+
+    equipo_objetivo = next((equipo for equipo in equipos if objetivo in equipo), None)
+    if equipo_objetivo is not None and aggro in equipo_objetivo and aggro.puede_ser_objetivo():
+        return aggro
+    return objetivo
+
+
+def filtrar_por_aggro(atacante, objetivos, estado_combate):
+    aggro = estado_combate.get("aggro_target") if estado_combate else None
+    if not aggro or aggro.vida_actual <= 0:
+        if estado_combate:
+            estado_combate.pop("aggro_target", None)
+        return objetivos
+
+    equipos = (
+        estado_combate.get("equipo_jugador", []),
+        estado_combate.get("equipo_enemigo", []),
+    )
+    mismo_bando = any(atacante in equipo and aggro in equipo for equipo in equipos)
+    if not mismo_bando and aggro in objetivos and aggro.puede_ser_objetivo():
+        return [aggro]
+    return objetivos
+
+
+def buscar_fuente_habilidad(lanzador, nombre, estado_combate):
+    if nombre in lanzador.habilidades:
+        return lanzador
+    equipos = (
+        estado_combate.get("equipo_jugador", []),
+        estado_combate.get("equipo_enemigo", []),
+    ) if estado_combate else ()
+    return next(
+        (entidad for equipo in equipos for entidad in equipo
+         if entidad.vida_actual > 0 and nombre in entidad.habilidades),
+        None,
+    )
+
+
 def seleccionar_habilidad_ia(usuario):
     """Selecciona una habilidad usando una ventana acumulada sobre 1d100."""
     disponibles = [
@@ -257,6 +317,12 @@ def aplicar_efectos(efectos, usuario, objetivo_principal, estado_combate):
                 estado_combate.setdefault("nuevos_combatientes", []).extend(fantasmas)
                 print(f"¡{usuario.nombre} convierte {len(fantasmas)} aliado(s) muerto(s) en fantasmas!")
 
+        elif efecto["accion"] == "provocar":
+            fuente = buscar_fuente_habilidad(usuario, "Risa provocadora", estado_combate)
+            if fuente is not None and estado_combate is not None:
+                estado_combate["aggro_target"] = fuente
+                print(f"¡{fuente.nombre} provoca al enemigo y atrae sus ataques!")
+
 def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=None):
     """Revisa si el personaje tiene una habilidad pasiva/instantánea que reaccione a este momento"""
     for nombre_hab in usuario.habilidades:
@@ -282,8 +348,18 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=Non
                 continue
 
         # Validar probabilidad (Si tiene)
-        if "probabilidad" in datos_hab:
-            if random.random() > datos_hab["probabilidad"]: continue 
+        probabilidad = usuario.probabilidades_trigger.get(
+            nombre_hab,
+            datos_hab.get("probabilidad"),
+        )
+        circulo = estado_combate.get("circulo_fuego") if estado_combate else None
+        if circulo and usuario in circulo["participantes"]:
+            probabilidad = usuario.probabilidades_trigger_circulo.get(
+                nombre_hab,
+                datos_hab.get("probabilidad_en_circulo", probabilidad),
+            )
+        if probabilidad is not None and random.random() > probabilidad:
+            continue
             
         # ¡La habilidad se activa!
         if "texto" in datos_hab:

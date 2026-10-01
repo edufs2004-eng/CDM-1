@@ -130,6 +130,21 @@ class BestiarioTests(unittest.TestCase):
         self.assertEqual(kraken.fase_actual, 2)
         self.assertGreater(kraken.vida_actual, 0)
 
+    def test_ogro_fase_dos_actualiza_probabilidades_de_habilidades(self):
+        ogro = generar_monstruo("Ogro de Fuego")
+        atacante = generar_monstruo("Tiburón")
+        probabilidad_circulo_inicial = ogro.probabilidades_ia["Círculo de fuego"]
+
+        ogro.recibir_dano(999, atacante)
+
+        self.assertEqual(ogro.fase_actual, 2)
+        self.assertEqual(
+            ogro.probabilidades_ia["Círculo de fuego"],
+            min(1.0, probabilidad_circulo_inicial * 1.2),
+        )
+        self.assertEqual(ogro.probabilidades_trigger["Puños en llamas"], 0.30)
+        self.assertEqual(ogro.probabilidades_trigger_circulo["Puños en llamas"], 0.45)
+
 
 if __name__ == "__main__":
     unittest.main()

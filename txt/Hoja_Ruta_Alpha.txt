@@ -226,7 +226,8 @@ Estado actual:
   Troll muere protegiéndolo, el jugador queda Inalcanzable durante 2 turnos.
 - Comida puede reemplazar el golpe del Cíclope, causa daño igual a su ataque y
   cura únicamente el daño real realizado.
-- Risa provocadora todavía no está implementada.
+- Risa provocadora enfoca los ataques del bando rival en el Goblin que la
+  origina y deja de aplicarse cuando muere.
 - Gran mordisco aplica x1.5 sin varianza, ignora la penalización contra Gigante
   y usa cooldown 5; Megalodón lo selecciona mediante su probabilidad IA.
 - Comida se activa como reemplazo probabilístico del golpe básico.
@@ -243,8 +244,8 @@ Estado actual:
   Tripulación fantasma permanece pendiente por su registro de revivir.
 - Las fases no se convierten automaticamente en capturas adicionales.
 - Leviatán sigue fuera de esta fase por estar en diseño.
-- Ogro todavía no ajusta las probabilidades de Puños en llamas/Círculo de fuego
-  al entrar en Fase 2.
+- Ogro Fase 2 multiplica x1.2 la probabilidad individual de Círculo de fuego;
+  Puños en llamas usa 30% fuera y 45% dentro del círculo.
 
 FASE 6 - MAPA Y TERRENOS
 ------------------------
@@ -324,20 +325,7 @@ Estado actual:
 
 FASE 8 - VALIDACION ALPHA
 -------------------------
- Estado actual:
-- Fase 8 activa: se ejecuta la suite completa de validación Alpha.
-- test_alpha.py cubre daño, Armadura, esquive, terrenos y guardado.
-- test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
-- test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
-  y test_mapa.py cubren los contratos específicos de cada fase.
-- El descubrimiento automático de pruebas pasa 67 casos.
-- La compilación completa de los módulos de producción pasa.
-- Los módulos Python no presentan diagnósticos estáticos; compilación y rutas
-  Flask cubiertas por tests pasan.
-- Las recompensas fijas implementadas ya están validadas; queda pendiente la
-  interacción WIP de Tripulación fantasma con el hito de revivir.
-- Mecánico mitiga 10% del daño y es inmune a aturdimiento y reducción de
-  velocidad; estas reglas tienen cobertura Alpha.
+ - El descubrimiento automático de pruebas pasa 71 casos.
 - El inventario web permite equipar, reemplazar y desequipar objetos con
   validación de propiedad y recálculo de estadísticas.
 - El acceso al combate valida el terreno antes de generar el enemigo; si el
@@ -348,11 +336,9 @@ FASE 8 - VALIDACION ALPHA
   de daño de Gigante/Titánico.
 - El jugador nace con Terrestre/Normal; Barca y Barco del Caleuche cambian
   Terrestre por Híbrido al equiparse.
-- Pendientes de la auditoría de habilidades: Risa provocadora no implementada,
-  ajustes de probabilidad de Ogro en Fase 2 y Tripulación fantasma WIP.
-- Círculo de Fuego, Inalcanzable y las fases cerradas tienen pruebas. Los WIP
-  explícitos (Risa provocadora, ajustes de fase 2 del Ogro y Tripulación
-  fantasma) no se consideran certificados como implementados.
+- Pendiente de la auditoría de habilidades: Tripulación fantasma continúa WIP.
+- Círculo de Fuego, Inalcanzable, Risa provocadora y los ajustes de fase del
+  Ogro tienen pruebas. Tripulación fantasma sigue WIP y no se certifica.
 - Daño y Armadura.
 - Esquive.
 - Orden, reflejos y azar.

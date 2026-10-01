@@ -49,6 +49,15 @@
                     "trigger": "al_llegar_a_cero",
                 "vida_multiplicador": 1.0,
                 "velocidad_multiplicador": 1.2,
+                "probabilidades_ia_multiplicador": {
+                    "Círculo de fuego": 1.2
+                },
+                "probabilidades_trigger": {
+                    "Puños en llamas": 0.3
+                },
+                "probabilidades_trigger_circulo": {
+                    "Puños en llamas": 0.45
+                },
                 "capturable": false
             }
         }

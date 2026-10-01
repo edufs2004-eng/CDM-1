@@ -12,7 +12,7 @@ from habilidades import (
     ataque_permitido,
 )
 from motor import calcular_orden_turnos
-from combate import filtrar_objetivos_validos
+from combate import filtrar_objetivos_validos, turno_jugador_o_aliado
 
 
 class HabilidadesTests(unittest.TestCase):
@@ -317,6 +317,80 @@ class HabilidadesTests(unittest.TestCase):
             calcular_orden_turnos([usuario, objetivo, tercero], estado)
 
         self.assertNotIn("circulo_fuego", estado)
+
+    def test_risa_provocadora_enfoca_ataques_en_el_goblin_hasta_que_muere(self):
+        jugador = Jugador("Pescador")
+        goblin = Monstruo(
+            "Goblin", 4, 1, 1, 2, ["Terrestre", "Normal"],
+            habilidades=["Risa provocadora"],
+        )
+        enemigo_a = Monstruo("Enemigo A", 10, 1, 1, 1, ["Terrestre", "Normal"])
+        enemigo_b = Monstruo("Enemigo B", 10, 1, 1, 1, ["Terrestre", "Normal"])
+        estado = {
+            "equipo_jugador": [jugador, goblin],
+            "equipo_enemigo": [enemigo_a, enemigo_b],
+        }
+
+        with patch("habilidades.time.sleep"):
+            self.assertTrue(ejecutar_habilidad_activa("Risa provocadora", jugador, None, estado))
+
+        objetivos = filtrar_objetivos_validos([enemigo_a, enemigo_b], goblin, estado)
+        self.assertEqual(objetivos, [enemigo_a, enemigo_b])
+        objetivos_del_bando_rival = filtrar_objetivos_validos([jugador, goblin], enemigo_a, estado)
+        self.assertEqual(objetivos_del_bando_rival, [goblin])
+
+        with patch("entidades.random.random", return_value=0.99), \
+                patch("entidades.time.sleep"), \
+                patch("entidades.random.randint", return_value=4):
+            enemigo_a.atacar(jugador, estado)
+        self.assertEqual(jugador.vida_actual, 10)
+        self.assertEqual(goblin.vida_actual, 0)
+
+        objetivos_sin_goblin = filtrar_objetivos_validos([jugador, goblin], enemigo_a, estado)
+        self.assertEqual(objetivos_sin_goblin, [jugador])
+        self.assertNotIn("aggro_target", estado)
+
+    def test_consola_permite_usar_risa_prestada_del_goblin(self):
+        jugador = Jugador("Pescador")
+        goblin = Monstruo(
+            "Goblin", 4, 1, 1, 2, ["Terrestre", "Normal"],
+            habilidades=["Risa provocadora"],
+        )
+        enemigo = Monstruo("Enemigo", 10, 1, 1, 1, ["Terrestre", "Normal"])
+        jugador.equipo_aliado = [goblin]
+        estado = {
+            "terreno": "Tierra",
+            "equipo_jugador": [jugador, goblin],
+            "equipo_enemigo": [enemigo],
+        }
+
+        with patch("combate.input", side_effect=["2", "1"]), \
+                patch("combate.time.sleep"), \
+                patch("habilidades.time.sleep"):
+            turno_jugador_o_aliado(jugador, [enemigo], estado)
+
+        self.assertIs(estado["aggro_target"], goblin)
+
+    def test_punos_en_llamas_aplica_tasa_de_fase_dos_dentro_del_circulo(self):
+        ogro = Monstruo(
+            "Ogro de Fuego", 22, 6, 3, 5, ["Terrestre", "Normal"],
+            habilidades=["Puños en llamas"],
+        )
+        ogro.probabilidades_trigger["Puños en llamas"] = 0.30
+        ogro.probabilidades_trigger_circulo["Puños en llamas"] = 0.45
+        objetivo = Monstruo("Objetivo", 20, 1, 1, 1, ["Terrestre", "Normal"])
+        estado = {"circulo_fuego": {"participantes": (ogro, objetivo), "turnos": 2}}
+
+        with patch("habilidades.random.random", return_value=0.40):
+            from habilidades import procesar_trigger
+            procesar_trigger("al_atacar", ogro, objetivo, estado)
+
+        self.assertEqual(objetivo.quemadura_cargas, 1)
+
+        objetivo.purificar_quemadura()
+        with patch("habilidades.random.random", return_value=0.40):
+            procesar_trigger("al_atacar", ogro, objetivo, {})
+        self.assertEqual(objetivo.quemadura_cargas, 0)
 
     def test_no_muerto_revive_con_la_vida_del_turno_anterior(self):
         usuario = Monstruo(
