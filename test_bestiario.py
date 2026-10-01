@@ -145,6 +145,34 @@ class BestiarioTests(unittest.TestCase):
         self.assertEqual(ogro.probabilidades_trigger["Puños en llamas"], 0.30)
         self.assertEqual(ogro.probabilidades_trigger_circulo["Puños en llamas"], 0.45)
 
+    def test_serpiente_marina_transiciona_a_su_fase_dos(self):
+        serpiente = generar_monstruo("Serpiente Marina")
+        atacante = generar_monstruo("Tiburón")
+        vida_inicial = serpiente.vida_max
+        ataque_inicial = serpiente.ataque_base
+        velocidad_inicial = serpiente.velocidad_base
+        reflejos_iniciales = serpiente.reflejos
+
+        serpiente.recibir_dano(999, atacante)
+
+        self.assertEqual(serpiente.fase_actual, 2)
+        self.assertEqual(serpiente.vida_max, round(vida_inicial * 1.1))
+        self.assertEqual(serpiente.ataque_base, round(ataque_inicial * 1.2))
+        self.assertEqual(serpiente.velocidad_base, round(velocidad_inicial * 1.1))
+        self.assertEqual(serpiente.reflejos, round(reflejos_iniciales * 1.1))
+
+    def test_nautilus_transiciona_por_tres_fases_en_orden(self):
+        nautilus = generar_monstruo("Nautilus")
+        atacante = generar_monstruo("Megalodón")
+
+        nautilus.recibir_dano(999, atacante)
+        self.assertEqual(nautilus.fase_actual, 2)
+        self.assertEqual((nautilus.vida_max, nautilus.ataque_base, nautilus.velocidad_base, nautilus.armadura), (100, 10, 8, 6))
+
+        nautilus.recibir_dano(999, atacante)
+        self.assertEqual(nautilus.fase_actual, 3)
+        self.assertEqual((nautilus.vida_max, nautilus.ataque_base, nautilus.velocidad_base, nautilus.armadura), (70, 15, 5, 1))
+
 
 if __name__ == "__main__":
     unittest.main()

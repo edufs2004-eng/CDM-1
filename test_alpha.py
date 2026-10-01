@@ -47,6 +47,8 @@ class AlphaCoreTests(unittest.TestCase):
         jugador = Jugador("Alpha")
         jugador.inventario.append("Tentáculo Escurridizo")
         jugador.aliados_obtenidos.append("Aliado Alpha")
+        jugador.eventos_desbloqueados.append("hito_alpha")
+        jugador.contadores_eventos["Tiburón"] = 7
         aliado = Monstruo(
             "Aliado Alpha",
             8,
@@ -70,6 +72,8 @@ class AlphaCoreTests(unittest.TestCase):
             cargada = cargar_partida()
             self.assertEqual(cargada.nombre, "Alpha")
             self.assertEqual(cargada.inventario, ["Tentáculo Escurridizo"])
+            self.assertEqual(cargada.eventos_desbloqueados, ["hito_alpha"])
+            self.assertEqual(cargada.contadores_eventos["Tiburón"], 7)
             self.assertEqual(cargada.equipo_aliado[0].nombre, "Aliado Alpha")
             self.assertEqual(cargada.equipo_aliado[0].armadura, 1)
         finally:

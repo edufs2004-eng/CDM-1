@@ -328,7 +328,7 @@ Estado actual:
 
 FASE 8 - VALIDACION ALPHA
 -------------------------
-- El descubrimiento automático de pruebas pasa 73 casos.
+- El descubrimiento automático de pruebas pasa 77 casos.
 - El inventario web permite equipar, reemplazar y desequipar objetos con
   validación de propiedad y recálculo de estadísticas.
 - El acceso al combate valida el terreno antes de generar el enemigo; si el
@@ -339,9 +339,8 @@ FASE 8 - VALIDACION ALPHA
   de daño de Gigante/Titánico.
 - El jugador nace con Terrestre/Normal; Barca y Barco del Caleuche cambian
   Terrestre por Híbrido al equiparse.
-- Pendiente de la auditoría de habilidades: Tripulación fantasma continúa WIP.
-- Círculo de Fuego, Inalcanzable, Risa provocadora y los ajustes de fase del
-  Ogro tienen pruebas. Tripulación fantasma sigue WIP y no se certifica.
+- Círculo de Fuego, Inalcanzable, Risa provocadora, probabilidades IA y ajustes
+  probabilísticos de fase 2 del Ogro tienen pruebas.
 - Daño y Armadura.
 - Esquive.
 - Orden, reflejos y azar.
@@ -354,6 +353,18 @@ FASE 8 - VALIDACION ALPHA
 - Botin y logros.
 - Guardado y carga.
 - Paridad entre consola y web.
+
+Pendientes exactos para cerrar Alpha:
+- Ejecutar una prueba de aceptación manual en navegador y consola desde partida
+  nueva hasta captura, equipamiento, guardado/carga y acceso a Mar Profundo.
+- Añadir o ejecutar una prueba diferencial de una ronda con RNG controlado para
+  demostrar que consola y web aplican las mismas decisiones y resultados.
+- Validar el encuentro de Nautilus de principio a fin incluyendo sus tres
+  fases, derrota final, entrega única de Linterna y no repetición tras recargar.
+- Decidir explícitamente si Tripulación fantasma queda fuera del contenido Alpha
+  o completar conversión de muertos, invocación y crédito al hito de la Espada.
+- Si se incluye Tripulación fantasma, añadir prueba integrada de cuatro
+  conversiones en el mismo turno y entrega persistente de la Espada.
 
 CRITERIO FINAL DE ALPHA
 -----------------------

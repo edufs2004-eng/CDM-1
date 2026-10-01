@@ -84,6 +84,43 @@ class AlphaWebTests(unittest.TestCase):
         self.assertEqual(siguiente_visita.status_code, 200)
         self.assertEqual(generar.call_count, invocaciones)
 
+    def test_derrota_web_corta_turno_y_restaura_equipo(self):
+        jugador = app_module.jugador_actual
+        aliado = Monstruo("Aliado", 8, 2, 1, 2, ["Terrestre", "Normal"])
+        jugador.equipo_aliado = [aliado]
+        monstruos_activos.pop("Goblin", None)
+        self.cliente.post("/iniciar_combate/Goblin", data={"terreno": "Tierra"})
+        enemigo = app_module.estado_combate_web["enemigo"]
+        jugador.vida_actual = 2
+        aliado.vida_actual = 1
+        jugador.aturdido_turnos = 1
+        aliado.aturdido_turnos = 1
+        jugador.enfriamientos["Test"] = 2
+        aliado.enfriamientos["Test"] = 2
+        orden = [
+            {"nombre": enemigo.nombre, "objeto": enemigo, "iniciativa": 3},
+            {"nombre": enemigo.nombre, "objeto": enemigo, "iniciativa": 2},
+        ]
+
+        def derrota(aliados, enemigos, estado_combate):
+            jugador.vida_actual = 0
+
+        with (
+            patch.object(app_module, "calcular_orden_turnos", return_value=orden),
+            patch.object(enemigo, "decidir_accion_ia", side_effect=derrota) as actuar,
+        ):
+            respuesta = self.cliente.post("/accion_combate", data={"accion": "pasar"})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(actuar.call_count, 1)
+        self.assertTrue(app_module.estado_combate_web["terminado"])
+        self.assertEqual(jugador.vida_actual, jugador.vida_max)
+        self.assertEqual(aliado.vida_actual, aliado.vida_max)
+        self.assertEqual(jugador.aturdido_turnos, 0)
+        self.assertEqual(aliado.aturdido_turnos, 0)
+        self.assertEqual(jugador.enfriamientos, {})
+        self.assertEqual(aliado.enfriamientos, {})
+
     def test_arena_web_oculta_aliado_invalido_para_agua(self):
         goblin = Monstruo("Goblin", 4, 1, 1, 2, ["Terrestre"])
         app_module.jugador_actual.equipo_aliado = [goblin]

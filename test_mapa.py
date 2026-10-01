@@ -87,6 +87,34 @@ class MapaTests(unittest.TestCase):
             menu_zona(jugador, "Mar Profundo")
         combate_repetido.assert_not_called()
 
+    def test_consola_derrota_restaura_jugador_aliados_y_enemigo(self):
+        jugador = Jugador("Pescador")
+        aliado = Monstruo("Aliado", 8, 2, 1, 2, ["Terrestre", "Normal"])
+        jugador.equipo_aliado = [aliado]
+        jugador.vida_actual = 2
+        aliado.vida_actual = 1
+        enemigo = Monstruo("Goblin", 4, 1, 1, 2, ["Terrestre", "Normal"])
+        enemigo.vida_actual = 2
+        monstruos_activos.pop("Goblin", None)
+
+        def perder_combate(*args, **kwargs):
+            jugador.vida_actual = 0
+            aliado.vida_actual = 0
+            enemigo.vida_actual = 0
+            return False
+
+        with (
+            patch("builtins.input", side_effect=["1", "5"]),
+            patch("mapa.generar_monstruo", return_value=enemigo),
+            patch("mapa.iniciar_combate", side_effect=perder_combate),
+            patch("builtins.print"),
+        ):
+            menu_zona(jugador, "Tierra Firme")
+
+        self.assertEqual(jugador.vida_actual, jugador.vida_max)
+        self.assertEqual(aliado.vida_actual, aliado.vida_max)
+        self.assertEqual(enemigo.vida_actual, enemigo.vida_max)
+
     def test_captura_devuelve_si_es_nueva_y_conserva_peligrosidad(self):
         jugador = Jugador("Prueba")
         monstruo = Monstruo(
