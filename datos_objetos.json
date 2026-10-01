@@ -33,7 +33,11 @@
     },
     "Hacha de fuego": {
         "tipo": "Mano 1",
-        "bonos": {"ataque": 4, "varianza": 1}
+        "bonos": {
+            "ataque": 4,
+            "varianza": 1,
+            "habilidades": ["Hacha de fuego"]
+        }
     },
     "Linterna de Nautilus": {
         "tipo": "Extra",

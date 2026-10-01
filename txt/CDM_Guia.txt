@@ -765,7 +765,7 @@ Etiquetas: [Acuático, Gigante]
 
 Habilidades:
 
-Furia del mar: Al llegar a 0 HP, pasa a Fase 2. Aturde a un enemigo (3 turnos si es normal; 1 turno si es Gigante o Titánico). (trigger: al_morir)
+Furia del mar: Al recibir daño mortal, pasa a Fase 2. Aturde a un enemigo (3 turnos si es Normal; 1 turno si es Gigante o Titánico). (trigger: al_recibir_dano_mortal)
 
 Regla como aliado: Kraken capturado comienza y permanece en Fase 1. Furia del
 mar es la habilidad explícita que le permite acceder a su Fase 2 como aliado;
@@ -865,7 +865,10 @@ Objetos actuales:
 
 Palo de madera con hojita: +1 Ataque. Derrota al Pulpo Inteligente.
 
-Hacha de fuego: +4 Ataque, Varianza ±1, 40% quemadura. Derrota al Ogro perdiendo <50% HP.
+Hacha de fuego: +4 Ataque, Varianza ±1. Al equiparla, cada ataque básico del
+jugador tiene 40% de probabilidad de aplicar una carga de quemadura. Se obtiene
+al derrotar al Ogro de Fuego con el jugador principal por encima del 50% de su
+vida máxima.
 
 Linterna de Nautilus: Permite combatir en Agua Profunda. Destrucción de Nautilus.
 

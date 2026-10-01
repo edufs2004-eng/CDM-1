@@ -164,6 +164,20 @@ class AlphaCoreTests(unittest.TestCase):
         self.assertEqual(vida_titanico_normal, 20)
         self.assertEqual(titanico.vida_actual, 12)
 
+    @patch("entidades.time.sleep")
+    @patch("entidades.random.randint", return_value=6)
+    @patch("entidades.random.random", side_effect=[0.99, 0.99, 0.0])
+    def test_hacha_equipada_quema_en_ataque_del_jugador(self, _random, _randint, _sleep):
+        jugador = Jugador("Pescador")
+        jugador.equipo["Mano 1"] = generar_objeto("Hacha de fuego")
+        jugador.actualizar_stats()
+        objetivo = Monstruo("Objetivo", 30, 1, 0, 1, ["Terrestre", "Normal"])
+
+        jugador.atacar(objetivo)
+
+        self.assertIn("Hacha de fuego", jugador.habilidades)
+        self.assertEqual(objetivo.quemadura_cargas, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -49,6 +49,15 @@ HABILIDADES_DB = {
             {"accion": "aplicar_quemadura", "cargas": 1}
         ]
     },
+    "Hacha de fuego": {
+        "tipo": "instantanea",
+        "trigger": "al_atacar",
+        "probabilidad": 0.40,
+        "texto": "¡El Hacha de fuego prende a {objetivo}!",
+        "efectos": [
+            {"accion": "aplicar_quemadura", "cargas": 1}
+        ]
+    },
     "Chorro de agua": {
         "tipo": "trigger",
         "trigger": "aliado_con_quemadura",
@@ -99,7 +108,7 @@ HABILIDADES_DB = {
     },
     "Furia del mar": {
         "tipo": "pasiva",
-        "trigger": "al_recibir_dano_letal",
+        "trigger": "al_recibir_dano_mortal",
         "usos_maximos": 1,
         "efectos": [
             {"accion": "transicionar_fase"}
@@ -325,13 +334,19 @@ def aplicar_efectos(efectos, usuario, objetivo_principal, estado_combate):
 
 def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=None):
     """Revisa si el personaje tiene una habilidad pasiva/instantánea que reaccione a este momento"""
+    aliases_trigger = {
+        "al_recibir_dano_letal": "al_recibir_dano_mortal",
+        "al_morir": "al_recibir_dano_mortal",
+    }
+    trigger = aliases_trigger.get(trigger, trigger)
     for nombre_hab in usuario.habilidades:
         if nombre_hab not in HABILIDADES_DB: continue
         
         datos_hab = HABILIDADES_DB[nombre_hab]
         
         # Ignorar si no es el trigger correcto
-        if datos_hab.get("trigger") != trigger: continue
+        trigger_habilidad = aliases_trigger.get(datos_hab.get("trigger"), datos_hab.get("trigger"))
+        if trigger_habilidad != trigger: continue
             
         # Validar usos máximos
         if "usos_maximos" in datos_hab:
@@ -348,13 +363,15 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=Non
                 continue
 
         # Validar probabilidad (Si tiene)
-        probabilidad = usuario.probabilidades_trigger.get(
+        probabilidades_trigger = getattr(usuario, "probabilidades_trigger", {})
+        probabilidades_circulo = getattr(usuario, "probabilidades_trigger_circulo", {})
+        probabilidad = probabilidades_trigger.get(
             nombre_hab,
             datos_hab.get("probabilidad"),
         )
         circulo = estado_combate.get("circulo_fuego") if estado_combate else None
         if circulo and usuario in circulo["participantes"]:
-            probabilidad = usuario.probabilidades_trigger_circulo.get(
+            probabilidad = probabilidades_circulo.get(
                 nombre_hab,
                 datos_hab.get("probabilidad_en_circulo", probabilidad),
             )
@@ -363,7 +380,10 @@ def procesar_trigger(trigger, usuario, objetivo, estado_combate=None, evento=Non
             
         # ¡La habilidad se activa!
         if "texto" in datos_hab:
-            print(datos_hab["texto"].format(usuario=usuario.nombre))
+            print(datos_hab["texto"].format(
+                usuario=usuario.nombre,
+                objetivo=getattr(objetivo, "nombre", ""),
+            ))
             
         aplicar_efectos(datos_hab["efectos"], usuario, objetivo, estado_combate)
         

@@ -126,7 +126,7 @@ class Entidad:
             se_salvo = False
             self.vida_actual = 0 
             
-            procesar_trigger("al_recibir_dano_letal", self, atacante)
+            procesar_trigger("al_recibir_dano_mortal", self, atacante)
             
             if self.vida_actual > 0:
                 se_salvo = True 

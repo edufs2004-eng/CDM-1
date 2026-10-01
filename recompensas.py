@@ -26,7 +26,7 @@ def evaluar_recompensas_victoria(jugador, enemigo):
         if agregar_objeto_unico(jugador, objeto, evento):
             logs.append(f"¡Recompensa obtenida: {objeto}!")
 
-    if nombre == "Ogro de Fuego" and jugador.vida_actual < jugador.vida_max / 2:
+    if nombre == "Ogro de Fuego" and jugador.vida_actual > jugador.vida_max / 2:
         if agregar_objeto_unico(jugador, "Hacha de fuego", "recompensa_hacha_ogro"):
             logs.append("¡Recompensa obtenida: Hacha de fuego!")
 

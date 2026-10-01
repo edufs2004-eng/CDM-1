@@ -4,32 +4,12 @@
         "aliados_obtenidos": [
             "Goblin",
             "Pulpo Inteligente",
-            "Tiburón"
+            "Tiburón",
+            "Monstruo del Lago Ness",
+            "Megalodón",
+            "Serpiente Marina"
         ],
         "equipo_aliado": [
-            {
-                "nombre": "Goblin",
-                "vida_max": 3,
-                "vida_actual": 3,
-                "ataque_base": 1,
-                "reflejos": 1,
-                "velocidad_base": 2,
-                "armadura": 0,
-                "peligrosidad": 0.3,
-                "terreno": "Tierra",
-                "etiquetas": [
-                    "Terrestre",
-                    "Normal"
-                ],
-                "habilidades": [
-                    "Risa provocadora"
-                ],
-                "probabilidades_ia": {},
-                "enfriamientos": {},
-                "fase_actual": 1,
-                "fase_en_encuentro": false,
-                "datos_fase": {}
-            },
             {
                 "nombre": "Pulpo Inteligente",
                 "vida_max": 7,
@@ -74,23 +54,131 @@
                 "fase_actual": 1,
                 "fase_en_encuentro": false,
                 "datos_fase": {}
+            },
+            {
+                "nombre": "Monstruo del Lago Ness",
+                "vida_max": 11,
+                "vida_actual": 11,
+                "ataque_base": 2,
+                "reflejos": 5,
+                "velocidad_base": 6,
+                "armadura": 0,
+                "peligrosidad": 2.1,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático",
+                    "Normal"
+                ],
+                "habilidades": [
+                    "Chorro de agua"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Megalodón",
+                "vida_max": 21,
+                "vida_actual": 21,
+                "ataque_base": 5,
+                "reflejos": 1,
+                "velocidad_base": 5,
+                "armadura": 0,
+                "peligrosidad": 2.3,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático",
+                    "Normal"
+                ],
+                "habilidades": [
+                    "Gran mordisco"
+                ],
+                "probabilidades_ia": {
+                    "Gran mordisco": 0.47176798948349985
+                },
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
             }
         ],
-        "caja_aliados": [],
+        "caja_aliados": [
+            {
+                "nombre": "Goblin",
+                "vida_max": 3,
+                "vida_actual": 3,
+                "ataque_base": 1,
+                "reflejos": 1,
+                "velocidad_base": 2,
+                "armadura": 0,
+                "peligrosidad": 0.3,
+                "terreno": "Tierra",
+                "etiquetas": [
+                    "Terrestre",
+                    "Normal"
+                ],
+                "habilidades": [
+                    "Risa provocadora"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Serpiente Marina",
+                "vida_max": 16,
+                "vida_actual": 16,
+                "ataque_base": 5,
+                "reflejos": 5,
+                "velocidad_base": 12,
+                "armadura": 0,
+                "peligrosidad": 2.9,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático",
+                    "Gigante"
+                ],
+                "habilidades": [
+                    "Tsunami"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {
+                    "2": {
+                        "trigger": "al_llegar_a_cero",
+                        "vida_multiplicador": 1.1,
+                        "velocidad_multiplicador": 1.1,
+                        "ataque_multiplicador": 1.2,
+                        "reflejos_multiplicador": 1.1,
+                        "capturable": false
+                    }
+                }
+            }
+        ],
         "inventario": [
-            "Palo de madera con hojita"
+            "Caña de pescar"
         ],
         "eventos_desbloqueados": [
-            "recompensa_palo_pulpo"
+            "recompensa_palo_pulpo",
+            "recompensa_equipo_acuatico"
         ],
         "contadores_eventos": {
             "Goblin": 1,
             "Pulpo Inteligente": 1,
-            "Tiburón": 1
+            "Tiburón": 1,
+            "Monstruo del Lago Ness": 1,
+            "Megalodón": 1,
+            "Serpiente Marina": 1
         },
         "equipo": {
-            "Mano 1": "Caña de pescar",
-            "Mano 2": null,
+            "Mano 1": "Caña de pescar de experto",
+            "Mano 2": "Palo de madera con hojita",
             "Cabeza": "Gorro de pescador",
             "Torso": "Polera con mangas",
             "Piernas": "Pantalón de tela",

@@ -328,11 +328,14 @@ Estado actual:
 
 FASE 8 - VALIDACION ALPHA
 -------------------------
-- El descubrimiento automático de pruebas pasa 77 casos.
+- El descubrimiento automático de pruebas pasa 78 casos.
 - El inventario web permite equipar, reemplazar y desequipar objetos con
   validación de propiedad y recálculo de estadísticas.
 - El acceso al combate valida el terreno antes de generar el enemigo; si el
   jugador no es compatible, muestra el motivo y no crea el encuentro.
+- Hacha de fuego se obtiene al derrotar al Ogro con más del 50% de la vida
+  máxima del jugador y aplica su trigger de quemadura al atacar.
+- Furia del mar utiliza el trigger canónico al_recibir_dano_mortal.
 - Probabilidades IA se sortean por monstruo desde intervalos decimales y se
   conservan al guardar; los guardados antiguos en porcentaje entero son leídos.
 - Normal se aplica a entidades no Gigantes/Titánicas y participa en las reglas
