@@ -119,7 +119,7 @@ partidas antiguas sigan cargando.
 
 Estado actual:
 - Entidad y Monstruo ya transportan Armadura, peligrosidad, cooldowns y fase.
-- Los tres monstruos actuales ya tienen Armadura y peligrosidad en JSON.
+- El bestiario base cerrado ya tiene Armadura, peligrosidad y terreno en JSON.
 - guardado.py conserva estos datos y acepta partidas antiguas.
 - test_modelo_datos.py protege la carga nueva, la serializacion y los defaults.
 - habilidades.py centraliza usos maximos y cooldowns.
@@ -128,9 +128,10 @@ Estado actual:
 - habilidades.py selecciona IA con ventana acumulada y fallback a ataque basico.
 - entidades.py conecta esa seleccion al comportamiento autonomo del monstruo.
 - test_habilidades.py protege prioridad, deslizamiento y fallback de IA.
-- Las probabilidades IA de los monstruos actuales siguen vacias, por lo que su
-  comportamiento observable no cambia.
-- Fases todavia no tienen comportamiento nuevo activo.
+- Las probabilidades IA se sortean por individuo desde intervalos decimales y
+  se conservan en guardados; Ogro y Megalodón ya usan habilidades IA.
+- Las fases de monstruos salvajes se ejecutan con datos y se reinician al
+  capturar, con Furia del mar como excepción de Kraken aliado.
 
 FASE 3 - HABILIDADES Y ESTADOS
 ------------------------------
@@ -158,7 +159,8 @@ Estado actual:
 - La quemadura se procesa una vez por ronda global.
 - Purificación e inmunidad de Mecánico están disponibles como efectos.
 - test_habilidades.py protege estos comportamientos.
-- Aturdimiento avanzado, Inalcanzable y Círculo de Fuego siguen pendientes.
+- Inalcanzable, Círculo de Fuego y las inmunidades de Mecánico están
+  implementados y probados.
 
 FASE 4 - BESTIARIO BASE
 -----------------------
@@ -189,8 +191,8 @@ Estado actual:
   habilidades declaradas.
 - test_bestiario.py valida el catálogo, sus rangos y la ausencia de Leviatán.
 - Leviatán continúa fuera del catálogo por estar en fase de diseño.
-- Las nuevas criaturas todavía no se exponen en nuevas zonas del mapa.
-- Sus fases y habilidades especiales siguen pendientes de las fases 5 y 6.
+- El bestiario cerrado está expuesto en las zonas canónicas correspondientes.
+- Las fases y habilidades especiales están cubiertas en el estado de Fase 5.
 
 FASE 5 - FASES Y JEFES INCLUIDOS EN ALPHA
 ------------------------------------------
@@ -213,7 +215,7 @@ Estado actual:
 - Kraken aplica sus multiplicadores y aturde al atacante durante 3 turnos,
   o 1 si el atacante es Gigante o Titánico.
 - Puños en llamas aplica quemadura mediante trigger de ataque.
-- Chorro de agua purifica al usuario mediante habilidad activa.
+- Chorro de agua se activa como respuesta IA y purifica a un aliado quemado.
 - Inalcanzable ya existe como estado temporal, se filtra de objetivos y expira
   al avanzar rondas.
 - Círculo de Fuego aísla dos entidades, bloquea ataques externos y expira tras
@@ -224,8 +226,10 @@ Estado actual:
   Troll muere protegiéndolo, el jugador queda Inalcanzable durante 2 turnos.
 - Comida puede reemplazar el golpe del Cíclope, causa daño igual a su ataque y
   cura únicamente el daño real realizado.
+- Risa provocadora todavía no está implementada.
 - Gran mordisco aplica x1.5 sin varianza, ignora la penalización contra Gigante
-  y usa cooldown 5.
+  y usa cooldown 5; Megalodón lo selecciona mediante su probabilidad IA.
+- Comida se activa como reemplazo probabilístico del golpe básico.
 - Tripulación fantasma tiene un prototipo de conversión, pero queda WIP hasta
   revisar aliados muertos, registrar la conversión como revive y completar la
   invocación de tropas menores.
@@ -239,6 +243,8 @@ Estado actual:
   Tripulación fantasma permanece pendiente por su registro de revivir.
 - Las fases no se convierten automaticamente en capturas adicionales.
 - Leviatán sigue fuera de esta fase por estar en diseño.
+- Ogro todavía no ajusta las probabilidades de Puños en llamas/Círculo de fuego
+  al entrar en Fase 2.
 
 FASE 6 - MAPA Y TERRENOS
 ------------------------
@@ -268,7 +274,8 @@ Estado actual:
 - El jugador puede combatir en Tierra sin una etiqueta artificial.
 - Mar Profundo exige Linterna de Nautilus al entrar y al iniciar combate.
 - La peligrosidad no aparece en la selección previa.
-- La peligrosidad se revela después de una captura nueva en consola y web.
+- La peligrosidad se muestra en la tarjeta de gestión de los aliados capturados;
+  nunca antes del combate ni como aviso al terminarlo.
 - test_mapa.py protege acceso, terrenos y captura.
 - Los aliados inválidos para el terreno quedan fuera de los combatientes, por
   lo que no generan iniciativa, no actúan ni pueden ser objetivos.
@@ -276,7 +283,7 @@ Estado actual:
   antes de la siguiente ronda.
 - Gestionar Equipo muestra la peligrosidad de cada aliado; ya no se muestra
   como aviso al finalizar el combate.
-- La Fase 6 queda cerrada: la suite valida 47 pruebas y la arena web muestra
+- La Fase 6 queda cerrada: la arena web muestra
   únicamente los combatientes válidos para el terreno.
 
 FASE 7 - BOTIN Y LOGROS
@@ -323,10 +330,10 @@ FASE 8 - VALIDACION ALPHA
 - test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
 - test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
   y test_mapa.py cubren los contratos específicos de cada fase.
-- El descubrimiento automático de pruebas pasa 66 casos.
+- El descubrimiento automático de pruebas pasa 67 casos.
 - La compilación completa de los módulos de producción pasa.
-- El diagnóstico pendiente de Flask corresponde al intérprete del editor, no a
-  un error de sintaxis ni de ejecución del módulo.
+- Los módulos Python no presentan diagnósticos estáticos; compilación y rutas
+  Flask cubiertas por tests pasan.
 - Las recompensas fijas implementadas ya están validadas; queda pendiente la
   interacción WIP de Tripulación fantasma con el hito de revivir.
 - Mecánico mitiga 10% del daño y es inmune a aturdimiento y reducción de
@@ -343,8 +350,9 @@ FASE 8 - VALIDACION ALPHA
   Terrestre por Híbrido al equiparse.
 - Pendientes de la auditoría de habilidades: Risa provocadora no implementada,
   ajustes de probabilidad de Ogro en Fase 2 y Tripulación fantasma WIP.
-- Círculo de Fuego, Inalcanzable, varias fases y mecánicas de jefes siguen
-  pendientes y no se consideran certificadas por esta suite.
+- Círculo de Fuego, Inalcanzable y las fases cerradas tienen pruebas. Los WIP
+  explícitos (Risa provocadora, ajustes de fase 2 del Ogro y Tripulación
+  fantasma) no se consideran certificados como implementados.
 - Daño y Armadura.
 - Esquive.
 - Orden, reflejos y azar.

@@ -58,7 +58,9 @@ IMPORTANTE:
 
 La peligrosidad NO se revela antes del combate.
 
-Solo se revela de forma informativa en el splash screen del monstruo después de capturarlo.
+Después de capturar un monstruo, su peligrosidad se muestra en la tarjeta de
+gestión de equipo, tanto si queda activo como si va a la reserva. No se muestra
+como aviso al terminar el combate.
 
 La peligrosidad no es un requisito de acceso ni un bloqueo artificial del mundo.
 

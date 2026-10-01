@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from entidades import Jugador, Monstruo
 from mapa import (
@@ -47,6 +48,22 @@ class MapaTests(unittest.TestCase):
         self.assertIn("Terrestre", motivo)
         self.assertIn("Agua", motivo)
         self.assertIn("Barca", motivo)
+
+    def test_consola_no_genera_enemigo_si_jugador_no_accede_al_terreno(self):
+        from mapa import menu_zona, monstruos_activos
+
+        jugador = Jugador("Prueba")
+        jugador.equipo["Extra"] = None
+        jugador.actualizar_stats()
+        monstruos_activos.pop("Tiburón", None)
+
+        with patch("builtins.input", side_effect=["2", "7"]), \
+                patch("mapa.generar_monstruo") as generar, \
+                patch("builtins.print"):
+            menu_zona(jugador, "Mundo Marino")
+
+        generar.assert_not_called()
+        self.assertNotIn("Tiburón", monstruos_activos)
 
     def test_captura_devuelve_si_es_nueva_y_conserva_peligrosidad(self):
         jugador = Jugador("Prueba")

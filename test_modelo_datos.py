@@ -17,6 +17,7 @@ class ModeloDatosTests(unittest.TestCase):
 
     def test_metadatos_nuevos_se_conservan_al_serializar(self):
         monstruo = generar_monstruo("Tiburón")
+        monstruo.probabilidades_ia["Prueba IA"] = 0.37
         monstruo.enfriamientos["Prueba"] = 2
         monstruo.fase_actual = 2
 
@@ -25,6 +26,7 @@ class ModeloDatosTests(unittest.TestCase):
         self.assertEqual(copia.armadura, monstruo.armadura)
         self.assertEqual(copia.peligrosidad, monstruo.peligrosidad)
         self.assertEqual(copia.terreno, monstruo.terreno)
+        self.assertEqual(copia.probabilidades_ia, monstruo.probabilidades_ia)
         self.assertEqual(copia.enfriamientos, {"Prueba": 2})
         self.assertEqual(copia.fase_actual, 2)
 
