@@ -323,7 +323,7 @@ FASE 8 - VALIDACION ALPHA
 - test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
 - test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
   y test_mapa.py cubren los contratos específicos de cada fase.
-- El descubrimiento automático de pruebas pasa 57 casos.
+- El descubrimiento automático de pruebas pasa 64 casos.
 - La compilación completa de los módulos de producción pasa.
 - El diagnóstico pendiente de Flask corresponde al intérprete del editor, no a
   un error de sintaxis ni de ejecución del módulo.
@@ -333,6 +333,14 @@ FASE 8 - VALIDACION ALPHA
   velocidad; estas reglas tienen cobertura Alpha.
 - El inventario web permite equipar, reemplazar y desequipar objetos con
   validación de propiedad y recálculo de estadísticas.
+- Probabilidades IA se sortean por monstruo desde intervalos decimales y se
+  conservan al guardar; los guardados antiguos en porcentaje entero son leídos.
+- Normal se aplica a entidades no Gigantes/Titánicas y participa en las reglas
+  de daño de Gigante/Titánico.
+- El jugador nace con Terrestre/Normal; Barca y Barco del Caleuche cambian
+  Terrestre por Híbrido al equiparse.
+- Pendientes de la auditoría de habilidades: Risa provocadora no implementada,
+  ajustes de probabilidad de Ogro en Fase 2 y Tripulación fantasma WIP.
 - Círculo de Fuego, Inalcanzable, varias fases y mecánicas de jefes siguen
   pendientes y no se consideran certificadas por esta suite.
 - Daño y Armadura.

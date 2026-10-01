@@ -7,7 +7,7 @@
         "armadura": [0, 0],
         "peligrosidad": 0.3,
         "terreno": "Tierra",
-        "etiquetas": ["Terrestre"],
+        "etiquetas": ["Terrestre", "Normal"],
         "habilidades": ["Risa provocadora"],
         "probabilidades_ia": {}
     },
@@ -19,7 +19,7 @@
         "armadura": [2, 4],
         "peligrosidad": 2.6,
         "terreno": "Tierra",
-        "etiquetas": ["Terrestre"],
+        "etiquetas": ["Terrestre", "Normal"],
         "habilidades": ["Mejor amigo"],
         "probabilidades_ia": {},
         "fases": {
@@ -39,10 +39,10 @@
         "armadura": [0, 0],
         "peligrosidad": 3.8,
         "terreno": "Tierra",
-        "etiquetas": ["Terrestre"],
+        "etiquetas": ["Terrestre", "Normal"],
         "habilidades": ["Puños en llamas", "Círculo de fuego"],
         "probabilidades_ia": {
-            "Círculo de fuego": [0, 0]
+            "Círculo de fuego": [0.1, 0.5]
         },
         "fases": {
             "2": {
@@ -73,7 +73,7 @@
         "armadura": [0, 0],
         "peligrosidad": 0.9,
         "terreno": "Híbrido",
-        "etiquetas": ["Híbrido"],
+        "etiquetas": ["Híbrido", "Normal"],
         "habilidades": ["Tácticas de escape", "Cachetada"],
         "probabilidades_ia": {}
     },
@@ -85,7 +85,7 @@
         "armadura": [0, 0],
         "peligrosidad": 1.0,
         "terreno": "Agua",
-        "etiquetas": ["Acuático"],
+        "etiquetas": ["Acuático", "Normal"],
         "habilidades": [],
         "probabilidades_ia": {}
     },
@@ -97,7 +97,7 @@
         "armadura": [0, 0],
         "peligrosidad": 2.1,
         "terreno": "Agua",
-        "etiquetas": ["Acuático"],
+        "etiquetas": ["Acuático", "Normal"],
         "habilidades": ["Chorro de agua"],
         "probabilidades_ia": {}
     },
@@ -109,9 +109,11 @@
         "armadura": [0, 0],
         "peligrosidad": 2.3,
         "terreno": "Agua",
-        "etiquetas": ["Acuático"],
+        "etiquetas": ["Acuático", "Normal"],
         "habilidades": ["Gran mordisco"],
-        "probabilidades_ia": {}
+        "probabilidades_ia": {
+            "Gran mordisco": [0.25, 0.55]
+        }
     },
     "Serpiente Marina": {
         "vida": [12, 18],
@@ -165,7 +167,7 @@
         "armadura": [0, 0],
         "peligrosidad": 4.9,
         "terreno": "Híbrido",
-        "etiquetas": ["Terrestre"],
+        "etiquetas": ["Terrestre", "Normal"],
         "habilidades": ["Tripulación fantasma", "No muerto"],
         "probabilidades_ia": {}
     },

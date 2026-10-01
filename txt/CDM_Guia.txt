@@ -130,7 +130,9 @@ Limitaciones del jugador:
 
 No tiene habilidades activas innatas.
 
-No tiene etiquetas de terreno propias.
+Sus etiquetas nativas son [Terrestre, Normal].
+Al equipar Barca o Barco del Caleuche, reemplaza Terrestre por Híbrido; Normal
+se conserva. Barca además conserva la etiqueta Barca.
 
 Todo su crecimiento depende de:
 
@@ -309,6 +311,18 @@ si la habilidad está en cooldown o sin usos, su espacio se elimina y el rango s
 
 si el dado cae fuera de cualquier rango válido, o todo está agotado, la entidad ejecuta un ataque básico.
 
+Cada habilidad IA declara un intervalo decimal [mínimo, máximo] entre 0.0 y
+1.0. Al generar el monstruo, se sortea una probabilidad individual dentro de
+ese intervalo y se conserva durante toda su existencia, incluido guardado y
+carga. Ejemplo: [0.2, 0.4] produce para cada individuo una probabilidad fija
+entre 20% y 40%; monstruos de la misma especie pueden nacer con valores
+distintos.
+
+Para seleccionar, las probabilidades individuales disponibles se ordenan de
+mayor a menor y se colocan consecutivamente en la ventana de 1d100. Si una
+habilidad está agotada o en cooldown, se elimina su espacio y las siguientes
+se deslizan. La tirada fuera de la suma disponible resulta en ataque básico.
+
 Regla de prioridad:
 
 Habilidad disponible con mayor probabilidad activa primero.
@@ -390,7 +404,7 @@ ETIQUETAS (TAGS)
 
 Etiquetas canónicas:
 
-normal
+Normal
 
 Terrestre
 
@@ -423,16 +437,19 @@ Híbrido: puede participar en Tierra o Agua.
 
 Volador: inmune totalmente a ataques cuerpo a cuerpo. Solo puede ser dañado por otros voladores o entidades con la etiqueta 'Ataque a distancia'.
 
+Normal: clasificación de todas las entidades que no sean Gigante ni Titánico,
+incluidos monstruos comunes y jugador. No reemplaza las etiquetas de terreno.
+
 8.2 Reglas de etiquetas de escala
 Titánico:
 
-inmune a ataques normales.
+no recibe daño de atacantes con etiqueta Normal.
 
-mitiga 25% del daño recibido de entidades Gigantes.
+mitiga 25% del daño recibido de atacantes Gigantes.
 
 Gigante:
 
-mitiga 30% del daño recibido de enemigos normales.
+mitiga 30% del daño recibido de atacantes Normal.
 
 recibe penalización al atacar a un Titánico.
 
@@ -499,7 +516,8 @@ Etiquetas: lista
 
 Habilidades: lista
 
-Probabilidades IA: porcentaje de activación por habilidad [min,max]
+Probabilidades IA: intervalo decimal de activación por habilidad [min,max], con
+valores entre 0.0 y 1.0; el valor individual se sortea al generar el monstruo.
 
 Las probabilidades de IA se asignan al nacer el monstruo. No suben por experiencia.
 
@@ -524,7 +542,7 @@ Velocidad: [1, 2]
 
 Armadura: [0, 0]
 
-Etiquetas: [Terrestre]
+Etiquetas: [Terrestre, Normal]
 
 Habilidades:
 
@@ -546,7 +564,7 @@ Velocidad: [2, 4]
 
 Armadura: [2, 4]
 
-Etiquetas: [Terrestre]
+Etiquetas: [Terrestre, Normal]
 
 Habilidades:
 
@@ -574,7 +592,7 @@ Velocidad: [4, 5]
 
 Armadura: [0, 0]
 
-Etiquetas: [Terrestre]
+Etiquetas: [Terrestre, Normal]
 
 Habilidades:
 
@@ -629,7 +647,7 @@ Velocidad: [2, 3]
 
 Armadura: [0, 0]
 
-Etiquetas: [Híbrido]
+Etiquetas: [Híbrido, Normal]
 
 Habilidades:
 
@@ -651,7 +669,7 @@ Velocidad: [5, 6]
 
 Armadura: [0, 0]
 
-Etiquetas: [Acuático]
+Etiquetas: [Acuático, Normal]
 
 Habilidades: Ninguna (DPS puro).
 
@@ -671,7 +689,7 @@ Velocidad: [4, 6]
 
 Armadura: [0, 0]
 
-Etiquetas: [Acuático]
+Etiquetas: [Acuático, Normal]
 
 Habilidades:
 
@@ -693,7 +711,7 @@ Velocidad: [4, 5]
 
 Armadura: [0, 0]
 
-Etiquetas: [Acuático]
+Etiquetas: [Acuático, Normal]
 
 Habilidades:
 
@@ -772,7 +790,7 @@ Velocidad: [3, 4]
 
 Armadura: [0, 0]
 
-Etiquetas: [Terrestre]
+Etiquetas: [Terrestre, Normal]
 
 Habilidades:
 

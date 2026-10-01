@@ -2,6 +2,7 @@ import unittest
 
 from datos_monstruos import MONSTRUOS_DB, generar_monstruo
 from entidades import Jugador
+from habilidades import HABILIDADES_DB
 from mapa import procesar_captura
 
 
@@ -35,6 +36,23 @@ class BestiarioTests(unittest.TestCase):
             self.assertEqual(datos["velocidad"], rangos[3], nombre)
             self.assertEqual(datos["armadura"], rangos[4], nombre)
             self.assertEqual(datos["peligrosidad"], rangos[5], nombre)
+
+    def test_intervalos_ia_son_decimales_y_refieren_habilidades_ia(self):
+        self.assertEqual(
+            MONSTRUOS_DB["Ogro de Fuego"]["probabilidades_ia"]["Círculo de fuego"],
+            [0.1, 0.5],
+        )
+        self.assertEqual(
+            MONSTRUOS_DB["Megalodón"]["probabilidades_ia"]["Gran mordisco"],
+            [0.25, 0.55],
+        )
+
+        for datos in MONSTRUOS_DB.values():
+            for nombre, intervalo in datos.get("probabilidades_ia", {}).items():
+                self.assertEqual(HABILIDADES_DB[nombre]["tipo"], "ia")
+                self.assertGreaterEqual(intervalo[0], 0.0)
+                self.assertLessEqual(intervalo[1], 1.0)
+                self.assertLessEqual(intervalo[0], intervalo[1])
 
     def test_generacion_conserva_los_rangos_del_catalogo(self):
         for nombre, rangos in BESTIARIO_ALPHA.items():

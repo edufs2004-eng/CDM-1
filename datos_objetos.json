@@ -17,7 +17,11 @@
     },
     "Barca": {
         "tipo": "Extra",
-        "bonos": {"etiqueta": "Barca"}
+        "bonos": {
+            "etiqueta": "Barca",
+            "reemplaza_etiqueta": "Terrestre",
+            "etiqueta_resultante": "Híbrido"
+        }
     },
     "Tentáculo Escurridizo": {
         "tipo": "Brazos",
@@ -37,7 +41,11 @@
     },
     "Barco del Caleuche": {
         "tipo": "Extra",
-        "bonos": {"escudo": 100}
+        "bonos": {
+            "escudo": 100,
+            "reemplaza_etiqueta": "Terrestre",
+            "etiqueta_resultante": "Híbrido"
+        }
     },
     "Corona de dientes de tiburón": {
         "tipo": "Cabeza",

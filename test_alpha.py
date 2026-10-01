@@ -126,6 +126,40 @@ class AlphaCoreTests(unittest.TestCase):
         self.assertEqual(mecanico.aturdido_turnos, 0)
         self.assertEqual(mecanico.velocidad_actual, 3)
 
+    def test_tags_nativos_del_jugador_y_transformacion_por_barcos(self):
+        jugador = Jugador("Pescador")
+        jugador.equipo["Extra"] = None
+        jugador.actualizar_stats()
+        self.assertEqual(set(jugador.etiquetas), {"Terrestre", "Normal"})
+
+        jugador.equipo["Extra"] = generar_objeto("Barca")
+        jugador.actualizar_stats()
+        self.assertIn("Híbrido", jugador.etiquetas)
+        self.assertIn("Normal", jugador.etiquetas)
+        self.assertIn("Barca", jugador.etiquetas)
+        self.assertNotIn("Terrestre", jugador.etiquetas)
+
+        jugador.equipo["Extra"] = generar_objeto("Barco del Caleuche")
+        jugador.actualizar_stats()
+        self.assertIn("Híbrido", jugador.etiquetas)
+        self.assertNotIn("Terrestre", jugador.etiquetas)
+
+    def test_normal_gigante_y_titanico_aplican_interacciones_de_dano(self):
+        normal = Entidad("Normal", 20, 1, 0, 1)
+        gigante = Monstruo("Gigante", 20, 1, 0, 1, ["Gigante"])
+        titanico = Monstruo("Titánico", 20, 1, 0, 1, ["Titánico"])
+
+        with patch("entidades.random.random", return_value=0.99):
+            normal.atacar_especial(gigante, multiplicador=10.0)
+            vida_gigante = gigante.vida_actual
+            normal.atacar_especial(titanico, multiplicador=10.0)
+            vida_titanico_normal = titanico.vida_actual
+            gigante.atacar_especial(titanico, multiplicador=10.0)
+
+        self.assertEqual(vida_gigante, 13)
+        self.assertEqual(vida_titanico_normal, 20)
+        self.assertEqual(titanico.vida_actual, 12)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -81,11 +81,11 @@ class HabilidadesTests(unittest.TestCase):
             1,
             3,
             ["Terrestre"],
-            probabilidades_ia={nombres[0]: 20, nombres[1]: 80},
+            probabilidades_ia={nombres[0]: 0.2, nombres[1]: 0.8},
         )
 
         try:
-            with patch("habilidades.random.randint", return_value=1):
+            with patch("habilidades.random.random", return_value=0.1):
                 self.assertEqual(seleccionar_habilidad_ia(usuario), nombres[1])
         finally:
             for nombre in nombres:
@@ -104,12 +104,12 @@ class HabilidadesTests(unittest.TestCase):
             1,
             3,
             ["Terrestre"],
-            probabilidades_ia={nombres[0]: 80, nombres[1]: 20},
+            probabilidades_ia={nombres[0]: 0.8, nombres[1]: 0.2},
         )
         usuario.enfriamientos[nombres[0]] = 1
 
         try:
-            with patch("habilidades.random.randint", return_value=1):
+            with patch("habilidades.random.random", return_value=0.1):
                 self.assertEqual(seleccionar_habilidad_ia(usuario), nombres[1])
         finally:
             for nombre in nombres:
@@ -125,11 +125,32 @@ class HabilidadesTests(unittest.TestCase):
             1,
             3,
             ["Terrestre"],
-            probabilidades_ia={nombre: 40},
+            probabilidades_ia={nombre: 0.4},
         )
 
         try:
-            with patch("habilidades.random.randint", return_value=100):
+            with patch("habilidades.random.random", return_value=0.9):
+                self.assertIsNone(seleccionar_habilidad_ia(usuario))
+        finally:
+            del HABILIDADES_DB[nombre]
+
+    def test_ia_admite_probabilidad_entera_de_guardado_legacy(self):
+        nombre = "Habilidad legacy"
+        HABILIDADES_DB[nombre] = {"tipo": "ia", "efectos": []}
+        usuario = Monstruo(
+            "Guardado antiguo",
+            10,
+            2,
+            1,
+            3,
+            ["Terrestre"],
+            probabilidades_ia={nombre: 30},
+        )
+
+        try:
+            with patch("habilidades.random.random", return_value=0.29):
+                self.assertEqual(seleccionar_habilidad_ia(usuario), nombre)
+            with patch("habilidades.random.random", return_value=0.31):
                 self.assertIsNone(seleccionar_habilidad_ia(usuario))
         finally:
             del HABILIDADES_DB[nombre]
@@ -238,7 +259,7 @@ class HabilidadesTests(unittest.TestCase):
             )
         self.assertEqual(objetivo.aturdido_turnos, 1)
 
-    def test_chorro_de_agua_purifica_al_usuario(self):
+    def test_chorro_de_agua_trigger_purifica_a_un_aliado_quemado(self):
         usuario = Monstruo(
             "Monstruo del Lago Ness",
             12,
@@ -248,12 +269,17 @@ class HabilidadesTests(unittest.TestCase):
             ["Acuático"],
             habilidades=["Chorro de agua"],
         )
-        usuario.aplicar_quemadura(3)
+        aliado = Monstruo("Aliado", 10, 1, 1, 1, ["Terrestre"])
+        enemigo = Monstruo("Enemigo", 10, 1, 1, 1, ["Terrestre"])
+        aliado.aplicar_quemadura(3)
 
-        with patch("habilidades.time.sleep"):
-            self.assertTrue(ejecutar_habilidad_activa("Chorro de agua", usuario, None, {}))
+        usuario.decidir_accion_ia(
+            aliados=[usuario, aliado],
+            enemigos=[enemigo],
+            estado_combate={},
+        )
 
-        self.assertEqual(usuario.quemadura_cargas, 0)
+        self.assertEqual(aliado.quemadura_cargas, 0)
 
     def test_inalcanzable_excluye_al_objetivo_y_expira(self):
         usuario = Monstruo("Usuario", 20, 1, 1, 1, ["Terrestre"])
@@ -356,6 +382,27 @@ class HabilidadesTests(unittest.TestCase):
 
         jugador.recibir_dano(11, atacante)
         self.assertEqual(jugador.vida_actual, 0)
+
+    def test_mejor_amigo_expulsa_al_jugador_en_el_tercer_golpe_letal(self):
+        jugador = Jugador("Pescador")
+        troll = Monstruo(
+            "Troll",
+            40,
+            3,
+            1,
+            2,
+            ["Terrestre"],
+            habilidades=["Mejor amigo"],
+        )
+        atacante = Monstruo("Atacante", 10, 1, 1, 1, ["Terrestre"])
+        jugador.guardianes = [troll]
+
+        jugador.recibir_dano(11, atacante)
+        jugador.recibir_dano(11, atacante)
+        jugador.recibir_dano(11, atacante)
+
+        self.assertEqual(jugador.vida_actual, 10)
+        self.assertEqual(jugador.inalcanzable_turnos, 2)
 
     def test_comida_reemplaza_el_golpe_y_cura_el_dano_real(self):
         atacante = Monstruo(

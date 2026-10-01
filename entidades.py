@@ -6,6 +6,7 @@ from habilidades import (
     ejecutar_habilidad_activa,
     seleccionar_habilidad_ia,
     ataque_permitido,
+    aplicar_efectos,
 )
 from objetos import generar_objeto
 
@@ -28,7 +29,7 @@ class Entidad:
         self.prob_crit = 0.0
         self.ataque_crit = 0
         
-        self.etiquetas = []
+        self.etiquetas = ["Normal"]
         self.habilidades = [] 
         
         self.aturdido_turnos = 0
@@ -104,7 +105,13 @@ class Entidad:
         if self.vida_actual - dano_final <= 0:
             for guardian in self.guardianes:
                 usos = guardian.habilidades_usadas.get("Mejor amigo", 0)
-                if "Mejor amigo" in guardian.habilidades and guardian.vida_actual > 0 and usos < 2:
+                if "Mejor amigo" not in guardian.habilidades or guardian.vida_actual <= 0:
+                    continue
+                if usos >= 2:
+                    self.inalcanzable_turnos = 2
+                    print(f"¡{guardian.nombre} saca a {self.nombre} del combate durante 2 turnos!")
+                    return
+                if usos < 2:
                     guardian.habilidades_usadas["Mejor amigo"] = usos + 1
                     print(f"¡{guardian.nombre} recibe el daño mortal destinado a {self.nombre}!")
                     guardian.recibir_dano(dano_final, atacante, estado_combate)
@@ -177,10 +184,10 @@ class Entidad:
         if "Volador" in objetivo.etiquetas and "Volador" not in self.etiquetas and "Ataque a distancia" not in self.etiquetas:
             anular = True
         elif not anular and "Titánico" in objetivo.etiquetas:
-            if "Gigante" not in self.etiquetas and "Titánico" not in self.etiquetas: anular = True
+            if "Normal" in self.etiquetas: anular = True
             elif "Gigante" in self.etiquetas: multiplicador -= 0.25
-        elif not anular and "Gigante" in objetivo.etiquetas:
-            if "Gigante" not in self.etiquetas and "Titánico" not in self.etiquetas: multiplicador -= 0.30
+        elif not anular and "Gigante" in objetivo.etiquetas and "Normal" in self.etiquetas:
+            multiplicador -= 0.30
 
         if anular:
             print(f"¡El ataque de {self.nombre} no tuvo efecto por restricción de clases!")
@@ -222,10 +229,12 @@ class Entidad:
             return
 
         dano = round(self.ataque_base * multiplicador)
-        if "Titánico" in objetivo.etiquetas and "Gigante" not in self.etiquetas and "Titánico" not in self.etiquetas:
+        if "Titánico" in objetivo.etiquetas and "Normal" in self.etiquetas:
             print(f"¡El ataque de {self.nombre} no tuvo efecto por restricción de clases!")
             return
-        if "Gigante" in objetivo.etiquetas and not ignora_penalizacion_gigante and "Gigante" not in self.etiquetas and "Titánico" not in self.etiquetas:
+        if "Titánico" in objetivo.etiquetas and "Gigante" in self.etiquetas:
+            dano = round(dano * 0.75)
+        if "Gigante" in objetivo.etiquetas and not ignora_penalizacion_gigante and "Normal" in self.etiquetas:
             dano = round(dano * 0.70)
 
         objetivo.recibir_dano(dano, self, estado_combate)
@@ -236,6 +245,8 @@ class Entidad:
 class Jugador(Entidad):
     def __init__(self, nombre):
         super().__init__(nombre, vida=10, ataque_base=1, reflejos=2, velocidad=3)
+        self.etiquetas_nativas = ["Terrestre", "Normal"]
+        self.etiquetas = self.etiquetas_nativas.copy()
         self.inventario = [] 
         self.equipo_aliado = [] 
         self.aliados_obtenidos = [] 
@@ -269,7 +280,7 @@ class Jugador(Entidad):
         velocidad_extra = 0
         reflejos_extra = 0
         
-        if "Barca" in self.etiquetas: self.etiquetas.remove("Barca")
+        self.etiquetas = self.etiquetas_nativas.copy()
         self.habilidades = [] # Reiniciamos habilidades en cada recálculo
         
         for slot, item in self.equipo.items():
@@ -281,8 +292,16 @@ class Jugador(Entidad):
                 velocidad_extra += item.bonos_stats.get("velocidad", 0)
                 reflejos_extra += item.bonos_stats.get("reflejos", 0)
                 
-                if item.bonos_stats.get("etiqueta") == "Barca" and "Barca" not in self.etiquetas:
-                    self.etiquetas.append("Barca")
+                etiqueta_a_reemplazar = item.bonos_stats.get("reemplaza_etiqueta")
+                etiqueta_resultante = item.bonos_stats.get("etiqueta_resultante")
+                if etiqueta_a_reemplazar in self.etiquetas and etiqueta_resultante:
+                    self.etiquetas.remove(etiqueta_a_reemplazar)
+                    if etiqueta_resultante not in self.etiquetas:
+                        self.etiquetas.append(etiqueta_resultante)
+
+                etiqueta = item.bonos_stats.get("etiqueta")
+                if etiqueta and etiqueta not in self.etiquetas:
+                    self.etiquetas.append(etiqueta)
                 
                 # Heredar habilidades del objeto
                 if "habilidades" in item.bonos_stats:
@@ -324,6 +343,10 @@ class Monstruo(Entidad):
         super().__init__(nombre, vida, ataque_base, reflejos, velocidad,
                          armadura=armadura, peligrosidad=peligrosidad)
         self.etiquetas = etiquetas
+        if "Gigante" in self.etiquetas or "Titánico" in self.etiquetas:
+            self.etiquetas = [etiqueta for etiqueta in self.etiquetas if etiqueta != "Normal"]
+        elif "Normal" not in self.etiquetas:
+            self.etiquetas.append("Normal")
         self.habilidades = habilidades if habilidades else []
         self.probabilidades_ia = probabilidades_ia if probabilidades_ia else {}
         self.datos_fase = datos_fase if datos_fase else {}
@@ -405,6 +428,24 @@ class Monstruo(Entidad):
 
     def decidir_accion_ia(self, aliados, enemigos, estado_combate):
         """Lógica autónoma: Tira dados para habilidades de IA, si falla, ataca normal"""
+        if "Chorro de agua" in self.habilidades:
+            aliados_heridos = [
+                aliado for aliado in aliados
+                if aliado.vida_actual > 0 and aliado.quemadura_cargas > 0
+            ]
+            if self.quemadura_cargas > 0 and self not in aliados_heridos:
+                aliados_heridos.append(self)
+            if aliados_heridos:
+                objetivo_purificado = random.choice(aliados_heridos)
+                print(f"\n[!] {self.nombre} activa Chorro de agua.")
+                aplicar_efectos(
+                    HABILIDADES_DB["Chorro de agua"]["efectos"],
+                    self,
+                    objetivo_purificado,
+                    estado_combate,
+                )
+                return
+
         vivos = [e for e in enemigos if e.puede_ser_objetivo()]
         if not vivos: return
         

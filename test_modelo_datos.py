@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from datos_monstruos import generar_monstruo
 from guardado import deserializar_monstruo, serializar_monstruo
@@ -46,6 +47,22 @@ class ModeloDatosTests(unittest.TestCase):
         self.assertIsNone(monstruo.terreno)
         self.assertEqual(monstruo.enfriamientos, {})
         self.assertEqual(monstruo.fase_actual, 1)
+
+    def test_probabilidad_ia_se_sortea_en_el_intervalo_por_instancia(self):
+        with patch("datos_monstruos.random.uniform", return_value=0.37):
+            monstruo = generar_monstruo("Megalodón")
+
+        self.assertEqual(monstruo.probabilidades_ia["Gran mordisco"], 0.37)
+        self.assertTrue(0.25 <= monstruo.probabilidades_ia["Gran mordisco"] <= 0.55)
+
+    def test_normal_se_asigna_solo_a_monstruos_no_gigantes_ni_titanicos(self):
+        pulpo = generar_monstruo("Pulpo Inteligente")
+        ciclope = generar_monstruo("Cíclope")
+        nautilus = generar_monstruo("Nautilus")
+
+        self.assertIn("Normal", pulpo.etiquetas)
+        self.assertNotIn("Normal", ciclope.etiquetas)
+        self.assertNotIn("Normal", nautilus.etiquetas)
 
 
 if __name__ == "__main__":

@@ -43,10 +43,13 @@ HABILIDADES_DB = {
         ]
     },
     "Chorro de agua": {
-        "tipo": "activa",
-        "texto": "¡{usuario} se purifica con un chorro de agua!",
+        "tipo": "trigger",
+        "trigger": "aliado_con_quemadura",
         "efectos": [
-            {"accion": "purificar_quemadura", "objetivo_efecto": "usuario"}
+            {
+                "accion": "purificar_quemadura",
+                "texto": "¡{objetivo} queda purificado por el Chorro de agua!"
+            }
         ]
     },
     "Círculo de fuego": {
@@ -57,7 +60,7 @@ HABILIDADES_DB = {
         ]
     },
     "Gran mordisco": {
-        "tipo": "activa",
+        "tipo": "ia",
         "cooldown": 5,
         "texto": "¡{usuario} ejecuta Gran mordisco!",
         "efectos": [
@@ -152,7 +155,7 @@ def ataque_permitido(atacante, objetivo, estado_combate):
 def seleccionar_habilidad_ia(usuario):
     """Selecciona una habilidad usando una ventana acumulada sobre 1d100."""
     disponibles = [
-        (nombre, probabilidad)
+        (nombre, probabilidad / 100 if isinstance(probabilidad, int) else float(probabilidad))
         for nombre, probabilidad in usuario.probabilidades_ia.items()
         if probabilidad > 0 and puede_usar_habilidad(usuario, nombre)
     ]
@@ -161,7 +164,7 @@ def seleccionar_habilidad_ia(usuario):
     if not disponibles:
         return None
 
-    tirada = random.randint(1, 100)
+    tirada = random.random()
     limite = 0
     for nombre, probabilidad in disponibles:
         limite += probabilidad
