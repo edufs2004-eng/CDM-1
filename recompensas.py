@@ -3,6 +3,7 @@ RECOMPENSAS_EVENTOS = {
     "Nautilus": ("recompensa_linterna_nautilus", "Linterna de Nautilus"),
     "Capitán del Caleuche": ("recompensa_barco_caleuche", "Barco del Caleuche"),
 }
+EVENTO_GUARDIAN_NAUTILUS = "nautilus_guardian_derrotado"
 
 
 def agregar_objeto_unico(jugador, nombre_objeto, evento):

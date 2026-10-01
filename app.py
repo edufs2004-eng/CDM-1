@@ -18,6 +18,7 @@ from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
 from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
 from recompensas import evaluar_recompensas_victoria
+from recompensas import EVENTO_GUARDIAN_NAUTILUS
 from objetos import generar_objeto, OBJETOS_DB
 
 app = Flask(__name__)
@@ -146,6 +147,13 @@ def explorar_zona(nombre_zona):
     if not jugador_actual or nombre_zona not in ZONAS:
         return redirect(url_for('mapa_mundi'))
 
+    if (
+        nombre_zona == "Mar Profundo"
+        and not tiene_objeto(jugador_actual, "Linterna de Nautilus")
+        and EVENTO_GUARDIAN_NAUTILUS not in jugador_actual.eventos_desbloqueados
+    ):
+        return preparar_combate_web("Nautilus", "Agua", capturable=False)
+
     if not zona_accesible(jugador_actual, nombre_zona):
         return redirect(url_for('mapa_mundi', error="Mar Profundo requiere la Linterna de Nautilus."))
         
@@ -162,36 +170,40 @@ estado_combate_web = {
     "captura": None
 }
 
-@app.route('/iniciar_combate/<nombre_enemigo>', methods=['POST'])
-def iniciar_combate_web(nombre_enemigo):
-    global jugador_actual, estado_combate_web
 
+def preparar_combate_web(nombre_enemigo, terreno, capturable=True):
+    global jugador_actual, estado_combate_web
     if not jugador_actual:
         return redirect(url_for('index'))
 
-    terreno = request.form.get('terreno')
     motivo = motivo_acceso_combate(jugador_actual, terreno)
     if motivo:
         return redirect(url_for('mapa_mundi', error=motivo))
-    
+
     if nombre_enemigo not in monstruos_activos:
         monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
-        
-    estado_combate_web["enemigo"] = monstruos_activos[nombre_enemigo]
-    estado_combate_web["terreno"] = terreno
-    estado_combate_web["enemigos"] = [estado_combate_web["enemigo"]]
-    estado_combate_web["equipo_enemigo"] = estado_combate_web["enemigos"]
-    estado_combate_web["nuevos_combatientes"] = []
-    combatientes_validos, aliados_inactivos = obtener_combatientes_validos(
-        jugador_actual,
-        estado_combate_web["terreno"],
-    )
-    estado_combate_web["combatientes_jugador"] = combatientes_validos
-    estado_combate_web["equipo_jugador"] = combatientes_validos
-    estado_combate_web["aliados_inactivos"] = aliados_inactivos
 
+    enemigo = monstruos_activos[nombre_enemigo]
+    combatientes_validos, aliados_inactivos = obtener_combatientes_validos(jugador_actual, terreno)
     if not combatientes_validos:
         return redirect(url_for('mapa_mundi', error="No tienes combatientes válidos para este terreno."))
+
+    estado_combate_web.update({
+        "enemigo": enemigo,
+        "terreno": terreno,
+        "enemigos": [enemigo],
+        "equipo_enemigo": [enemigo],
+        "nuevos_combatientes": [],
+        "combatientes_jugador": combatientes_validos,
+        "equipo_jugador": combatientes_validos,
+        "aliados_inactivos": aliados_inactivos,
+        "historial_logs": [],
+        "nuevos_logs": [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"],
+        "terminado": False,
+        "captura": None,
+        "habilidades_usadas": [],
+        "enemigo_capturable": capturable,
+    })
 
     def actualizar_combatientes_web():
         if jugador_actual not in estado_combate_web["combatientes_jugador"]:
@@ -210,15 +222,13 @@ def iniciar_combate_web(nombre_enemigo):
         estado_combate_web["equipo_jugador"] = estado_combate_web["combatientes_jugador"]
 
     estado_combate_web["actualizar_combatientes"] = actualizar_combatientes_web
-    estado_combate_web["historial_logs"] = []
-    estado_combate_web["nuevos_logs"] = [f"¡Un {nombre_enemigo} salvaje apareció en la zona!"]
-    estado_combate_web["terminado"] = False
-    estado_combate_web["habilidades_usadas"] = []
-    estado_combate_web["captura"] = None
-
     jugador_actual.restaurar_estado()
-    
     return redirect(url_for('pantalla_combate'))
+
+@app.route('/iniciar_combate/<nombre_enemigo>', methods=['POST'])
+def iniciar_combate_web(nombre_enemigo):
+    terreno = request.form.get('terreno')
+    return preparar_combate_web(nombre_enemigo, terreno)
 
 @app.route('/combate')
 def pantalla_combate():
@@ -320,7 +330,15 @@ def accion_combate():
     if not any(enemigo_actual.vida_actual > 0 for enemigo_actual in estado_combate_web["enemigos"]):
         estado_combate_web["terminado"] = True
         estado_combate_web["nuevos_logs"].append("🏆 ¡VICTORIA! Has derrotado al enemigo.")
-        captura_nueva = procesar_captura(jugador_actual, enemigo)
+        capturable = estado_combate_web.get("enemigo_capturable", True)
+        if capturable:
+            captura_nueva = procesar_captura(jugador_actual, enemigo)
+        else:
+            captura_nueva = False
+            jugador_actual.eventos_desbloqueados.append(EVENTO_GUARDIAN_NAUTILUS)
+            estado_combate_web["nuevos_logs"].append(
+                "¡Nautilus fue derrotado! El Mar Profundo queda abierto y obtienes la Linterna."
+            )
         estado_combate_web["nuevos_logs"].extend(
             evaluar_recompensas_victoria(jugador_actual, enemigo)
         )

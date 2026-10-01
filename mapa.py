@@ -2,7 +2,7 @@ import time
 from datos_monstruos import generar_monstruo
 from combate import iniciar_combate
 from entidades import Jugador
-from recompensas import evaluar_recompensas_victoria
+from recompensas import EVENTO_GUARDIAN_NAUTILUS, evaluar_recompensas_victoria
 
 ZONAS_CANONICAS = {
     "Tierra Firme": {
@@ -20,8 +20,7 @@ ZONAS_CANONICAS = {
         "Kraken": "Agua"
     },
     "Mar Profundo": {
-        "Capitán del Caleuche": "Híbrido",
-        "Nautilus": "Agua profunda"
+        "Capitán del Caleuche": "Híbrido"
     },
 }
 
@@ -103,6 +102,42 @@ def procesar_captura(jugador, monstruo):
         print(f"\nYa tienes un {monstruo.nombre}. El monstruo ha sido derrotado y deja de existir.")
         return False
 
+
+def combatir_guardian_nautilus(jugador):
+    motivo = motivo_acceso_combate(jugador, "Agua")
+    if motivo:
+        print(f"\n[!] {motivo}")
+        return False
+
+    enemigo = monstruos_activos.get("Nautilus")
+    if enemigo is None:
+        enemigo = generar_monstruo("Nautilus")
+        monstruos_activos["Nautilus"] = enemigo
+
+    aliados_validos = verificar_restricciones_terreno(jugador.equipo_aliado, "Agua")
+    aliados_inactivos = [aliado for aliado in jugador.equipo_aliado if aliado not in aliados_validos]
+    victoria = iniciar_combate(
+        jugador,
+        aliados_validos,
+        [enemigo],
+        terreno="Agua",
+        aliados_reserva=aliados_inactivos,
+    )
+
+    if victoria:
+        if EVENTO_GUARDIAN_NAUTILUS not in jugador.eventos_desbloqueados:
+            jugador.eventos_desbloqueados.append(EVENTO_GUARDIAN_NAUTILUS)
+            for log in evaluar_recompensas_victoria(jugador, enemigo):
+                print(log)
+        monstruos_activos.pop("Nautilus", None)
+    else:
+        enemigo.restaurar_estado()
+
+    jugador.restaurar_estado()
+    for aliado in jugador.equipo_aliado + jugador.caja_aliados:
+        aliado.restaurar_estado()
+    return victoria
+
 def menu_exploracion(jugador):
     while True:
         print("\n" + "="*30)
@@ -128,6 +163,14 @@ def menu_exploracion(jugador):
             print("Ingresa un número.")
 
 def menu_zona(jugador, nombre_zona):
+    if (
+        nombre_zona == "Mar Profundo"
+        and not tiene_objeto(jugador, "Linterna de Nautilus")
+        and EVENTO_GUARDIAN_NAUTILUS not in jugador.eventos_desbloqueados
+    ):
+        if not combatir_guardian_nautilus(jugador):
+            return
+
     if not zona_accesible(jugador, nombre_zona):
         print("\n[!] Mar Profundo requiere la Linterna de Nautilus.")
         return

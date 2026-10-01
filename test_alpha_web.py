@@ -4,6 +4,7 @@ from unittest.mock import patch
 import app as app_module
 from entidades import Jugador, Monstruo
 from mapa import monstruos_activos
+from recompensas import EVENTO_GUARDIAN_NAUTILUS
 
 
 class AlphaWebTests(unittest.TestCase):
@@ -25,12 +26,14 @@ class AlphaWebTests(unittest.TestCase):
         self.assertIn("Mundo Marino", contenido)
         self.assertIn("Mar Profundo", contenido)
 
-    def test_mar_profundo_web_redirige_sin_linterna(self):
+    def test_mar_profundo_web_inicia_guardian_sin_linterna(self):
+        monstruos_activos.pop("Nautilus", None)
         respuesta = self.cliente.get("/zona/Mar%20Profundo")
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertIn("/mapa", respuesta.location)
-        self.assertIn("Linterna", respuesta.location)
+        self.assertIn("/combate", respuesta.location)
+        self.assertEqual(app_module.estado_combate_web["enemigo"].nombre, "Nautilus")
+        self.assertFalse(app_module.estado_combate_web["enemigo_capturable"])
 
     def test_jugador_sin_barca_bloquea_agua_antes_de_generar_enemigo(self):
         jugador = app_module.jugador_actual
@@ -51,6 +54,35 @@ class AlphaWebTests(unittest.TestCase):
         mapa = self.cliente.get(respuesta.location)
         self.assertIn("Terrestre", mapa.get_data(as_text=True))
         self.assertIn("Agua", mapa.get_data(as_text=True))
+
+    def test_nautilus_es_guardian_unico_y_no_se_captura(self):
+        jugador = app_module.jugador_actual
+        monstruos_activos.pop("Nautilus", None)
+
+        with patch.object(app_module, "generar_monstruo", wraps=app_module.generar_monstruo) as generar:
+            entrada = self.cliente.get("/zona/Mar%20Profundo")
+            self.assertEqual(entrada.status_code, 302)
+            self.assertIn("/combate", entrada.location)
+            self.assertFalse(app_module.estado_combate_web["enemigo_capturable"])
+            nautilus = app_module.estado_combate_web["enemigo"]
+
+            orden = [{"nombre": jugador.nombre, "objeto": jugador, "iniciativa": 3}]
+            with patch.object(app_module, "calcular_orden_turnos", return_value=orden), \
+                    patch.object(jugador, "atacar", side_effect=lambda objetivo, estado: setattr(objetivo, "vida_actual", 0)), \
+                    patch.object(app_module, "procesar_captura") as capturar:
+                self.cliente.post("/accion_combate", data={"accion": "atacar"})
+
+            capturar.assert_not_called()
+            self.assertIn(EVENTO_GUARDIAN_NAUTILUS, jugador.eventos_desbloqueados)
+            self.assertIn("Linterna de Nautilus", jugador.inventario)
+            self.assertNotIn(nautilus, jugador.equipo_aliado)
+            self.assertNotIn("Nautilus", monstruos_activos)
+
+            invocaciones = generar.call_count
+            siguiente_visita = self.cliente.get("/zona/Mar%20Profundo")
+
+        self.assertEqual(siguiente_visita.status_code, 200)
+        self.assertEqual(generar.call_count, invocaciones)
 
     def test_arena_web_oculta_aliado_invalido_para_agua(self):
         goblin = Monstruo("Goblin", 4, 1, 1, 2, ["Terrestre"])

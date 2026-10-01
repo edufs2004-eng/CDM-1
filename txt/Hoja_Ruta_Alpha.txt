@@ -273,7 +273,10 @@ Estado actual:
 - ZONAS_CANONICAS contiene Tierra Firme, Mundo Marino y Mar Profundo.
 - Playa y Bosque se conservan como alias internos de compatibilidad.
 - El jugador puede combatir en Tierra sin una etiqueta artificial.
-- Mar Profundo exige Linterna de Nautilus al entrar y al iniciar combate.
+- Al entrar por primera vez en Mar Profundo se inicia el combate único de
+  Nautilus; al derrotarlo entrega la Linterna y no puede capturarse ni repetirse.
+- Tras el encuentro único, Mar Profundo requiere la Linterna para volver a
+  acceder.
 - La peligrosidad no aparece en la selección previa.
 - La peligrosidad se muestra en la tarjeta de gestión de los aliados capturados;
   nunca antes del combate ni como aviso al terminarlo.
@@ -325,7 +328,7 @@ Estado actual:
 
 FASE 8 - VALIDACION ALPHA
 -------------------------
- - El descubrimiento automático de pruebas pasa 71 casos.
+- El descubrimiento automático de pruebas pasa 73 casos.
 - El inventario web permite equipar, reemplazar y desequipar objetos con
   validación de propiedad y recálculo de estadísticas.
 - El acceso al combate valida el terreno antes de generar el enemigo; si el
