@@ -390,6 +390,8 @@ ETIQUETAS (TAGS)
 
 Etiquetas canónicas:
 
+normal
+
 Terrestre
 
 Acuático
@@ -497,7 +499,7 @@ Etiquetas: lista
 
 Habilidades: lista
 
-Probabilidades IA: porcentaje de activación por habilidad
+Probabilidades IA: porcentaje de activación por habilidad [min,max]
 
 Las probabilidades de IA se asignan al nacer el monstruo. No suben por experiencia.
 
@@ -548,7 +550,7 @@ Etiquetas: [Terrestre]
 
 Habilidades:
 
-Mejor amigo: si el jugador va a recibir daño mortal, el Troll recibe ese daño en lugar del jugador. Se activa hasta 2 veces. Si el troll muere o a la tercera vez, el Troll saca al jugador del combate (Inalcanzable por 2 turnos).
+Mejor amigo: si el jugador va a recibir daño mortal, el Troll recibe ese daño en lugar del jugador. Se activa hasta 2 veces. Si el troll muere o a la tercera vez, el Troll saca al jugador del combate (Inalcanzable por 2 turnos). Trigger (jugador golpe mortal)
 
 Fase 2 (No accesible para captura):
 
@@ -578,9 +580,9 @@ Habilidades:
 
 Puños en llamas: 25% de probabilidad de causar quemadura con su ataque básico.
 
-Círculo de fuego: aísla a un enemigo en un domo 1v1 por 2 turnos. Puños en llamas aumenta a 35%. Cooldown: 8.
+Círculo de fuego (Habilidad IA [0.1,0.5]): aísla a un enemigo en un domo 1v1 por 2 turnos. Puños en llamas aumenta a 35%. Cooldown: 8.
 
-Fase 2:
+Fase 2 (no accesible al jugador):
 
 Velocidad x1.2, Vida x1.0
 
@@ -608,7 +610,7 @@ Etiquetas: [Terrestre, Gigante]
 
 Habilidades:
 
-Comida: 10% de probabilidad de reemplazar su golpe básico para morder al enemigo, haciendo daño igual a su ataque y recuperando ese daño como vida.
+Comida: 10% de probabilidad de reemplazar su golpe básico para morder al enemigo, haciendo daño igual a su ataque y recuperando ese daño como vida. (trigger: ataque normal)
 
 11.2 Mundo Marino
 Pulpo Inteligente
@@ -673,7 +675,7 @@ Etiquetas: [Acuático]
 
 Habilidades:
 
-Chorro de agua: purifica quemaduras de un aliado o de sí mismo en lugar de atacar.
+Chorro de agua: purifica quemaduras de un aliado o de sí mismo en lugar de atacar. (trigger: aliado con quemadura)
 
 Megalodón
 
@@ -695,7 +697,7 @@ Etiquetas: [Acuático]
 
 Habilidades:
 
-Gran mordisco (CD: 5): ataque x1.5 sin variación. Ignora la penalización de daño contra la etiqueta Gigante.
+Gran mordisco (CD: 5) (Habilidad IA [0.25,0.55]): ataque x1.5 sin variación. Ignora la penalización de daño contra la etiqueta Gigante.
 
 Serpiente Marina
 
@@ -743,7 +745,7 @@ Etiquetas: [Acuático, Gigante]
 
 Habilidades:
 
-Furia del mar: Al llegar a 0 HP, pasa a Fase 2. Aturde a un enemigo (3 turnos si es normal; 1 turno si es Gigante o Titánico).
+Furia del mar: Al llegar a 0 HP, pasa a Fase 2. Aturde a un enemigo (3 turnos si es normal; 1 turno si es Gigante o Titánico). (trigger: al_morir)
 
 Regla como aliado: Kraken capturado comienza y permanece en Fase 1. Furia del
 mar es la habilidad explícita que le permite acceder a su Fase 2 como aliado;
@@ -774,7 +776,7 @@ Etiquetas: [Terrestre]
 
 Habilidades:
 
-Tripulación fantasma: convierte aliados muertos en fantasmas (Vida 10, Ataque 5, Reflejos 3, Velocidad 3).
+Tripulación fantasma (habilidad activa): convierte aliados muertos en fantasmas (Vida 10, Ataque 5, Reflejos 3, Velocidad 3).
 
 Regla de uso: debe revisar los aliados muertos y convertir únicamente esos
 aliados en tropas fantasma menores. No revive ni restaura al aliado original.
@@ -782,7 +784,7 @@ La conversión cuenta como revivir para el hito de la Espada del capitán.
 Esta interacción queda marcada como WIP hasta implementar por completo el
 registro del hito y la invocación de tropas menores.
 
-No muerto: 30% de probabilidad de revivir al recibir daño mortal. Revive con la vida exacta que tenía al inicio del turno anterior. (Directiva Técnica: Entidad debe incluir self.vida_turno_anterior actualizada cada ronda global).
+No muerto: 30% de probabilidad de revivir al recibir daño mortal. Revive con la vida exacta que tenía al inicio del turno anterior. (Directiva Técnica: Entidad debe incluir self.vida_turno_anterior actualizada cada ronda global). (trigger: al_morir)
 
 Nautilus
 
@@ -807,6 +809,8 @@ Habilidades: 3 fases continuas.
 Fase 2: Vida [100, 100], Ataque [10, 10], Velocidad [8, 8], Armadura [6, 6]
 
 Fase 3: Vida [70, 70], Ataque [15, 15], Velocidad [5, 5], Armadura [1, 1]
+
+Monstruo no capturable ni con batalla repétible al apretar la zona mar profundo en vez de dejarte entrar activa instantneamente el combate contra nautilus una vez derrotado entrega la lampara y no se repite su batalla
 
 Leviatán (en fase de diseño)
 

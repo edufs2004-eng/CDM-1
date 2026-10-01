@@ -323,7 +323,7 @@ FASE 8 - VALIDACION ALPHA
 - test_alpha_web.py cubre el mapa web y el bloqueo de Mar Profundo.
 - test_motor.py, test_modelo_datos.py, test_habilidades.py, test_bestiario.py
   y test_mapa.py cubren los contratos específicos de cada fase.
-- El descubrimiento automático de pruebas pasa 55 casos.
+- El descubrimiento automático de pruebas pasa 57 casos.
 - La compilación completa de los módulos de producción pasa.
 - El diagnóstico pendiente de Flask corresponde al intérprete del editor, no a
   un error de sintaxis ni de ejecución del módulo.
@@ -331,6 +331,8 @@ FASE 8 - VALIDACION ALPHA
   interacción WIP de Tripulación fantasma con el hito de revivir.
 - Mecánico mitiga 10% del daño y es inmune a aturdimiento y reducción de
   velocidad; estas reglas tienen cobertura Alpha.
+- El inventario web permite equipar, reemplazar y desequipar objetos con
+  validación de propiedad y recálculo de estadísticas.
 - Círculo de Fuego, Inalcanzable, varias fases y mecánicas de jefes siguen
   pendientes y no se consideran certificadas por esta suite.
 - Daño y Armadura.

@@ -1,57 +1,301 @@
 {
     "jugador": {
-        "nombre": "Pescador Joven",
+        "nombre": "Ciel",
         "aliados_obtenidos": [
+            "Goblin",
             "Pulpo Inteligente",
             "Tiburón",
-            "Serpiente Marina"
+            "Monstruo del Lago Ness",
+            "Megalodón",
+            "Serpiente Marina",
+            "Troll",
+            "Ogro de Fuego",
+            "Cíclope",
+            "Kraken"
         ],
         "equipo_aliado": [
             {
-                "nombre": "Pulpo Inteligente",
-                "vida_max": 11,
-                "vida_actual": 11,
-                "ataque_base": 2,
+                "nombre": "Cíclope",
+                "vida_max": 45,
+                "vida_actual": 45,
+                "ataque_base": 5,
                 "reflejos": 1,
                 "velocidad_base": 2,
+                "armadura": 2,
+                "peligrosidad": 4.0,
+                "terreno": "Tierra",
+                "etiquetas": [
+                    "Terrestre",
+                    "Gigante"
+                ],
+                "habilidades": [
+                    "Comida"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Ogro de Fuego",
+                "vida_max": 21,
+                "vida_actual": 21,
+                "ataque_base": 6,
+                "reflejos": 3,
+                "velocidad_base": 5,
+                "armadura": 0,
+                "peligrosidad": 3.8,
+                "terreno": "Tierra",
+                "etiquetas": [
+                    "Terrestre"
+                ],
+                "habilidades": [
+                    "Puños en llamas",
+                    "Círculo de fuego"
+                ],
+                "probabilidades_ia": {
+                    "Círculo de fuego": 0
+                },
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {
+                    "2": {
+                        "trigger": "al_llegar_a_cero",
+                        "vida_multiplicador": 1.0,
+                        "velocidad_multiplicador": 1.2,
+                        "capturable": false
+                    }
+                }
+            },
+            {
+                "nombre": "Kraken",
+                "vida_max": 25,
+                "vida_actual": 25,
+                "ataque_base": 9,
+                "reflejos": 2,
+                "velocidad_base": 2,
+                "armadura": 0,
+                "peligrosidad": 2.9,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático",
+                    "Gigante"
+                ],
+                "habilidades": [
+                    "Furia del mar"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {
+                    "2": {
+                        "trigger": "al_llegar_a_cero",
+                        "vida_multiplicador": 0.8,
+                        "ataque_multiplicador": 1.4,
+                        "aturdir_atacante": 3,
+                        "aturdir_atacante_escala": 1,
+                        "capturable": false
+                    }
+                }
+            },
+            {
+                "nombre": "Serpiente Marina",
+                "vida_max": 18,
+                "vida_actual": 18,
+                "ataque_base": 7,
+                "reflejos": 4,
+                "velocidad_base": 8,
+                "armadura": 0,
+                "peligrosidad": 2.9,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático",
+                    "Gigante"
+                ],
+                "habilidades": [
+                    "Tsunami"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {
+                    "2": {
+                        "trigger": "al_llegar_a_cero",
+                        "vida_multiplicador": 1.1,
+                        "velocidad_multiplicador": 1.1,
+                        "ataque_multiplicador": 1.2,
+                        "reflejos_multiplicador": 1.1,
+                        "capturable": false
+                    }
+                }
+            }
+        ],
+        "caja_aliados": [
+            {
+                "nombre": "Goblin",
+                "vida_max": 3,
+                "vida_actual": 3,
+                "ataque_base": 2,
+                "reflejos": 1,
+                "velocidad_base": 1,
+                "armadura": 0,
+                "peligrosidad": 0.3,
+                "terreno": "Tierra",
+                "etiquetas": [
+                    "Terrestre"
+                ],
+                "habilidades": [
+                    "Risa provocadora"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Pulpo Inteligente",
+                "vida_max": 8,
+                "vida_actual": 8,
+                "ataque_base": 2,
+                "reflejos": 1,
+                "velocidad_base": 3,
+                "armadura": 0,
+                "peligrosidad": 0.9,
+                "terreno": "Híbrido",
                 "etiquetas": [
                     "Híbrido"
                 ],
                 "habilidades": [
                     "Tácticas de escape",
                     "Cachetada"
-                ]
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
             },
             {
                 "nombre": "Tiburón",
-                "vida_max": 10,
-                "vida_actual": 10,
-                "ataque_base": 5,
-                "reflejos": 2,
+                "vida_max": 9,
+                "vida_actual": 9,
+                "ataque_base": 2,
+                "reflejos": 3,
                 "velocidad_base": 5,
+                "armadura": 0,
+                "peligrosidad": 1.0,
+                "terreno": "Agua",
                 "etiquetas": [
                     "Acuático"
                 ],
-                "habilidades": []
+                "habilidades": [],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
             },
             {
-                "nombre": "Serpiente Marina",
-                "vida_max": 11,
-                "vida_actual": 11,
+                "nombre": "Monstruo del Lago Ness",
+                "vida_max": 13,
+                "vida_actual": 13,
                 "ataque_base": 4,
-                "reflejos": 2,
-                "velocidad_base": 3,
+                "reflejos": 4,
+                "velocidad_base": 6,
+                "armadura": 0,
+                "peligrosidad": 2.1,
+                "terreno": "Agua",
                 "etiquetas": [
                     "Acuático"
                 ],
                 "habilidades": [
-                    "Tsunami"
-                ]
+                    "Chorro de agua"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Megalodón",
+                "vida_max": 22,
+                "vida_actual": 22,
+                "ataque_base": 5,
+                "reflejos": 1,
+                "velocidad_base": 5,
+                "armadura": 0,
+                "peligrosidad": 2.3,
+                "terreno": "Agua",
+                "etiquetas": [
+                    "Acuático"
+                ],
+                "habilidades": [
+                    "Gran mordisco"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {}
+            },
+            {
+                "nombre": "Troll",
+                "vida_max": 20,
+                "vida_actual": 20,
+                "ataque_base": 4,
+                "reflejos": 1,
+                "velocidad_base": 2,
+                "armadura": 4,
+                "peligrosidad": 2.6,
+                "terreno": "Tierra",
+                "etiquetas": [
+                    "Terrestre"
+                ],
+                "habilidades": [
+                    "Mejor amigo"
+                ],
+                "probabilidades_ia": {},
+                "enfriamientos": {},
+                "fase_actual": 1,
+                "fase_en_encuentro": false,
+                "datos_fase": {
+                    "2": {
+                        "trigger": "al_llegar_a_cero",
+                        "vida_multiplicador": 1.3,
+                        "ataque_multiplicador": 1.2,
+                        "capturable": false
+                    }
+                }
             }
         ],
-        "caja_aliados": [],
-        "inventario": [],
-        "eventos_desbloqueados": [],
+        "inventario": [
+            "Palo de madera con hojita",
+            "Caña de pescar de experto",
+            "Hacha de fuego"
+        ],
+        "eventos_desbloqueados": [
+            "recompensa_palo_pulpo",
+            "recompensa_equipo_acuatico",
+            "recompensa_hacha_ogro"
+        ],
+        "contadores_eventos": {
+            "Goblin": 4,
+            "Pulpo Inteligente": 1,
+            "Tiburón": 1,
+            "Monstruo del Lago Ness": 1,
+            "Megalodón": 1,
+            "Serpiente Marina": 1,
+            "Troll": 1,
+            "Ogro de Fuego": 1,
+            "Cíclope": 1,
+            "Kraken": 1
+        },
         "equipo": {
             "Mano 1": "Caña de pescar",
             "Mano 2": null,

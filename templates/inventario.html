@@ -8,6 +8,13 @@
 <body>
     <div class="contenedor-menu menu-ampliado">
         <h1>EQUIPO E INVENTARIO</h1>
+
+        {% if mensaje %}
+            <p class="mensaje">{{ mensaje }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
         
         <div class="stats-rapidas" style="display: flex; justify-content: space-between; text-align: left;">
             <div>
@@ -16,7 +23,16 @@
                     {% for slot, item in jugador.equipo.items() %}
                         <li style="margin-bottom: 8px;">
                             <strong style="color: #2196F3;">{{ slot }}:</strong> 
-                            {{ item.nombre if item else "Vacío" }}
+                            {% if item %}
+                                {{ item.nombre }}
+                                <form action="/gestionar_equipo" method="POST" style="display: inline;">
+                                    <input type="hidden" name="accion" value="desequipar">
+                                    <input type="hidden" name="slot" value="{{ slot }}">
+                                    <button type="submit" class="btn btn-rojo btn-compacto" aria-label="Desequipar {{ item.nombre }}">Desequipar</button>
+                                </form>
+                            {% else %}
+                                Vacío
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -27,7 +43,14 @@
                 <ul style="list-style: none; padding: 0;">
                     {% if jugador.inventario %}
                         {% for obj in jugador.inventario %}
-                            <li>- {{ obj }}</li>
+                            <li style="margin-bottom: 8px;">
+                                {{ obj }}
+                                <form action="/gestionar_equipo" method="POST" style="display: inline;">
+                                    <input type="hidden" name="accion" value="equipar">
+                                    <input type="hidden" name="objeto" value="{{ obj }}">
+                                    <button type="submit" class="btn btn-compacto">Equipar</button>
+                                </form>
+                            </li>
                         {% endfor %}
                     {% else %}
                         <li style="color: #888;">(Mochila vacía)</li>
@@ -35,10 +58,6 @@
                 </ul>
             </div>
         </div>
-
-        <p style="color: #aaa; font-size: 0.9em; margin-bottom: 20px;">
-            (El sistema para equipar/desequipar con un clic se implementará pronto. Por ahora es de solo lectura).
-        </p>
 
         <a href="/menu_juego" class="btn btn-bloque btn-secundario">Volver al Menú</a>
     </div>

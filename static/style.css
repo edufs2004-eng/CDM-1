@@ -80,6 +80,8 @@ input[type="text"] {
 .btn-rojo { background-color: #e53935; color: white; margin-top: 10px;}
 .btn-rojo:hover { background-color: #d32f2f; }
 .btn:disabled { background-color: #555; color: #888; cursor: not-allowed; }
+.btn-compacto { padding: 6px 9px; font-size: 0.8em; margin-left: 6px; }
+.mensaje { color: #4caf50; margin: 12px 0; font-weight: bold; }
 
 .error { color: #e53935; margin-top: 15px; font-weight: bold; }
 

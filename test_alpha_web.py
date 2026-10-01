@@ -47,6 +47,44 @@ class AlphaWebTests(unittest.TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertNotIn("Goblin", contenido)
 
+    def test_inventario_web_equipa_cambia_y_desequipa_objetos(self):
+        jugador = app_module.jugador_actual
+        jugador.inventario.append("Hacha de fuego")
+
+        respuesta = self.cliente.post(
+            "/gestionar_equipo",
+            data={"accion": "equipar", "objeto": "Hacha de fuego"},
+        )
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(jugador.equipo["Mano 1"].nombre, "Hacha de fuego")
+        self.assertIn("Caña de pescar", jugador.inventario)
+        self.assertNotIn("Hacha de fuego", jugador.inventario)
+        self.assertEqual(jugador.ataque_base, 5)
+        self.assertEqual(jugador.varianza_ataque, 2)
+
+        respuesta = self.cliente.post(
+            "/gestionar_equipo",
+            data={"accion": "desequipar", "slot": "Mano 1"},
+        )
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIsNone(jugador.equipo["Mano 1"])
+        self.assertIn("Hacha de fuego", jugador.inventario)
+        self.assertEqual(jugador.ataque_base, 1)
+
+    def test_no_equipa_un_objeto_que_no_esta_en_la_mochila(self):
+        jugador = app_module.jugador_actual
+        mano_inicial = jugador.equipo["Mano 1"]
+
+        respuesta = self.cliente.post(
+            "/gestionar_equipo",
+            data={"accion": "equipar", "objeto": "Hacha de fuego"},
+        )
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIs(jugador.equipo["Mano 1"], mano_inicial)
+
 
 if __name__ == "__main__":
     unittest.main()

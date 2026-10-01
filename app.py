@@ -17,6 +17,7 @@ from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
 from habilidades import HABILIDADES_DB, ejecutar_habilidad_activa
 from recompensas import evaluar_recompensas_victoria
+from objetos import generar_objeto, OBJETOS_DB
 
 app = Flask(__name__)
 
@@ -75,7 +76,54 @@ def inventario():
     global jugador_actual
     if not jugador_actual:
         return redirect(url_for('index'))
-    return render_template('inventario.html', jugador=jugador_actual)
+    return render_template(
+        'inventario.html',
+        jugador=jugador_actual,
+        mensaje=request.args.get('mensaje'),
+        error=request.args.get('error'),
+    )
+
+
+@app.route('/gestionar_equipo', methods=['POST'])
+def gestionar_objeto_web():
+    global jugador_actual
+    if not jugador_actual:
+        return redirect(url_for('index'))
+
+    accion = request.form.get('accion')
+    if accion == 'equipar':
+        nombre_objeto = request.form.get('objeto')
+        if nombre_objeto not in jugador_actual.inventario or nombre_objeto not in OBJETOS_DB:
+            return redirect(url_for('inventario', error="Ese objeto no está disponible en tu mochila."))
+
+        objeto = generar_objeto(nombre_objeto)
+        slot = objeto.tipo_slot
+        if slot not in jugador_actual.equipo:
+            return redirect(url_for('inventario', error="El objeto tiene un slot no válido."))
+
+        jugador_actual.inventario.remove(nombre_objeto)
+        objeto_anterior = jugador_actual.equipo[slot]
+        if objeto_anterior:
+            jugador_actual.inventario.append(objeto_anterior.nombre)
+        jugador_actual.equipo[slot] = objeto
+        jugador_actual.actualizar_stats()
+        return redirect(url_for('inventario', mensaje=f"{nombre_objeto} equipado en {slot}."))
+
+    if accion == 'desequipar':
+        slot = request.form.get('slot')
+        if slot not in jugador_actual.equipo:
+            return redirect(url_for('inventario', error="Slot no válido."))
+
+        objeto = jugador_actual.equipo[slot]
+        if not objeto:
+            return redirect(url_for('inventario', error=f"{slot} ya está vacío."))
+
+        jugador_actual.inventario.append(objeto.nombre)
+        jugador_actual.equipo[slot] = None
+        jugador_actual.actualizar_stats()
+        return redirect(url_for('inventario', mensaje=f"{objeto.nombre} enviado a la mochila."))
+
+    return redirect(url_for('inventario', error="Acción de equipo no reconocida."))
 
 @app.route('/mapa')
 def mapa_mundi():
