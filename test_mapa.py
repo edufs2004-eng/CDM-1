@@ -8,6 +8,7 @@ from mapa import (
     obtener_combatientes_validos,
     verificar_restricciones_terreno,
     zona_accesible,
+    motivo_acceso_combate,
 )
 
 
@@ -35,6 +36,17 @@ class MapaTests(unittest.TestCase):
         validos = verificar_restricciones_terreno([jugador], "Tierra")
 
         self.assertEqual(validos, [jugador])
+
+    def test_jugador_sin_barca_no_accede_a_agua_y_recibe_motivo(self):
+        jugador = Jugador("Prueba")
+        jugador.equipo["Extra"] = None
+        jugador.actualizar_stats()
+
+        motivo = motivo_acceso_combate(jugador, "Agua")
+
+        self.assertIn("Terrestre", motivo)
+        self.assertIn("Agua", motivo)
+        self.assertIn("Barca", motivo)
 
     def test_captura_devuelve_si_es_nueva_y_conserva_peligrosidad(self):
         jugador = Jugador("Prueba")

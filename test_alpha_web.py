@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import app as app_module
 from entidades import Jugador, Monstruo
@@ -30,6 +31,26 @@ class AlphaWebTests(unittest.TestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.assertIn("/mapa", respuesta.location)
         self.assertIn("Linterna", respuesta.location)
+
+    def test_jugador_sin_barca_bloquea_agua_antes_de_generar_enemigo(self):
+        jugador = app_module.jugador_actual
+        jugador.equipo["Extra"] = None
+        jugador.actualizar_stats()
+        monstruos_activos.pop("Tiburón", None)
+
+        with patch.object(app_module, "generar_monstruo") as generar:
+            respuesta = self.cliente.post(
+                "/iniciar_combate/Tiburón",
+                data={"terreno": "Agua"},
+            )
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertNotIn("Tiburón", monstruos_activos)
+        generar.assert_not_called()
+
+        mapa = self.cliente.get(respuesta.location)
+        self.assertIn("Terrestre", mapa.get_data(as_text=True))
+        self.assertIn("Agua", mapa.get_data(as_text=True))
 
     def test_arena_web_oculta_aliado_invalido_para_agua(self):
         goblin = Monstruo("Goblin", 4, 1, 1, 2, ["Terrestre"])

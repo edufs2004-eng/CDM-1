@@ -61,6 +61,17 @@ def verificar_restricciones_terreno(aliados, terreno_combate):
     return aliados_validos
 
 
+def motivo_acceso_combate(jugador, terreno_combate):
+    if terreno_combate == "Agua profunda" and not tiene_objeto(jugador, "Linterna de Nautilus"):
+        return "No se pudo acceder al combate: Agua profunda requiere la Linterna de Nautilus."
+    if not verificar_restricciones_terreno([jugador], terreno_combate):
+        return (
+            f"No se pudo acceder al combate: tu etiqueta Terrestre no es compatible "
+            f"con el terreno {terreno_combate}. Equipa Barca o Barco del Caleuche."
+        )
+    return None
+
+
 def obtener_combatientes_validos(jugador, terreno_combate):
     aliados_validos = verificar_restricciones_terreno(
         jugador.equipo_aliado,
@@ -140,6 +151,11 @@ def menu_zona(jugador, nombre_zona):
             if 0 <= opcion < len(nombres_monstruos):
                 nombre_enemigo = nombres_monstruos[opcion]
                 terreno_combate = monstruos_zona[nombre_enemigo]
+
+                motivo = motivo_acceso_combate(jugador, terreno_combate)
+                if motivo:
+                    print(f"\n[!] {motivo}")
+                    continue
                 
                 if nombre_enemigo not in monstruos_activos:
                     monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
@@ -148,16 +164,7 @@ def menu_zona(jugador, nombre_zona):
                 
                 equipo_valido = verificar_restricciones_terreno(jugador.equipo_aliado, terreno_combate)
                 
-                if not verificar_restricciones_terreno([jugador], terreno_combate):
-                    print(f"\n[!] Tu personaje no tiene forma de pelear en terreno {terreno_combate}.")
-                    if not equipo_valido:
-                        print("¡No tienes equipo válido para este combate! Vuelve cuando estés preparado.")
-                        continue
-                    else:
-                        print("Solo tus aliados combatirán.")
-                        jugador_combatira = None
-                else:
-                    jugador_combatira = jugador
+                jugador_combatira = jugador
                 
                 enemigos = [enemigo]
                 aliados_reserva = [

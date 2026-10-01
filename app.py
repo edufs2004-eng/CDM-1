@@ -12,6 +12,7 @@ from mapa import (
     tiene_objeto,
     verificar_restricciones_terreno,
     obtener_combatientes_validos,
+    motivo_acceso_combate,
 )
 from datos_monstruos import generar_monstruo
 from motor import calcular_orden_turnos
@@ -164,12 +165,20 @@ estado_combate_web = {
 @app.route('/iniciar_combate/<nombre_enemigo>', methods=['POST'])
 def iniciar_combate_web(nombre_enemigo):
     global jugador_actual, estado_combate_web
+
+    if not jugador_actual:
+        return redirect(url_for('index'))
+
+    terreno = request.form.get('terreno')
+    motivo = motivo_acceso_combate(jugador_actual, terreno)
+    if motivo:
+        return redirect(url_for('mapa_mundi', error=motivo))
     
     if nombre_enemigo not in monstruos_activos:
         monstruos_activos[nombre_enemigo] = generar_monstruo(nombre_enemigo)
         
     estado_combate_web["enemigo"] = monstruos_activos[nombre_enemigo]
-    estado_combate_web["terreno"] = request.form.get('terreno')
+    estado_combate_web["terreno"] = terreno
     estado_combate_web["enemigos"] = [estado_combate_web["enemigo"]]
     estado_combate_web["equipo_enemigo"] = estado_combate_web["enemigos"]
     estado_combate_web["nuevos_combatientes"] = []
@@ -205,9 +214,6 @@ def iniciar_combate_web(nombre_enemigo):
     estado_combate_web["habilidades_usadas"] = []
     estado_combate_web["captura"] = None
 
-    if estado_combate_web["terreno"] == "Agua profunda" and not tiene_objeto(jugador_actual, "Linterna de Nautilus"):
-        return redirect(url_for('mapa_mundi', error="Mar Profundo requiere la Linterna de Nautilus."))
-    
     jugador_actual.restaurar_estado()
     
     return redirect(url_for('pantalla_combate'))
