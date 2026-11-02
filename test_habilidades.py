@@ -517,33 +517,13 @@ class HabilidadesTests(unittest.TestCase):
         self.assertEqual(objetivo.vida_actual, 21)
         self.assertEqual(atacante.enfriamientos["Gran mordisco"], 5)
 
-    def test_tripulacion_fantasma_crea_aliados_muertos(self):
-        capitan = Monstruo(
-            "Capitán del Caleuche",
-            40,
-            10,
-            5,
-            3,
-            ["Terrestre"],
-            habilidades=["Tripulación fantasma"],
-        )
-        aliado_muerto = Monstruo("Aliado muerto", 8, 3, 2, 4, ["Terrestre"])
-        aliado_muerto.vida_actual = 0
-        estado = {
-            "equipo_enemigo": [capitan, aliado_muerto],
-            "nuevos_combatientes": [],
-        }
+    def test_tripulacion_fantasma_queda_fuera_del_contenido_alpha(self):
+        from datos_monstruos import generar_monstruo
 
-        with patch("habilidades.time.sleep"):
-            self.assertTrue(ejecutar_habilidad_activa("Tripulación fantasma", capitan, capitan, estado))
+        capitan = generar_monstruo("Capitán del Caleuche")
 
-        fantasmas = estado["nuevos_combatientes"]
-        self.assertEqual(len(fantasmas), 1)
-        self.assertEqual(fantasmas[0].vida_max, 10)
-        self.assertEqual(fantasmas[0].ataque_base, 5)
-        self.assertEqual(fantasmas[0].reflejos, 3)
-        self.assertEqual(fantasmas[0].velocidad_base, 3)
-        self.assertFalse(puede_usar_habilidad(capitan, "Tripulación fantasma"))
+        self.assertNotIn("Tripulación fantasma", capitan.habilidades)
+        self.assertNotIn("Tripulación fantasma", HABILIDADES_DB)
 
 
 if __name__ == "__main__":

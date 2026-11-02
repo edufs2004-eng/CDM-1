@@ -177,7 +177,7 @@
         "peligrosidad": 4.9,
         "terreno": "Híbrido",
         "etiquetas": ["Terrestre", "Normal"],
-        "habilidades": ["Tripulación fantasma", "No muerto"],
+        "habilidades": ["No muerto"],
         "probabilidades_ia": {}
     },
     "Nautilus": {

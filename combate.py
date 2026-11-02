@@ -177,7 +177,11 @@ def iniciar_combate(jugador, aliados, enemigos, terreno="Tierra", aliados_reserv
             if atacante in bando_jugador:
                 turno_jugador_o_aliado(atacante, vivos_enemigos, estado_combate)
             else:
-                turno_ia(atacante, [e for e in enemigos if e.vida_actual > 0], estado_combate)
+                turno_ia(
+                    atacante,
+                    [jugador for jugador in bando_jugador if jugador.vida_actual > 0],
+                    estado_combate,
+                )
 
         enemigos.extend(estado_combate.pop("nuevos_combatientes", []))
 

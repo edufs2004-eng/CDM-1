@@ -87,6 +87,49 @@ class MapaTests(unittest.TestCase):
             menu_zona(jugador, "Mar Profundo")
         combate_repetido.assert_not_called()
 
+    def test_guardian_nautilus_completo_transiciona_tres_fases_y_no_se_repite(self):
+        import combate
+
+        jugador = Jugador("Pescador")
+        monstruos_activos.pop("Nautilus", None)
+        fases_atacadas = []
+
+        def responder(prompt):
+            if prompt.startswith("Elige una opción"):
+                return "1"
+            if prompt.startswith("Número del objetivo"):
+                return "1"
+            return "2"
+
+        def ataque_letal(objetivo, estado):
+            fases_atacadas.append(objetivo.fase_actual)
+            objetivo.recibir_dano(9999, jugador, estado)
+
+        with (
+            patch("builtins.input", side_effect=responder),
+            patch("combate.time.sleep"),
+            patch("combate.calcular_orden_turnos", side_effect=lambda combatientes, estado: [
+                {"nombre": jugador.nombre, "objeto": jugador, "iniciativa": 3}
+            ]),
+            patch.object(jugador, "atacar", side_effect=ataque_letal),
+            patch("builtins.print"),
+        ):
+            menu_zona(jugador, "Mar Profundo")
+
+        self.assertEqual(fases_atacadas, [1, 2, 3])
+        self.assertIn(EVENTO_GUARDIAN_NAUTILUS, jugador.eventos_desbloqueados)
+        self.assertIn("Linterna de Nautilus", jugador.inventario)
+        self.assertNotIn("Nautilus", jugador.aliados_obtenidos)
+        self.assertNotIn("Nautilus", monstruos_activos)
+
+        with (
+            patch("builtins.input", return_value="2"),
+            patch("mapa.iniciar_combate") as combate_repetido,
+            patch("builtins.print"),
+        ):
+            menu_zona(jugador, "Mar Profundo")
+        combate_repetido.assert_not_called()
+
     def test_consola_derrota_restaura_jugador_aliados_y_enemigo(self):
         jugador = Jugador("Pescador")
         aliado = Monstruo("Aliado", 8, 2, 1, 2, ["Terrestre", "Normal"])
@@ -114,6 +157,25 @@ class MapaTests(unittest.TestCase):
         self.assertEqual(jugador.vida_actual, jugador.vida_max)
         self.assertEqual(aliado.vida_actual, aliado.vida_max)
         self.assertEqual(enemigo.vida_actual, enemigo.vida_max)
+
+    def test_hacha_consola_usa_hp_justo_antes_de_derrotar_al_ogro(self):
+        for hp_before_kill, should_get_axe in ((6, True), (5, False), (4, False)):
+            with self.subTest(hp_before_kill=hp_before_kill):
+                jugador = Jugador("Prueba Hacha")
+                jugador.vida_actual = hp_before_kill
+                ogro = Monstruo("Ogro de Fuego", 20, 5, 2, 4, ["Terrestre", "Normal"])
+                monstruos_activos.pop("Ogro de Fuego", None)
+
+                with (
+                    patch("builtins.input", side_effect=["3", "5"]),
+                    patch("mapa.generar_monstruo", return_value=ogro),
+                    patch("mapa.iniciar_combate", return_value=True),
+                    patch("builtins.print"),
+                ):
+                    menu_zona(jugador, "Tierra Firme")
+
+                self.assertEqual(jugador.vida_actual, jugador.vida_max)
+                self.assertEqual("Hacha de fuego" in jugador.inventario, should_get_axe)
 
     def test_captura_devuelve_si_es_nueva_y_conserva_peligrosidad(self):
         jugador = Jugador("Prueba")

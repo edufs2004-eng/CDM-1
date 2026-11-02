@@ -99,13 +99,6 @@ HABILIDADES_DB = {
     "Mejor amigo": {
         "tipo": "pasiva"
     },
-    "Tripulación fantasma": {
-        "tipo": "ia",
-        "usos_maximos": 1,
-        "efectos": [
-            {"accion": "crear_fantasmas"}
-        ]
-    },
     "Furia del mar": {
         "tipo": "pasiva",
         "trigger": "al_recibir_dano_mortal",
